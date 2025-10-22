@@ -5,8 +5,14 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    public GameObject ship_coord__test;
+    public GameObject hit_point__test;
+    public bool isTest;
+
     public Vector2Int size;
     public List<Ships_Enum> target_ships_enum;
+
+    Transform playArea;
 
     List<List<Vector2Int>> target_ship;
 
@@ -22,6 +28,11 @@ public class EnemyController : MonoBehaviour
             ShipData ship_data = DataManager.instance.GetShipData(ship_enum);
             return ship_data.shape_coord;
         });
+
+        if (isTest)
+        {
+            playArea = GameObject.Find("PlayArea").transform;
+        }
 
         MapInit();
 
@@ -55,6 +66,7 @@ public class EnemyController : MonoBehaviour
                         foreach (var coord in layout)
                         {
                             available_map.Remove(pos + coord);
+                            if(isTest)DrawMap__test(pos + coord, ship_coord__test);
                         }
                         break;
                     }
@@ -77,6 +89,13 @@ public class EnemyController : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    public void DrawMap__test(Vector2Int target_coord,GameObject perfab)
+    {
+        Vector3 coord_in_map = new Vector3(target_coord.x*100 + 50, target_coord.y*100 + 50);
+        GameObject obj = Instantiate(perfab, coord_in_map, Quaternion.identity);
+        obj.transform.SetParent(playArea);
     }
 
 }

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-using UnityEditor.Overlays;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 // 敌人行为算法
@@ -11,6 +9,7 @@ public class EnemyBehavior
     Status current_status;
 
     Queue<List<Vector2Int>> hit_ship_queue;
+    List<Vector2Int> current_hit_ship;
 
     // 目标舰船布局
     List<List<Vector2Int>> target_ship;
@@ -39,7 +38,7 @@ public class EnemyBehavior
     List<List<Vector2Int>> valid_layouts_target;
 
     // 初始化
-    public void Init(Vector2Int size,List<List<Vector2Int>> target_ships)
+    public void Init(Vector2Int size, List<List<Vector2Int>> target_ships)
     {
         current_status = Status.Hunt;
         hit_map = new();
@@ -90,6 +89,26 @@ public class EnemyBehavior
         task.Wait();
     }
     
+    public Vector2Int CalculatePossibleMap()
+    {
+        // 根据当前状态选择概率密度图
+        Dictionary<Vector2Int, int> possible_map = current_status == Status.Hunt ? possible_map_hunt : possible_map_target;
+
+        Task<Vector2Int> task = Task.Run(() =>
+        {
+            // 按概率排序
+            List<KeyValuePair<Vector2Int, int>> possible_map_list = possible_map.ToList();
+            possible_map_list.OrderByDescending(kv => kv.Value);
+
+            // 随机选择一个较大概率点进行攻击
+            System.Random rand = new();
+            Vector2Int target = possible_map_list[rand.Next(possible_map_list.Count / 4)].Key;
+            return target;
+        });
+        
+        return task.Result;
+    }
+    
     public void UpdatePossibleMapAfterAction(Vector2Int target, HitResult result,List<List<Vector2Int>> hit_ship=null)
     {
         Task task = Task.Run(() =>
@@ -99,7 +118,7 @@ public class EnemyBehavior
             {
                 if (layout.Contains(target))
                 {
-                    DeletePossiblePoint(target, layout);
+                    DeletePossiblePoint(possible_map_hunt,valid_layouts_hunt,target, layout);
                 }
             }
         });
@@ -107,11 +126,33 @@ public class EnemyBehavior
         task.Wait();
 
         hit_map.Remove(target);
-        if (result == HitResult.Hit&&current_status==Status.Hunt)
+        if (result == HitResult.Hit)
         {
-            // 记录首次击中
-            hit_ship.ForEach(layout => hit_ship_queue.Enqueue(layout));
-            current_status = Status.Target;
+            if (current_status == Status.Hunt)
+            {
+                // 记录首次击中
+                hit_ship.ForEach(layout => hit_ship_queue.Enqueue(layout));
+                current_status = Status.Target;
+                current_hit_ship ??= hit_ship_queue.Dequeue();
+
+                // 初始化目标模式的概率密度图和有效布局
+                possible_map_target = new();
+                valid_layouts_target = new();
+                task = Task.Run(() =>
+                {
+                    foreach (var coord in hit_map)
+                    {
+                        if (CheckLayoutPassBy(coord, current_hit_ship, target))
+                        {
+                            AddPossiblePointOnTarget(coord, current_hit_ship);//bug
+                        }
+                    }
+                });
+
+                task.Wait();
+            }
+            
+
         }else if (result == HitResult.Destroyed)
         {
             List<Vector2Int> destroy_layout = hit_ship_queue.Dequeue();
@@ -120,6 +161,7 @@ public class EnemyBehavior
             if (hit_ship_queue.Count == 0)
             {
                 current_status = Status.Hunt;
+                current_hit_ship = null;
             }
 
             // 删除击沉舰船的所有有效布局
@@ -127,8 +169,8 @@ public class EnemyBehavior
             {
                 foreach (var v2 in hit_map)
                 {
-                    DeletePossiblePoint(v2, destroy_layout);
-                    DeletePossiblePoint(v2, destroy_layout_spin);
+                    DeletePossiblePoint(possible_map_hunt,valid_layouts_hunt,v2, destroy_layout);
+                    DeletePossiblePoint(possible_map_hunt,valid_layouts_hunt,v2, destroy_layout_spin);
                 }
             });
             
@@ -146,18 +188,45 @@ public class EnemyBehavior
         }
         return true;
     }
-    
+
+    private bool CheckLayoutPassBy(Vector2Int center, List<Vector2Int> layout,Vector2Int target)
+    {
+        foreach (var coord in layout)
+        {
+            if (coord + center == target)
+                return true;
+        }
+        return false;
+    }
+
     // 删除该点位该布局的概率
-    private void DeletePossiblePoint(Vector2Int center, List<Vector2Int> layout)
+    private void DeletePossiblePoint(Dictionary<Vector2Int, int> current_map,List<List<Vector2Int>> current_layouts,Vector2Int center, List<Vector2Int> layout)
     {
         if (!CheckLayoutValid(center, layout))
         {
             return;
         }
-        valid_layouts_hunt.Remove(layout);
+        current_layouts.Remove(layout);
         foreach (var coord in layout)
         {
-            possible_map_hunt[center + coord]--;
+            current_map[center + coord]--;
+        }
+    }
+    
+    private void AddPossiblePointOnTarget(Vector2Int center, List<Vector2Int> layout)
+    {
+        if (!CheckLayoutValid(center, layout))
+        {
+            return;
+        }
+        valid_layouts_target.Add(layout);
+        foreach (var coord in layout)
+        {
+            if (!possible_map_target.ContainsKey(center + coord))
+            {
+                possible_map_target[center + coord] = 0;
+            }
+            possible_map_target[center + coord]++;
         }
     }
 

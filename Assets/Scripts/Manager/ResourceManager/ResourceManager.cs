@@ -99,7 +99,7 @@ public class ResourceManager : MonoBehaviour
         // SceneController.instance.Init();
         DOTween.Init();
 
-        // SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
+        SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
     }
 
     // 数据包计数器
