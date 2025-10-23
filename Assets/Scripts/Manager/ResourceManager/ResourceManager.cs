@@ -96,7 +96,7 @@ public class ResourceManager : MonoBehaviour
         Debug.Log("资源加载完成");
         IsInit = true;
         EventManager.instance.Init();
-        // SceneController.instance.Init();
+        SceneController.instance.Init();
         DOTween.Init();
 
         SceneController.instance.ChangeScene(SceneRegistry.TitleScene);

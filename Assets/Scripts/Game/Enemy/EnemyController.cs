@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PimDeWitte.UnityMainThreadDispatcher;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
@@ -14,10 +15,10 @@ public class EnemyController : MonoBehaviour
 
     Transform playArea;
 
-    List<List<Vector2Int>> target_ship;
+    List<LayoutDATA> target_ship;
 
     List<Vector2Int> available_map;
-    Dictionary<List<Vector2Int>, List<Vector2Int>> in_map_layout;
+    Dictionary<Vector2Int, LayoutDATA> in_map_layout;
 
     EnemyBehavior AI;
 
@@ -26,7 +27,7 @@ public class EnemyController : MonoBehaviour
         target_ship = target_ships_enum.ConvertAll(ship_enum =>
         {
             ShipData ship_data = DataManager.instance.GetShipData(ship_enum);
-            return ship_data.shape_coord;
+            return new LayoutDATA(ship_data.shape_coord);
         });
 
         if (isTest)
@@ -44,6 +45,8 @@ public class EnemyController : MonoBehaviour
     {
         available_map = new();
         in_map_layout = new();
+
+        // 随机放置舰船
         Task task = Task.Run(() =>
         {
             for (int x = 0; x < size.x; x++)
@@ -56,21 +59,25 @@ public class EnemyController : MonoBehaviour
 
             foreach (var layout in target_ship)
             {
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 1000; i++)
                 {
                     System.Random rand = new();
+                    LayoutDATA layout_ran = rand.Next(2)==0?layout:new(layout.Current.ConvertAll(coord=>new Vector2Int(coord.y,coord.x)));
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
-                    if (CheckLayoutValid(pos, layout))
+                    if (CheckLayoutValid(pos, layout_ran))
                     {
-                        in_map_layout.Add(layout.ConvertAll(coord => pos + coord), layout);
-                        foreach (var coord in layout)
+                        in_map_layout.Add(pos, layout_ran);//?
+                        foreach (var coord in layout_ran.Current)
                         {
                             available_map.Remove(pos + coord);
-                            if(isTest)DrawMap__test(pos + coord, ship_coord__test);
+                            UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                            {
+                                if(isTest)DrawMap__test(pos + coord, ship_coord__test);
+                            });
                         }
                         break;
                     }
-                    if (i == 99)
+                    if (i == 999)
                     {
                         Debug.LogError("无法在地图中放置所有目标舰船");
                     }
@@ -81,9 +88,9 @@ public class EnemyController : MonoBehaviour
     }
 
     // 检查该点位该布局是否可行
-    private bool CheckLayoutValid(Vector2Int center, List<Vector2Int> layout)
+    private bool CheckLayoutValid(Vector2Int center, LayoutDATA layout)
     {
-        foreach (var coord in layout)
+        foreach (var coord in layout.Current)
         {
             if (!available_map.Contains(center + coord))
                 return false;
@@ -94,8 +101,9 @@ public class EnemyController : MonoBehaviour
     public void DrawMap__test(Vector2Int target_coord,GameObject perfab)
     {
         Vector3 coord_in_map = new Vector3(target_coord.x*100 + 50, target_coord.y*100 + 50);
-        GameObject obj = Instantiate(perfab, coord_in_map, Quaternion.identity);
+        GameObject obj = Instantiate(perfab);
         obj.transform.SetParent(playArea);
+        obj.transform.localPosition = coord_in_map;
     }
 
 }

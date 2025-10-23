@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
-    // LoadingScene loadingScene;
+    SceneLoader sceneLoader;
     string currentSceneName;
     string targetSceneName;
 
@@ -29,14 +29,13 @@ public class SceneController : MonoBehaviour
 
     public void Init()
     {
-        // loadingScene = UIManager.instance.GetUIView<LoadingScene>();
+        sceneLoader = UIManager.instance.GetUIView<SceneLoader>();
         currentSceneName = string.Empty;
     }
 
     public void ChangeScene(string sceneName)
     {
-        // UIManager.instance.EnableUIView<InteractionBarrier>();
-        // loadingScene.Enable();
+        sceneLoader.Enable();
         targetSceneName = sceneName;
     }
 
@@ -47,12 +46,12 @@ public class SceneController : MonoBehaviour
 
     public void OnSceneLoadAction(UnityAction action)
     {
-        // loadingScene.ActionAfterLoad = action;
+        sceneLoader.ActionAfterLoad = action;
     }
 
     public void OnSceneUnloadAction(UnityAction action)
     {
-        // loadingScene.ActionAfterUnload = action;
+        sceneLoader.ActionAfterUnload = action;
     }
 
     IEnumerator EChangeScene()
@@ -79,6 +78,6 @@ public class SceneController : MonoBehaviour
             yield return null;
         }
         currentSceneName = targetSceneName;
-        // loadingScene.Disable();
+        sceneLoader.Disable();
     }
 }
