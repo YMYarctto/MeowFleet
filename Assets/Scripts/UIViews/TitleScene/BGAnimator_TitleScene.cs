@@ -32,14 +32,19 @@ public class BGAnimator_TitleScene : UIView
         bg_3 = transform.Find("bg_3").GetComponent<RectTransform>();
         bg_4 = transform.Find("bg_4").GetComponent<RectTransform>();
 
-        ReEnable();
+        bg_1_color.a = 1f;
+        bg_1_image.color = bg_1_color;
+
+        bg_2.localPosition = new Vector3(-1868, -333, 0);
+        bg_3.localPosition = new Vector3(1324, -122, 0);
+        bg_4.localPosition = new Vector3(1077, 665, 0);
     }
 
     public override void Enable()
     {
-        DOTween.To(() => bg_1_color.a, x => bg_1_color.a=x, 0f, bg_1_duration).OnUpdate(()=>{
+        DOTween.To(() => bg_1_color.a, x => bg_1_color.a=x, 0f, bg_1_duration).SetEase(color_ease).OnUpdate(()=>{
             bg_1_image.color = bg_1_color;
-        }).SetEase(color_ease);
+        });
         Sequence loopTween_Open = DOTween.Sequence();
         loopTween_Open.Append(bg_2.DOLocalMove(new Vector3(-189, 12, 0), bg_2_duration).SetDelay(bg_2_interval).SetEase(bg_ease));
         loopTween_Open.Join(bg_3.DOLocalMove(new Vector3(650.5f, -86.4f, 0), bg_3_duration).SetDelay(bg_3_interval).SetEase(bg_ease));

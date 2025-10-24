@@ -78,6 +78,7 @@ public class SceneController : MonoBehaviour
             yield return null;
         }
         currentSceneName = targetSceneName;
+        yield return new WaitForSeconds(0.5f);
         sceneLoader.Disable();
     }
 }

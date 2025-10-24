@@ -15,20 +15,20 @@ public class ProbabilityMap
         get => _layout.Mirror();
     }
 
-    public List<LayoutDATA> valid_layouts;
+    public List<LayoutDATA> valid_layouts_inMap;
 
     public ProbabilityMap()
     {
         _layout = new();
         probability_map = new();
-        valid_layouts = new();
+        valid_layouts_inMap = new();
     }
 
     public ProbabilityMap(LayoutDATA layout)
     {
         _layout = layout;
         probability_map = new();
-        valid_layouts = new();
+        valid_layouts_inMap = new();
     }
 
     public void AddProbability(Vector2Int coord)
@@ -38,38 +38,63 @@ public class ProbabilityMap
 
     public void AddProbability(Vector2Int center, LayoutDATA layout)
     {
-        valid_layouts.Add(layout);
-        probability_map.AddProbability(layout.Current.ConvertAll(v => center + v));
+        valid_layouts_inMap.Add(new(layout.LayoutInMap(center)));
+        probability_map.AddProbability(layout.LayoutInMap(center));
     }
 
-    public void DeleteProbability(Vector2Int center, Converter<LayoutDATA, bool> CheckLayoutValid)
+    public void DeleteProbability(Vector2Int center)
     {
-        foreach (var layout in valid_layouts)
+        List<LayoutDATA> new_layouts = new(valid_layouts_inMap);
+        foreach (var layout in new_layouts)
         {
-            if (!CheckLayoutValid.Invoke(layout))
+            if (!layout.Contains(center))
             {
                 continue;
             }
-            valid_layouts.Remove(layout);
-            probability_map.DeleteProbability(layout.Current.ConvertAll(v => center + v));
+            valid_layouts_inMap.Remove(layout);
+            probability_map.DeleteProbability(layout.Current);
+        }
+    }
+
+    public void DeleteProbabilityEach(Vector2Int center, LayoutDATA layout)
+    {
+        valid_layouts_inMap.Remove(layout);
+        probability_map.DeleteProbability(layout.LayoutInMap(center));
+    }
+
+    public void DeleteProbabilityWithout(Vector2Int center)
+    {
+        List<LayoutDATA> new_layouts = new(valid_layouts_inMap);
+        foreach (var layout in new_layouts)
+        {
+            if (layout.Contains(center))
+            {
+                continue;
+            }
+            valid_layouts_inMap.Remove(layout);
+            probability_map.DeleteProbability(layout.Current);
         }
     }
     
-    public void DeleteProbabilityEach(Vector2Int center,LayoutDATA layout)
+    public void RemoveProbability(Vector2Int center)
     {
-        valid_layouts.Remove(layout);
-        probability_map.DeleteProbability(layout.Current.ConvertAll(v => center + v));
+        probability_map.RemoveProbability(center);
     }
-    
+
     public Vector2Int GetHighProbabilityCoord()
     {
         // 按概率排序
-        List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList();
-        probability_map_list.OrderByDescending(kv => kv.Value);
+        List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().OrderByDescending(kv => kv.Value).ToList();
+        List<Vector2Int> max_map = probability_map_list.Where(kv => kv.Value >= probability_map_list[0].Value).Select(kv=>kv.Key).ToList();
 
-        // 随机选择一个较大概率点进行攻击
+        // 随机选择一个最大概率点进行攻击
         System.Random rand = new();
-        Vector2Int target = probability_map_list[rand.Next(probability_map_list.Count / 4)].Key;
+        Vector2Int target = max_map[rand.Next(max_map.Count)];
         return target;
+    }
+    
+    public string GetProbabilityMap()
+    {
+        return probability_map.ToString();
     }
 }

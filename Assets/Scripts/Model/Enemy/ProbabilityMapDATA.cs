@@ -42,8 +42,24 @@ public class ProbabilityMapDATA
         }
     }
 
+    public void RemoveProbability(Vector2Int coord)
+    {
+        _map.Remove(coord);
+    }
+
     public List<KeyValuePair<Vector2Int, int>> ToList()
     {
         return new List<KeyValuePair<Vector2Int, int>>(_map);
+    }
+
+    public override string ToString()
+    {
+        string str = "ProbabilityMapDATA:[\n";
+        foreach (var kv in _map)
+        {
+            str += $"({kv.Key.x},{kv.Key.y}) : {kv.Value}\n";
+        }
+        str += "]\n";
+        return str;
     }
 }

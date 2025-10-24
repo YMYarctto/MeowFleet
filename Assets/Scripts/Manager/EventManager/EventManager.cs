@@ -29,6 +29,11 @@ public class EventManager : MonoBehaviour
         _id = 0;
     }
 
+    public static EventGroup GroupBy(string event_id)
+    {
+        return new(event_id,instance);
+    }
+
     public void AddListener(string url, UnityAction listener)
     {
         AddListener(url, listener, "");

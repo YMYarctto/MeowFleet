@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor.Overlays;
 using UnityEngine;
 
@@ -8,9 +9,6 @@ using UnityEngine;
 public class EnemyBehavior
 {
     int current_target_index = -1;
-
-    // 目标舰船布局
-    List<LayoutDATA> target_ship;
 
     // 攻击地图
     List<Vector2Int> hit_map;
@@ -28,9 +26,6 @@ public class EnemyBehavior
         map_dict[-1] = new ProbabilityMap();
         Task task = Task.Run(() =>
         {
-            // 初始化目标舰船布局
-            this.target_ship = new(target_ship);
-
             // 初始化攻击地图
             for (int x = 0; x < size.x; x++)
             {
@@ -70,32 +65,83 @@ public class EnemyBehavior
         return task.Result;
     }
 
-    public void UpdatePossibleMapAfterHit(Vector2Int target, Dictionary<int, LayoutDATA> hit_ship)
+    public void UpdatePossibleMapAfterHit(Vector2Int target, KeyValuePair<int, LayoutDATA> hit_ship)
     {
         Task task = Task.Run(() =>
         {
-            foreach (var kv in hit_ship)
+            var layout = hit_ship.Value;
+            if(hit_ship.Key>=0)
             {
-                if (map_dict.TryGetValue(kv.Key, out var map) && map != null)
-                {
-                    // 删除该点位的概率布局
-                    map.DeleteProbability(target, layout => CheckLayoutValid(target, layout));
-                }
-                else
+                current_target_index = hit_ship.Key;
+                if (map_dict.TryAdd(current_target_index, new ProbabilityMap(layout)))
                 {
                     // 新建概率布局
-                    var layout = kv.Value;
-                    if (!map_dict.TryAdd(kv.Key, new ProbabilityMap(layout)))
-                    {
-                        continue;
-                    }
-
+                    current_target_index = hit_ship.Key;
                     foreach (var coord in hit_map)
                     {
                         if (CheckLayoutPassBy(coord, layout, target) && CheckLayoutValid(coord, layout))
                         {
                             map_dict[current_target_index].AddProbability(coord, layout);
                         }
+                        if (CheckLayoutPassBy(coord, layout.Mirror(), target) && CheckLayoutValid(coord, layout.Mirror()))
+                        {
+                            map_dict[current_target_index].AddProbability(coord, layout.Mirror());
+                        }
+                    }
+                }
+            }
+            foreach (var map_kv in map_dict)
+            {
+                if (map_kv.Key != hit_ship.Key || map_kv.Key < 0)
+                {
+                    // 未击中部分
+                    // 删除该点位的概率布局
+                    map_dict[map_kv.Key].DeleteProbability(target);
+                }
+                else
+                {
+                    // 击中部分
+                    map_dict[current_target_index].DeleteProbabilityWithout(target);
+                }
+                map_dict[map_kv.Key].RemoveProbability(target);
+            }
+        });
+
+        task.Wait();
+    }
+
+    public void UpdatePossibleMapAfterDestroy(KeyValuePair<int, LayoutDATA> destroy_ship)
+    {
+        Task task = Task.Run(() =>
+        {
+            if (destroy_ship.Key>=0)
+            {
+                var kv = destroy_ship;
+                if (map_dict.TryGetValue(kv.Key, out var map) && map != null)
+                {
+                    map = null;
+
+                    var layout = kv.Value;
+                    foreach (var center in hit_map)
+                    {
+                        if (CheckLayoutValid(center, layout))
+                        {
+                            hunt_map.DeleteProbabilityEach(center, layout);
+                        }
+                    }
+
+                    // 更新目标
+                    if (!map_dict.All(kv =>
+                    {
+                        bool exist = kv.Key >= 0 && kv.Value != null;
+                        if (exist)
+                        {
+                            current_target_index = kv.Key;
+                        }
+                        return exist;
+                    }))
+                    {
+                        current_target_index = -1;
                     }
                 }
             }
@@ -103,30 +149,15 @@ public class EnemyBehavior
 
         task.Wait();
     }
-    
-    public void UpdatePossibleMapAfterDestroy(Dictionary<int, LayoutDATA> destroy_ship)
+
+    public void Remove(Vector2Int target)
     {
-        Task task = Task.Run(() =>
-        {
-            foreach (var kv in destroy_ship)
-            {
-                if(map_dict.TryGetValue(kv.Key, out var map) && map != null)
-                {
-                    map = null;
-
-                    var layout = kv.Value;
-                    foreach(var center in hit_map)
-                    {
-                        if(CheckLayoutValid(center,layout))
-                        {
-                            hunt_map.DeleteProbabilityEach(center, layout);
-                        }
-                    }
-                }
-            }
-        });
-
-        task.Wait();
+        hit_map.Remove(target);
+    }
+    
+    public string GetCurrentProbabilityMap()
+    {
+        return map_dict[current_target_index].GetProbabilityMap();
     }
 
     // 检查该点位该布局是否可行
@@ -148,43 +179,5 @@ public class EnemyBehavior
                 return true;
         }
         return false;
-    }
-
-    // 删除该点位该布局的概率
-    private void DeletePossiblePoint(Dictionary<Vector2Int, int> current_map,List<LayoutDATA> current_layouts,Vector2Int center, LayoutDATA layout)
-    {
-        if (!CheckLayoutValid(center, layout))
-        {
-            return;
-        }
-        current_layouts.Remove(layout);
-        foreach (var coord in layout.Current)
-        {
-            current_map[center + coord]--;
-        }
-    }
-
-    // private void AddPossiblePointOnTarget(Vector2Int center, LayoutDATA layout)
-    // {
-    //     if (!CheckLayoutValid(center, layout))
-    //     {
-    //         return;
-    //     }
-    //     valid_layouts_target.Add(layout.Current);
-    //     foreach (var coord in layout.Current)
-    //     {
-    //         if (!possible_map_target.ContainsKey(center + coord))
-    //         {
-    //             possible_map_target[center + coord] = 0;
-    //         }
-    //         possible_map_target[center + coord]++;
-    //     }
-    // }
-
-    public enum HitResult
-    {
-        Miss,
-        Hit,
-        Destroyed,
     }
 }

@@ -1,0 +1,19 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class Button_TestReturnTitle : Button_TitleScene
+{
+    public override UIView currentView => this;
+
+    public override void OnPointerClick(PointerEventData eventData)
+    {
+        SceneController.instance.OnSceneLoadAction(() =>
+        {
+            UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
+        });
+        SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
+    }
+
+}

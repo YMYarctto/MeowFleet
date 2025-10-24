@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,13 +8,12 @@ using UnityEngine.UI;
 public abstract class Button_TitleScene : UIView
 {
     EventTrigger eventTrigger;
-    Image image;
-    Color color;
+    TMP_Text text;
 
     public override void Init()
     {
-        image = GetComponent<Image>();
-        color = image.color;
+        text = GetComponentInChildren<TMP_Text>();
+        text.color = PresetColor.Button_Idle;
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -36,14 +36,12 @@ public abstract class Button_TitleScene : UIView
 
     void OnPointerEnter(PointerEventData eventData)
     {
-        color.a = 1f;
-        image.color = color;
+        text.color = PresetColor.Button_Focus;
     }
 
     void OnPointerExit(PointerEventData eventData)
     {
-        color.a = 0f;
-        image.color = color;
+        text.color = PresetColor.Button_Idle;
     }
 
     public abstract void OnPointerClick(PointerEventData eventData);

@@ -29,4 +29,24 @@ public class LayoutDATA
         return new LayoutDATA(_layout_mirror);
     }
 
+    public List<Vector2Int> LayoutInMap(Vector2Int center)
+    {
+        return _layout.ConvertAll(v => center + v);
+    }
+
+    public bool Contains(Vector2Int coord)
+    {
+        return _layout.Contains(coord);
+    }
+
+    public override string ToString()
+    {
+        string str = "[";
+        foreach (var coord in _layout)
+        {
+            str += $" ({coord.x},{coord.y}) ";
+        }
+        str += "]";
+        return str;
+    }
 }

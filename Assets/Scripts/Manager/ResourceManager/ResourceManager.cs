@@ -99,6 +99,10 @@ public class ResourceManager : MonoBehaviour
         SceneController.instance.Init();
         DOTween.Init();
 
+        SceneController.instance.OnSceneLoadAction(() =>
+        {
+            UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
+        });
         SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
     }
 
