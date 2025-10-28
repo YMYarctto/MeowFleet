@@ -10,9 +10,9 @@ public class ProbabilityMap
     ProbabilityMapDATA probability_map;
 
     LayoutDATA _layout;
-    public LayoutDATA layout_mirror
+    public List<LayoutDATA> layout_AllProbability
     {
-        get => _layout.Mirror();
+        get => _layout.AllLayout();
     }
 
     public List<LayoutDATA> valid_layouts_inMap;

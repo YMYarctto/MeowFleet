@@ -1,13 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class LayoutDATA
 {
     List<Vector2Int> _layout;
-    List<Vector2Int> _layout_mirror
+    List<Vector2Int> _layout_r1
     {
-        get => _layout.ConvertAll(layout => new Vector2Int(layout.y, layout.x));
+        get => _layout.ConvertAll(layout => new Vector2Int(layout.y, -layout.x));
+    }
+    List<Vector2Int> _layout_r2
+    {
+        get => _layout.ConvertAll(layout => new Vector2Int(-layout.x, -layout.y));
+    }
+    List<Vector2Int> _layout_r3
+    {
+        get => _layout.ConvertAll(layout => new Vector2Int(-layout.y, layout.x));
     }
     public List<Vector2Int> Current
     {
@@ -24,9 +33,9 @@ public class LayoutDATA
         _layout = new(layout);
     }
 
-    public LayoutDATA Mirror()
+    public List<LayoutDATA> AllLayout()
     {
-        return new LayoutDATA(_layout_mirror);
+        return new(){new(_layout),new(_layout_r1),new(_layout_r2),new(_layout_r3)};
     }
 
     public List<Vector2Int> LayoutInMap(Vector2Int center)

@@ -36,18 +36,31 @@ public class EnemyBehavior
             }
 
             // 初始化概率密度图和有效布局
-            List<LayoutDATA> target_ship_total = new(target_ship);
-            target_ship.ForEach(target=>target_ship_total.Add(target.Mirror()));
-            foreach (var target in target_ship_total)
+            List<LayoutDATA> target_ship_total = new();
+            foreach(var target in target_ship)
             {
-                foreach (Vector2Int coord in hit_map)
+                foreach(var layout in target.AllLayout())
                 {
-                    if (CheckLayoutValid(coord, target))
+                    target_ship_total.Add(layout);
+                    foreach (Vector2Int coord in hit_map)
                     {
-                        hunt_map.AddProbability(coord, target);
+                        if (CheckLayoutValid(coord, layout))
+                        {
+                            hunt_map.AddProbability(coord, layout);
+                        }
                     }
                 }
             }
+            // foreach (var target in target_ship_total)
+            // {
+            //     foreach (Vector2Int coord in hit_map)
+            //     {
+            //         if (CheckLayoutValid(coord, target))
+            //         {
+            //             hunt_map.AddProbability(coord, target);
+            //         }
+            //     }
+            // }
         });
         task.Wait();
     }
@@ -79,13 +92,10 @@ public class EnemyBehavior
                     current_target_index = hit_ship.Key;
                     foreach (var coord in hit_map)
                     {
-                        if (CheckLayoutPassBy(coord, layout, target) && CheckLayoutValid(coord, layout))
+                        foreach(var _layout in layout.AllLayout())
+                        if (CheckLayoutPassBy(coord, _layout, target) && CheckLayoutValid(coord, _layout))
                         {
-                            map_dict[current_target_index].AddProbability(coord, layout);
-                        }
-                        if (CheckLayoutPassBy(coord, layout.Mirror(), target) && CheckLayoutValid(coord, layout.Mirror()))
-                        {
-                            map_dict[current_target_index].AddProbability(coord, layout.Mirror());
+                            map_dict[current_target_index].AddProbability(coord, _layout);
                         }
                     }
                 }
