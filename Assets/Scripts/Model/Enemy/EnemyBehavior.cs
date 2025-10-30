@@ -51,16 +51,6 @@ public class EnemyBehavior
                     }
                 }
             }
-            // foreach (var target in target_ship_total)
-            // {
-            //     foreach (Vector2Int coord in hit_map)
-            //     {
-            //         if (CheckLayoutValid(coord, target))
-            //         {
-            //             hunt_map.AddProbability(coord, target);
-            //         }
-            //     }
-            // }
         });
         task.Wait();
     }
@@ -120,7 +110,7 @@ public class EnemyBehavior
         task.Wait();
     }
 
-    public void UpdatePossibleMapAfterDestroy(KeyValuePair<int, LayoutDATA> destroy_ship)
+    public void UpdatePossibleMapAfterDestroy(Vector2Int target,KeyValuePair<int, LayoutDATA> destroy_ship)
     {
         Task task = Task.Run(() =>
         {
@@ -137,6 +127,17 @@ public class EnemyBehavior
                         if (CheckLayoutValid(center, layout))
                         {
                             hunt_map.DeleteProbabilityEach(center, layout);
+                        }
+                    }
+                    foreach(var _map in map_dict.Values)
+                    {
+                        if (_map == null)
+                        {
+                            continue;
+                        }
+                        foreach(var coord in layout.GetAdjacentCellsInMap(target))
+                        {
+                            _map.DeleteProbability(coord);
                         }
                     }
 

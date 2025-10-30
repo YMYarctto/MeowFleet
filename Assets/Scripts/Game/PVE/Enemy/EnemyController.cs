@@ -89,6 +89,10 @@ public class EnemyController : MonoBehaviour
                                 if (isTest) DrawMap__test(pos + coord, ship_coord__test);
                             });
                         }
+                        foreach(var coord in layout_ran.GetAdjacentCellsInMap(pos))
+                        {
+                            available_map.Remove(coord);
+                        }
                         break;
                     }
                     if (i == 399)
@@ -113,7 +117,7 @@ public class EnemyController : MonoBehaviour
         }
         else if (message.Contains(ActionMessage.ActionResult.Destroyed))
         {
-            AI.UpdatePossibleMapAfterDestroy(message.DestroyedShips);
+            AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
         }
         
         AI.Remove(target_coord);

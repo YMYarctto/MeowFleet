@@ -1,0 +1,63 @@
+{
+    "version": 1,
+    "name": "GameAction",
+    "maps": [
+        {
+            "name": "FormationMap",
+            "id": "33401cbd-1c27-450e-bdf3-c723f73adac1",
+            "actions": [
+                {
+                    "name": "Rotate",
+                    "type": "Button",
+                    "id": "feaa8a13-e129-4101-939b-88dba194ed6b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap(duration=1.401298E-45,pressPoint=1.401298E-45)",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "Rotate",
+                    "id": "4e8e1af0-83e1-4d15-ab5c-f7a68ab215e3",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "1b478b40-19aa-4849-b463-2712031acabb",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "52cc0c9c-1479-491f-9cd0-848f5775b31b",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Keyboard",
+            "bindingGroup": "Keyboard",
+            "devices": []
+        }
+    ]
+}

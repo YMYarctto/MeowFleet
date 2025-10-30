@@ -42,6 +42,7 @@ public class ProbabilityMap
         probability_map.AddProbability(layout.LayoutInMap(center));
     }
 
+    // 删除所有包含该点的概率布局
     public void DeleteProbability(Vector2Int center)
     {
         List<LayoutDATA> new_layouts = new(valid_layouts_inMap);
@@ -56,12 +57,14 @@ public class ProbabilityMap
         }
     }
 
+    // 删除该点该布局的概率布局
     public void DeleteProbabilityEach(Vector2Int center, LayoutDATA layout)
     {
         valid_layouts_inMap.Remove(layout);
         probability_map.DeleteProbability(layout.LayoutInMap(center));
     }
 
+    // 删除不包含该点的所有概率布局
     public void DeleteProbabilityWithout(Vector2Int center)
     {
         List<LayoutDATA> new_layouts = new(valid_layouts_inMap);

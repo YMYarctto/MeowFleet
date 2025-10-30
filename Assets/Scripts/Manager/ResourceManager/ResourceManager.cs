@@ -98,6 +98,7 @@ public class ResourceManager : MonoBehaviour
         EventManager.instance.Init();
         SceneController.instance.Init();
         DOTween.Init();
+        InputController.instance.Init();
 
         SceneController.instance.OnSceneLoadAction(() =>
         {
