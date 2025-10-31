@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class UIView : MonoBehaviour
 {
     public abstract UIView currentView { get; }
+    public virtual int ID { get => 0; }
 
     void Awake()
     {
@@ -13,11 +14,11 @@ public abstract class UIView : MonoBehaviour
             Init();
             return;
         }
-        UIManager.instance.AddUIView(currentView);
+        UIManager.instance.AddUIView(currentView,ID);
     }
 
     public abstract void Init();
-    
+
     public virtual void Enable()=> gameObject.SetActive(true);
     public virtual void Disable()=> gameObject.SetActive(false);
 
@@ -27,7 +28,7 @@ public abstract class UIView : MonoBehaviour
         {
             return;
         }
-        UIManager.instance?.RemoveUIView(currentView);
+        UIManager.instance?.RemoveUIView(ID,currentView);
     }
     
 }
