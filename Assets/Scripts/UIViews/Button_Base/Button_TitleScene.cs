@@ -34,12 +34,12 @@ public abstract class Button_TitleScene : UIView
         eventTrigger.triggers.Add(entry_pointerExit);
     }
 
-    void OnPointerEnter(PointerEventData eventData)
+    private void OnPointerEnter(PointerEventData eventData)
     {
         text.color = PresetColor.Button_Focus;
     }
 
-    void OnPointerExit(PointerEventData eventData)
+    private void OnPointerExit(PointerEventData eventData)
     {
         text.color = PresetColor.Button_Idle;
     }

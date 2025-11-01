@@ -5,6 +5,8 @@ using DG.Tweening;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using System.Linq;
+using Unity.VisualScripting;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -12,6 +14,7 @@ public class ResourceManager : MonoBehaviour
     public static bool IsInit{ get; private set; } = false;
 
     Dictionary<Type, GameObject> _perfabs;
+    Dictionary<string, Sprite> _sprites;
 
     private static ResourceManager _resourceManager;
     public static ResourceManager instance
@@ -35,6 +38,8 @@ public class ResourceManager : MonoBehaviour
 
     void Awake()
     {
+        _perfabs = new();
+        _sprites = new();
         StartCoroutine(InitDataManager());
     }
 
@@ -46,6 +51,16 @@ public class ResourceManager : MonoBehaviour
             return obj;
         }
         Debug.LogError($"获取 \"{type}\" 预制体失败");
+        return null;
+    }
+
+    public Sprite GetSprite(string url)
+    {
+        if (_sprites.TryGetValue(url, out Sprite sprite))
+        {
+            return sprite;
+        }
+        Debug.LogError($"获取 \"{url}\" 预制体失败");
         return null;
     }
 
@@ -79,17 +94,28 @@ public class ResourceManager : MonoBehaviour
     {
         LoadingPackage pkg = new(0);
 
-        // _perfabs = new();
-        // foreach (var kv in ResourceList.gamobjects)
-        // {
-        //     pkg.AddCount();
-        //     Addressables.LoadAssetAsync<GameObject>(kv.Value).Completed += (handle) =>
-        //     {
-        //         var obj = handle.Result;
-        //         _perfabs[kv.Key] = obj;
-        //         pkg.AddProgress();
-        //     };
-        // }
+        foreach (var kv in ResourceList.gameobjects)
+        {
+            pkg.AddCount();
+            Addressables.LoadAssetAsync<GameObject>(kv.Value).Completed += (handle) =>
+            {
+                var obj = handle.Result;
+                _perfabs[kv.Key] = obj;
+                pkg.AddProgress();
+            };
+        }
+
+        foreach (var ships in Enum.GetValues(typeof(Ships_Enum)))
+        {
+            pkg.AddCount();
+            Addressables.LoadAssetAsync<Texture2D>(ships.ToString()).Completed += (handle) =>
+            {
+                var t2d = handle.Result;
+                float ppu = 5f;
+                _sprites[ships.ToString()] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), Vector2.zero,ppu);
+                pkg.AddProgress();
+            };
+        }
 
         // 等待所有资源加载完成
         yield return new WaitUntil(() => pkg.Finish());
