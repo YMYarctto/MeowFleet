@@ -105,14 +105,15 @@ public class ResourceManager : MonoBehaviour
             };
         }
 
-        foreach (var ships in Enum.GetValues(typeof(Ships_Enum)))
+        foreach (Ships_Enum ship in Enum.GetValues(typeof(Ships_Enum)))
         {
             pkg.AddCount();
-            Addressables.LoadAssetAsync<Texture2D>(ships.ToString()).Completed += (handle) =>
+            Addressables.LoadAssetAsync<Texture2D>(ship.ToString()).Completed += (handle) =>
             {
                 var t2d = handle.Result;
                 float ppu = 5f;
-                _sprites[ships.ToString()] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), Vector2.zero,ppu);
+                Vector2 pivot = ResourceList.ships_sprite_pivot[ship];
+                _sprites[ship.ToString()] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), pivot, ppu);
                 pkg.AddProgress();
             };
         }

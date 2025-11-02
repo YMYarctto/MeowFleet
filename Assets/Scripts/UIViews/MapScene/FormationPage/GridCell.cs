@@ -8,6 +8,9 @@ public class GridCell : UIView
 
     GameObject allow;
     GameObject forbid;
+    Transform raycast;
+
+    static Transform raycast_group;
 
     public override int ID => GridCellGroup.GridCellID;
 
@@ -15,6 +18,11 @@ public class GridCell : UIView
     {
         allow = transform.Find("allow").gameObject;
         forbid = transform.Find("forbid").gameObject;
+        raycast = transform.Find("raycast");
+        raycast.gameObject.name = $"raycast_{ID}";
+        raycast_group ??= GameObject.Find("RaycastGroup").transform;
+        raycast.SetParent(raycast_group, true);
+        raycast.GetComponent<GridCell_raycast>().Parent = this;
         Disable();
     }
 
