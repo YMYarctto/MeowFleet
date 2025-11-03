@@ -92,11 +92,11 @@ public class Ship_UI : UIView
 
         EventTrigger.Entry entry_onDrag = new EventTrigger.Entry();
         entry_onDrag.eventID = EventTriggerType.Drag;
-        entry_onDrag.callback.AddListener((data) => { OnDragBegin((PointerEventData)data); });
+        entry_onDrag.callback.AddListener((data) => { OnDrag((PointerEventData)data); });
 
         EventTrigger.Entry entry_beginDrag = new EventTrigger.Entry();
         entry_beginDrag.eventID = EventTriggerType.BeginDrag;
-        entry_beginDrag.callback.AddListener((data) => { OnDrag((PointerEventData)data); });
+        entry_beginDrag.callback.AddListener((data) => { OnDragBegin((PointerEventData)data); });
 
         EventTrigger.Entry entry_endDrag = new EventTrigger.Entry();
         entry_endDrag.eventID = EventTriggerType.EndDrag;
@@ -126,6 +126,7 @@ public class Ship_UI : UIView
     {
         trans.SetParent(drag_parent,true);
         MoveToMouse(eventData);
+        FormationController.instance.ShipOnDrag = this;
     }
 
     private void OnDrag(PointerEventData eventData)
@@ -142,7 +143,7 @@ public class Ship_UI : UIView
     private void OnDragEnd(PointerEventData eventData)
     {
         // 检测当前鼠标下是否有格子
-        if (DetectGridCell(eventData,out GridCell gridCell))
+        if (DetectGridCell(eventData, out GridCell gridCell))
         {
             original_parent = ship_parent;
             transform.SetParent(gridCell.transform, true);
@@ -154,6 +155,7 @@ public class Ship_UI : UIView
             transform.SetParent(original_parent, true);
             trans.localPosition = Vector2.zero;
         }
+        FormationController.instance.ShipOnDrag = null;
     }
 
     private void MoveToMouse(PointerEventData eventData)
@@ -189,4 +191,9 @@ public class Ship_UI : UIView
         current_ship = new(DataManager.instance.GetShipData(id));
     }
     
+    public void Rotate(int direction)
+    {
+        current_ship.Rotate(direction);
+        trans.eulerAngles += new Vector3(0, 0, direction*90);
+    }
 }

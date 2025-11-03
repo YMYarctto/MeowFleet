@@ -76,6 +76,16 @@ public class LayoutDATA
         return _layout.Contains(coord);
     }
 
+    public LayoutDATA Rotate(int direction)
+    {
+        int index = direction;
+        while(index<0)
+        {
+            index += 4;
+        }
+        return AllLayout()[index % 4];
+    }
+
     public override string ToString()
     {
         string str = "[";

@@ -15,7 +15,7 @@ public class GridCellGroup : UIView
     {
         trans = transform;
         grid_cell = ResourceManager.instance.GetPerfabByType<GridCell>();
-        for(int i=0;i<100;i++)
+        for(int i=0;i<100;i++)//TODO 100
         {
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(trans);

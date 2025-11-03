@@ -15,4 +15,9 @@ public class Ship
         this.shipData = shipData;
         layout = new(shipData.shape_coord);
     }
+
+    public void Rotate(int direction)
+    {
+        layout = layout.Rotate(direction);
+    }
 }
