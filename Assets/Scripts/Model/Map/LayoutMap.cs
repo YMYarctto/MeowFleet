@@ -29,7 +29,7 @@ public class LayoutMap
         id++;
         ShipStatus ship_status = new ShipStatus { id = id, layout = layout };
         _absolute_layout_map[id] = layout.LayoutInMap(center);
-        foreach (var coord in layout.Current)
+        foreach (var coord in layout.ToList)
         {
             Vector2Int absolute_coord = center + coord;
             _ship_map[absolute_coord] = ship_status;

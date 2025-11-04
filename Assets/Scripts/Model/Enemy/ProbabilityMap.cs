@@ -53,7 +53,7 @@ public class ProbabilityMap
                 continue;
             }
             valid_layouts_inMap.Remove(layout);
-            probability_map.DeleteProbability(layout.Current);
+            probability_map.DeleteProbability(layout.ToList);
         }
     }
 
@@ -75,7 +75,7 @@ public class ProbabilityMap
                 continue;
             }
             valid_layouts_inMap.Remove(layout);
-            probability_map.DeleteProbability(layout.Current);
+            probability_map.DeleteProbability(layout.ToList);
         }
     }
     

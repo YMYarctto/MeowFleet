@@ -10,26 +10,31 @@ public class GridCell : UIView
     GameObject forbid;
     Transform raycast;
 
-    static Transform raycast_group;
+    Transform raycast_group=>FormationController.instance.RaycastGroup;
 
-    public override int ID => GridCellGroup.GridCellID;
+    int _ID = GridCellGroup.GridCellID;
+    public override int ID => _ID;
 
     public override void Init()
     {
         allow = transform.Find("allow").gameObject;
         forbid = transform.Find("forbid").gameObject;
         raycast = transform.Find("raycast");
-        raycast.gameObject.name = $"raycast_{ID}";
-        raycast_group ??= GameObject.Find("RaycastGroup").transform;
+        raycast.gameObject.name = $"raycast_{_ID}";
         raycast.SetParent(raycast_group, true);
         raycast.GetComponent<GridCell_raycast>().Parent = this;
         Disable();
     }
 
+    void Start()
+    {
+        raycast.SetParent(raycast_group, true);
+    }
+
     public void Allow(bool isAllow)
     {
         allow.SetActive(isAllow);
-        forbid.SetActive(isAllow);
+        forbid.SetActive(!isAllow);
     }
 
     public override void Disable()
@@ -38,4 +43,8 @@ public class GridCell : UIView
         forbid.SetActive(false);
     }
 
+    public Vector2Int GetVector2Int()
+    {
+        return new(_ID % 10, _ID / 10);
+    }
 }

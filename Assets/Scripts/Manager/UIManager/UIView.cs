@@ -28,7 +28,7 @@ public abstract class UIView : MonoBehaviour
         {
             return;
         }
-        UIManager.instance?.RemoveUIView(ID,currentView);
+        UIManager.instance?.RemoveUIView(currentView,ID);
     }
     
 }

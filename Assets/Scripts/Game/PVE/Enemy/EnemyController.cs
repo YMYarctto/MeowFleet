@@ -76,12 +76,12 @@ public class EnemyController : MonoBehaviour
                 for (int i = 0; i < 400; i++)
                 {
                     System.Random rand = new();
-                    LayoutDATA layout_ran = rand.Next(2) == 0 ? layout : new(layout.Current.ConvertAll(coord => new Vector2Int(coord.y, coord.x)));
+                    LayoutDATA layout_ran = rand.Next(2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)));
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
                         layout_map.AddShip(pos, layout_ran);
-                        foreach (var coord in layout_ran.Current)
+                        foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);
                             UnityMainThreadDispatcher.Instance().Enqueue(() =>
@@ -127,7 +127,7 @@ public class EnemyController : MonoBehaviour
     // 检查该点位该布局是否可行
     private bool CheckLayoutValid(Vector2Int center, LayoutDATA layout)
     {
-        foreach (var coord in layout.Current)
+        foreach (var coord in layout.ToList)
         {
             if (!available_map.Contains(center + coord))
                 return false;

@@ -45,11 +45,9 @@ public class UIManager : MonoBehaviour
         view.Init();
 
     }
-    public void RemoveUIView(int id,params UIView[] urls)
+    public void RemoveUIView(UIView url,int id)
     {
-        foreach(var u in urls){
-            _UIs.Remove((u.GetType(),id));
-        }
+        _UIs.Remove((url.GetType(),id));
     }
 
     public T GetUIView<T>() where T : UIView

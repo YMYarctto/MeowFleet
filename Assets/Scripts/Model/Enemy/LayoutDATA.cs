@@ -19,7 +19,7 @@ public class LayoutDATA
     {
         get => _layout.ConvertAll(layout => new Vector2Int(-layout.y, layout.x));
     }
-    public List<Vector2Int> Current
+    public List<Vector2Int> ToList
     {
         get => _layout;
     }

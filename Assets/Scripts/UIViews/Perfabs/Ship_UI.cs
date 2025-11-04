@@ -11,14 +11,18 @@ using Unity.VisualScripting;
 
 public class Ship_UI : UIView
 {
-    static Transform drag_parent;
-    static Transform ship_parent;
+    Transform drag_parent => FormationController.instance.DragGroupTrans;
+    Transform ship_parent=> FormationController.instance.ShipGroupTrans;
     Transform original_parent;
 
-    static Canvas canvas;
+    Canvas canvas => FormationController.instance.canvas;
 
     public override UIView currentView => this;
-    public override int ID
+
+    int _ID = id;
+    public override int ID => _ID;
+
+    static int id
     {
         get
         {
@@ -28,14 +32,17 @@ public class Ship_UI : UIView
     }
 
     static int _uid=10000;
-    Ship current_ship;
+    Ship ship;
 
     Transform trans;
     RectTransform rectTransform;
     Image image;
     EventTrigger eventTrigger;
 
+    GridCell drag_gridCell;
     bool isDragging = false;
+    bool inMap = false;
+    Vector2Int inMap_coord;
 
     public override void Init()
     {
@@ -43,7 +50,7 @@ public class Ship_UI : UIView
         Task task = Task.Run(() =>
         {
             int loop_num = 0;
-            while (current_ship == null)
+            while (ship == null)
             {
                 loop_num++;
                 Thread.Sleep(100);
@@ -58,15 +65,11 @@ public class Ship_UI : UIView
 
         trans = transform;
         rectTransform = trans.GetComponent<RectTransform>();
-        drag_parent ??= GameObject.Find("OnDrag").transform;
-        ship_parent ??= GameObject.Find("ShipGroup").transform;
         original_parent = transform.parent;
 
-        canvas ??= GameObject.Find("Canvas_FormationScene").GetComponent<Canvas>();
-
         // 调整大小
-        image = transform.Find("sprite").GetComponent<Image>();
-        Sprite sprite = ResourceManager.instance.GetSprite(current_ship.Name);
+        image = trans.Find("sprite").GetComponent<Image>();
+        Sprite sprite = ResourceManager.instance.GetSprite(ship.Name);
         image.sprite = sprite;
         RectTransform img_rectTransform = image.rectTransform;
         Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
@@ -126,7 +129,14 @@ public class Ship_UI : UIView
     {
         trans.SetParent(drag_parent,true);
         MoveToMouse(eventData);
+
+        if (inMap)
+        {
+            FormationController.instance.RemovePlaced(inMap_coord);
+        }
+        
         FormationController.instance.ShipOnDrag = this;
+        FormationController.instance.DragBegin();
     }
 
     private void OnDrag(PointerEventData eventData)
@@ -134,28 +144,41 @@ public class Ship_UI : UIView
         isDragging = true;
         MoveToMouse(eventData);
 
-        if(DetectGridCell(eventData,out GridCell gridCell))
+        if (DetectGridCell(eventData, out GridCell gridCell))
         {
-            gridCell.Allow(true);
+            if (drag_gridCell != gridCell)
+            {
+                drag_gridCell = gridCell;
+                FormationController.instance.SetDragLayout(gridCell.GetVector2Int(), ship.Layout);
+            }
+        }
+        else if (drag_gridCell != null)
+        {
+            FormationController.instance.RefreshDrag();
+            drag_gridCell = null;
         }
     }
 
     private void OnDragEnd(PointerEventData eventData)
     {
         // 检测当前鼠标下是否有格子
-        if (DetectGridCell(eventData, out GridCell gridCell))
+        if (DetectGridCell(eventData, out GridCell gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
         {
-            original_parent = ship_parent;
-            transform.SetParent(gridCell.transform, true);
+            original_parent = gridCell.transform;
+            trans.SetParent(original_parent, true);
             trans.localPosition = Vector2.zero;
-            transform.SetParent(original_parent, true);
+            inMap = true;
+            inMap_coord = gridCell.GetVector2Int();
+            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout);
         }
         else
         {
-            transform.SetParent(original_parent, true);
+            trans.SetParent(original_parent, true);
             trans.localPosition = Vector2.zero;
         }
+        trans.SetParent(ship_parent, true);
         FormationController.instance.ShipOnDrag = null;
+        FormationController.instance.DragEnd();
     }
 
     private void MoveToMouse(PointerEventData eventData)
@@ -188,12 +211,13 @@ public class Ship_UI : UIView
 
     public void SetShip(Ships_Enum id)
     {
-        current_ship = new(DataManager.instance.GetShipData(id));
+        ship = new(DataManager.instance.GetShipData(id));
     }
     
     public void Rotate(int direction)
     {
-        current_ship.Rotate(direction);
-        trans.eulerAngles += new Vector3(0, 0, direction*90);
+        ship.Rotate(direction);
+        trans.eulerAngles += new Vector3(0, 0, direction * 90);
+        if(drag_gridCell!=null)FormationController.instance.SetDragLayout(drag_gridCell.GetVector2Int(),ship.Layout);
     }
 }

@@ -174,7 +174,7 @@ public class EnemyBehavior
     // 检查该点位该布局是否可行
     private bool CheckLayoutValid(Vector2Int center, LayoutDATA layout)
     {
-        foreach (var coord in layout.Current)
+        foreach (var coord in layout.ToList)
         {
             if (!hit_map.Contains(center + coord))
                 return false;
@@ -184,7 +184,7 @@ public class EnemyBehavior
 
     private bool CheckLayoutPassBy(Vector2Int center, LayoutDATA layout,Vector2Int target)
     {
-        foreach (var coord in layout.Current)
+        foreach (var coord in layout.ToList)
         {
             if (coord + center == target)
                 return true;
