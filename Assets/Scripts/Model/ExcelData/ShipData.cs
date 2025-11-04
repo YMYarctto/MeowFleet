@@ -7,8 +7,8 @@ using UnityEngine;
 public class ShipData
 {
     public int uid;
-    public int pro_id;
-    public int level;
+    public int pre_id;
+    public string level;
     public string ship_name_string;
     public string shape_coord_string;
     public Ships_Enum ship_name;
