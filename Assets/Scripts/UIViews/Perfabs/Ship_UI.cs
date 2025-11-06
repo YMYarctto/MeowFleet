@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System;
-using Unity.VisualScripting;
 using DG.Tweening;
 
 public class Ship_UI : UIView
@@ -44,6 +42,9 @@ public class Ship_UI : UIView
     bool isDragging = false;
     bool inMap = false;
     Vector2Int inMap_coord;
+    Sequence loopTween;
+    LayoutDATA pre_layout;
+    Vector3 pre_rotation;
 
     public override void Init()
     {
@@ -121,6 +122,8 @@ public class Ship_UI : UIView
         rectTransform = trans.GetComponent<RectTransform>();
         original_parent = transform.parent;
 
+        loopTween = DOTween.Sequence();
+
         // 调整大小
         image = trans.Find("sprite").GetComponent<Image>();
         Sprite sprite = ResourceManager.instance.GetSprite(ship.Uid);
@@ -134,6 +137,8 @@ public class Ship_UI : UIView
             sprite.pivot.y / sprite.rect.height
         );
         img_rectTransform.localPosition = Vector2.zero;
+        pre_layout = new LayoutDATA(ship.Layout.ToList);
+        pre_rotation = trans.eulerAngles;
     }
     
     public void OnPointerDown(PointerEventData eventData)
@@ -166,6 +171,9 @@ public class Ship_UI : UIView
             drag_gridCell = gridCell;
             FormationController.instance.SetDragLayout(gridCell.GetVector2Int(), ship.Layout);
         }
+
+        pre_layout = new LayoutDATA(ship.Layout.ToList);
+        pre_rotation = trans.eulerAngles;
     }
 
     private void OnDrag(PointerEventData eventData)
@@ -193,17 +201,23 @@ public class Ship_UI : UIView
         // 检测当前鼠标下是否有格子
         if (DetectGridCell(eventData, out GridCell gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
         {
+            pre_rotation = trans.eulerAngles;
             original_parent = gridCell.transform;
             trans.SetParent(original_parent, true);
-            MoveAnimation(Vector2.zero);
+            MoveAnimation(Vector2.zero, pre_rotation);
             inMap = true;
             inMap_coord = gridCell.GetVector2Int();
-            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout);
+            Debug.Log($"检测到放置行为\n坐标: {inMap_coord}\n布局: {ship.Layout}");
         }
         else
         {
             trans.SetParent(original_parent, true);
-            MoveAnimation(Vector2.zero);
+            ship.SetLayout(pre_layout);
+            MoveAnimation(Vector2.zero, pre_rotation);
+        }
+        if(inMap)
+        {
+            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout);
         }
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();
@@ -220,7 +234,7 @@ public class Ship_UI : UIView
         rectTransform.anchoredPosition = localPos;
     }
 
-    private bool DetectGridCell(PointerEventData eventData,out GridCell gridCell)
+    private bool DetectGridCell(PointerEventData eventData, out GridCell gridCell)
     {
         gridCell = null;
         List<RaycastResult> results = new List<RaycastResult>();
@@ -249,10 +263,15 @@ public class Ship_UI : UIView
         ship = new(DataManager.instance.GetShipData(id));
     }
 
-    void MoveAnimation(Vector2 targetPos)
+    void MoveAnimation(Vector2 targetPos,Vector3 targetRot)
     {
-        trans.DOKill();
-        trans.DOLocalMove(targetPos, 0.1f).SetUpdate(true).SetEase(Ease.OutQuad).OnComplete(()=>trans.SetParent(ship_parent, true));
+        loopTween.Kill();
+        loopTween = DOTween.Sequence();
+        loopTween.SetUpdate(true);
+        loopTween.Append(trans.DOLocalMove(targetPos, 0.1f).SetEase(Ease.OutQuad));
+        loopTween.Join(trans.DORotate(targetRot, 0.1f).SetEase(Ease.OutQuad));
+        loopTween.OnComplete(() => trans.SetParent(ship_parent, true));
+        loopTween.Play();
     }
 
     public static Ship_UI Create(GameObject prefab, int id)

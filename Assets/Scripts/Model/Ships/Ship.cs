@@ -20,4 +20,9 @@ public class Ship
     {
         layout = layout.Rotate(direction);
     }
+
+    public void SetLayout(LayoutDATA layoutDATA)
+    {
+        layout = layoutDATA;
+    }
 }
