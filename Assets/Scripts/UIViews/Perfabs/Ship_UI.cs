@@ -46,7 +46,7 @@ public class Ship_UI : UIView
 
     public override void Init()
     {
-        SetShip(Ships_Enum._1x3);//delete
+        SetShip(1);//delete
         Task task = Task.Run(() =>
         {
             int loop_num = 0;
@@ -69,7 +69,7 @@ public class Ship_UI : UIView
 
         // 调整大小
         image = trans.Find("sprite").GetComponent<Image>();
-        Sprite sprite = ResourceManager.instance.GetSprite(ship.Name);
+        Sprite sprite = ResourceManager.instance.GetSprite(ship.Uid);
         image.sprite = sprite;
         RectTransform img_rectTransform = image.rectTransform;
         Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
@@ -111,6 +111,29 @@ public class Ship_UI : UIView
         eventTrigger.triggers.Add(entry_onDrag);
         eventTrigger.triggers.Add(entry_endDrag);
     }
+
+    public void Init(int id)
+    {
+        SetShip(id);
+        trans = transform;
+        trans.localPosition = Vector2.zero;
+        rectTransform = trans.GetComponent<RectTransform>();
+        original_parent = transform.parent;
+
+        // 调整大小
+        image = trans.Find("sprite").GetComponent<Image>();
+        Sprite sprite = ResourceManager.instance.GetSprite(ship.Uid);
+        image.sprite = sprite;
+        RectTransform img_rectTransform = image.rectTransform;
+        Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
+        float pixelsPerUnit = sprite.pixelsPerUnit;
+        img_rectTransform.sizeDelta = spriteSize / pixelsPerUnit;
+        img_rectTransform.pivot = new Vector2(
+            sprite.pivot.x / sprite.rect.width,
+            sprite.pivot.y / sprite.rect.height
+        );
+        img_rectTransform.localPosition = Vector2.zero;
+    }
     
     public void OnPointerDown(PointerEventData eventData)
     {
@@ -137,6 +160,11 @@ public class Ship_UI : UIView
         
         FormationController.instance.ShipOnDrag = this;
         FormationController.instance.DragBegin();
+        if (DetectGridCell(eventData, out GridCell gridCell))
+        {
+            drag_gridCell = gridCell;
+            FormationController.instance.SetDragLayout(gridCell.GetVector2Int(), ship.Layout);
+        }
     }
 
     private void OnDrag(PointerEventData eventData)
@@ -208,16 +236,24 @@ public class Ship_UI : UIView
         }
         return false;
     }
-
-    public void SetShip(Ships_Enum id)
-    {
-        ship = new(DataManager.instance.GetShipData(id));
-    }
     
     public void Rotate(int direction)
     {
         ship.Rotate(direction);
-        trans.eulerAngles += new Vector3(0, 0, direction * 90);
+        trans.eulerAngles += new Vector3(0, 0, -direction * 90);
         if(drag_gridCell!=null)FormationController.instance.SetDragLayout(drag_gridCell.GetVector2Int(),ship.Layout);
+    }
+
+    void SetShip(int id)
+    {
+        ship = new(DataManager.instance.GetShipData(id));
+    }
+
+    public static Ship_UI Create(GameObject prefab, int id)
+    {
+        var obj = Instantiate(prefab);
+        var ui = obj.GetComponent<Ship_UI>();
+        ui.Init(id);
+        return ui;
     }
 }

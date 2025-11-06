@@ -8,7 +8,7 @@ public class Ship
     LayoutDATA layout;
 
     public LayoutDATA Layout => layout;
-    public string Name => shipData.ship_name_string;
+    public int Uid => shipData.uid;
 
     public Ship(ShipData shipData)
     {

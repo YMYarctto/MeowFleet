@@ -11,7 +11,7 @@ public class EnemyController : MonoBehaviour
     public bool isTest;
 
     public Vector2Int size;
-    public List<Ships_Enum> target_ships_enum;
+    public List<int> target_ships_id;
 
     EventGroup _event;
 
@@ -28,9 +28,9 @@ public class EnemyController : MonoBehaviour
     {
         _event = EventManager.GroupBy("EnemyController");
 
-        target_ship = target_ships_enum.ConvertAll(ship_enum =>
+        target_ship = target_ships_id.ConvertAll(id =>
         {
-            ShipData ship_data = DataManager.instance.GetShipData(ship_enum);
+            ShipData ship_data = DataManager.instance.GetShipData(id);
             return new LayoutDATA(ship_data.shape_coord);
         });
 

@@ -7,7 +7,7 @@ using UnityEngine;
 // DataManager 管理工具
 public class DataManagerChanger
 {
-    public ShipData_SO ShipData { set => DataManager.instance.shipData_dict = value.Sheet1.ToDictionary(v => v.ship_name, v => v); }
+    public ShipData_SO ShipData { set => DataManager.instance.shipData_dict = value.Sheet1.ToDictionary(v => v.uid, v => v); }
     
     public void Init()
     {
@@ -18,7 +18,7 @@ public class DataManagerChanger
 // DataManager 核心
 public class DataManager : MonoBehaviour
 {
-    internal Dictionary<Ships_Enum, ShipData> shipData_dict;
+    internal Dictionary<int, ShipData> shipData_dict;
     
     private static DataManager _dataManager;
     public static DataManager instance
@@ -40,7 +40,7 @@ public class DataManager : MonoBehaviour
         // TODO
     }
 
-    public ShipData GetShipData(Ships_Enum id)
+    public ShipData GetShipData(int id)
     {
         if (shipData_dict == null)
         {
@@ -50,11 +50,15 @@ public class DataManager : MonoBehaviour
 
         if (!shipData_dict.ContainsKey(id))
         {
-            Debug.LogError($"未知的 CellCard ID : {id} ");
+            Debug.LogError($"未知的 ShipData ID : {id} ");
             return null;
         }
 
         return shipData_dict[id];
     }
 
+    public Dictionary<int,string> GetShipUrlList()
+    {
+        return shipData_dict.ToDictionary(kv => kv.Key, kv => kv.Value.Url);
+    }
 }

@@ -15,10 +15,10 @@ public class FormationController : MonoBehaviour
     Dictionary<Vector2Int, LayoutDATA> placed_layout;
     List<Vector2Int> placed_map;
 
-    public Canvas canvas;
-    public Transform DragGroupTrans;
-    public Transform ShipGroupTrans;
-    public Transform RaycastGroup;
+    public Canvas canvas{ get; private set; }
+    public Transform DragGroupTrans{ get; private set; }
+    public Transform ShipGroupTrans{ get; private set; }
+    public Transform RaycastGroup{ get; private set; }
 
     private static FormationController _instance;
     public static FormationController instance

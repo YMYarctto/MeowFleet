@@ -15,15 +15,29 @@ MonoBehaviour:
   Sheet1:
   - uid: 0
     pre_id: 0
-    level: 1A
+    level: 0
     ship_name_string: _1x2
-    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1}]'
+    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
     ship_name: 0
     shape_coord: []
   - uid: 1
     pre_id: 1
-    level: 1
+    level: 0
     ship_name_string: _1x3
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1}]'
+    ship_name: 0
+    shape_coord: []
+  - uid: 2
+    pre_id: 2
+    level: 0
+    ship_name_string: _3x3
+    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":-1,"y":-1},{"x":-1,"y":1},{"x":1,"y":-1},{"x":1,"y":1}]'
+    ship_name: 0
+    shape_coord: []
+  - uid: 3
+    pre_id: 3
+    level: 0
+    ship_name_string: _3a2
+    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
     ship_name: 0
     shape_coord: []

@@ -13,4 +13,5 @@ public class ShipData
     public string shape_coord_string;
     public Ships_Enum ship_name;
     public List<Vector2Int> shape_coord;
+    public string Url=> $"{ship_name}_{level}";
 }

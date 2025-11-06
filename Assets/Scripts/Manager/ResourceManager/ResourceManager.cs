@@ -54,13 +54,13 @@ public class ResourceManager : MonoBehaviour
         return null;
     }
 
-    public Sprite GetSprite(string url)
+    public Sprite GetSprite(int id)
     {
-        if (_sprites.TryGetValue(url, out Sprite sprite))
+        if (_sprites.TryGetValue(id.ToString(), out Sprite sprite))
         {
             return sprite;
         }
-        Debug.LogError($"获取 \"{url}\" 预制体失败");
+        Debug.LogError($"获取 \"{id}\" 预制体失败");
         return null;
     }
 
@@ -105,15 +105,15 @@ public class ResourceManager : MonoBehaviour
             };
         }
 
-        foreach (Ships_Enum ship in Enum.GetValues(typeof(Ships_Enum)))
+        foreach (var kv in DataManager.instance.GetShipUrlList())
         {
             pkg.AddCount();
-            Addressables.LoadAssetAsync<Texture2D>(ship.ToString()).Completed += (handle) =>
+            Addressables.LoadAssetAsync<Texture2D>(kv.Value).Completed += (handle) =>
             {
                 var t2d = handle.Result;
                 float ppu = 5f;
-                Vector2 pivot = ResourceList.ships_sprite_pivot[ship];
-                _sprites[ship.ToString()] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), pivot, ppu);
+                Vector2 pivot = ResourceList.ships_sprite_pivot[kv.Value];
+                _sprites[kv.Key.ToString()] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height), pivot, ppu);
                 pkg.AddProgress();
             };
         }

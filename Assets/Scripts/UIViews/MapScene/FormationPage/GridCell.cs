@@ -28,7 +28,7 @@ public class GridCell : UIView
 
     void Start()
     {
-        raycast.SetParent(raycast_group, true);
+        raycast.SetParent(raycast_group, false);
     }
 
     public void Allow(bool isAllow)

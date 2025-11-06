@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(GridLayoutGroup))]
 public class GridCellGroup : UIView
 {
     public override UIView currentView => this;
@@ -59,10 +61,10 @@ public class GridCellGroup : UIView
         }
         placed = new();
     }
-    
+
     public void SetPlaced(List<Vector2Int> coords)
     {
-        foreach(var coord in coords)
+        foreach (var coord in coords)
         {
             GridCell current = girdCell_dict[GetIndex(coord)];
             current.Allow(true);
@@ -70,7 +72,7 @@ public class GridCellGroup : UIView
         }
     }
 
-    public void SetDragAllow(Vector2Int coord,bool isAllow)
+    public void SetDragAllow(Vector2Int coord, bool isAllow)
     {
         GridCell current = girdCell_dict[GetIndex(coord)];
         current.Allow(isAllow);
