@@ -8,21 +8,25 @@ public class BGAnimator_TitleScene : UIView
 {
     public override UIView currentView => this;
 
-    public float bg_1_duration;
-    public float bg_2_interval;
-    public float bg_2_duration;
-    public float bg_3_interval;
-    public float bg_3_duration;
-    public float bg_4_interval;
-    public float bg_4_duration;
-    public Ease bg_ease;
-    public Ease color_ease;
+    float bg_1_duration=1f;
+    float bg_2_interval=0;
+    float bg_2_duration=0.5f;
+    float bg_3_interval=0.05f;
+    float bg_3_duration=0.5f;
+    float bg_4_interval=0.1f;
+    float bg_4_duration=0.5f;
+    Ease bg_ease=Ease.OutBack;
+    Ease color_ease=Ease.OutQuart;
 
     Image bg_1_image;
     Color bg_1_color;
     RectTransform bg_2;
     RectTransform bg_3;
     RectTransform bg_4;
+
+    Vector3 bg_2_targetPos;
+    Vector3 bg_3_targetPos;
+    Vector3 bg_4_targetPos;
 
     public override void Init()
     {
@@ -35,9 +39,13 @@ public class BGAnimator_TitleScene : UIView
         bg_1_color.a = 1f;
         bg_1_image.color = bg_1_color;
 
-        bg_2.localPosition = new Vector3(-1868, -333, 0);
-        bg_3.localPosition = new Vector3(1324, -122, 0);
-        bg_4.localPosition = new Vector3(1077, 665, 0);
+        bg_2_targetPos = bg_2.localPosition;
+        bg_3_targetPos = bg_3.localPosition;
+        bg_4_targetPos = bg_4.localPosition;
+
+        bg_2.localPosition = new Vector3(-2501, -442, 0);
+        bg_3.localPosition = new Vector3(1772, -167, 0);
+        bg_4.localPosition = new Vector3(1105, 876, 0);
     }
 
     public override void Enable()
@@ -46,9 +54,9 @@ public class BGAnimator_TitleScene : UIView
             bg_1_image.color = bg_1_color;
         });
         Sequence loopTween_Open = DOTween.Sequence();
-        loopTween_Open.Append(bg_2.DOLocalMove(new Vector3(-189, 12, 0), bg_2_duration).SetDelay(bg_2_interval).SetEase(bg_ease));
-        loopTween_Open.Join(bg_3.DOLocalMove(new Vector3(650.5f, -86.4f, 0), bg_3_duration).SetDelay(bg_3_interval).SetEase(bg_ease));
-        loopTween_Open.Join(bg_4.DOLocalMove(new Vector3(571, 401, 0), bg_4_duration).SetDelay(bg_4_interval).SetEase(bg_ease));
+        loopTween_Open.Append(bg_2.DOLocalMove(bg_2_targetPos, bg_2_duration).SetDelay(bg_2_interval).SetEase(bg_ease));
+        loopTween_Open.Join(bg_3.DOLocalMove(bg_3_targetPos, bg_3_duration).SetDelay(bg_3_interval).SetEase(bg_ease));
+        loopTween_Open.Join(bg_4.DOLocalMove(bg_4_targetPos, bg_4_duration).SetDelay(bg_4_interval).SetEase(bg_ease));
         loopTween_Open.Play();
     }
 
@@ -57,9 +65,9 @@ public class BGAnimator_TitleScene : UIView
         bg_1_color.a = 1f;
         bg_1_image.color = bg_1_color;
 
-        bg_2.localPosition = new Vector3(-1868, -333, 0);
-        bg_3.localPosition = new Vector3(1324, -122, 0);
-        bg_4.localPosition = new Vector3(1077, 665, 0);
+        bg_2.localPosition = new Vector3(-2501, -442, 0);
+        bg_3.localPosition = new Vector3(1772, -167, 0);
+        bg_4.localPosition = new Vector3(1105, 876, 0);
 
         Enable();
     }

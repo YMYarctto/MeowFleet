@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
 using Unity.VisualScripting;
+using DG.Tweening;
 
 public class Ship_UI : UIView
 {
@@ -194,7 +195,7 @@ public class Ship_UI : UIView
         {
             original_parent = gridCell.transform;
             trans.SetParent(original_parent, true);
-            trans.localPosition = Vector2.zero;
+            MoveAnimation(Vector2.zero);
             inMap = true;
             inMap_coord = gridCell.GetVector2Int();
             FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout);
@@ -202,9 +203,8 @@ public class Ship_UI : UIView
         else
         {
             trans.SetParent(original_parent, true);
-            trans.localPosition = Vector2.zero;
+            MoveAnimation(Vector2.zero);
         }
-        trans.SetParent(ship_parent, true);
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();
     }
@@ -247,6 +247,12 @@ public class Ship_UI : UIView
     void SetShip(int id)
     {
         ship = new(DataManager.instance.GetShipData(id));
+    }
+
+    void MoveAnimation(Vector2 targetPos)
+    {
+        trans.DOKill();
+        trans.DOLocalMove(targetPos, 0.1f).SetUpdate(true).SetEase(Ease.OutQuad).OnComplete(()=>trans.SetParent(ship_parent, true));
     }
 
     public static Ship_UI Create(GameObject prefab, int id)
