@@ -9,6 +9,7 @@ public static class ResourceList
     {
         {typeof(GridCell),"GridCell"},
         {typeof(Ship_UI),"Ship_Formation"},
+        {typeof(Pointer_Animation),"Pointer"},
     };
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()

@@ -13,7 +13,6 @@ public class Pointer_Animation : MonoBehaviour
     Transform up_trans;
     Image up_image;
     Color up_color;
-    EventTrigger eventTrigger;
 
     float progress = 0f;
     float up_target_y = 200f;
@@ -29,29 +28,6 @@ public class Pointer_Animation : MonoBehaviour
         up_color.a = 0f;
         up_image.color = up_color;
         up_trans.localPosition = new Vector3(0f, up_target_y, 0f);
-
-        eventTrigger = gameObject.AddComponent<EventTrigger>();
-
-        EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
-        entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
-        entry_pointerEnter.callback.AddListener((data) => { OnPointerEnter((PointerEventData)data); });
-
-        EventTrigger.Entry entry_pointerEixt = new EventTrigger.Entry();
-        entry_pointerEixt.eventID = EventTriggerType.PointerExit;
-        entry_pointerEixt.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
-
-        eventTrigger.triggers.Add(entry_pointerEnter);
-        eventTrigger.triggers.Add(entry_pointerEixt);
-    }
-
-    private void OnPointerEnter(PointerEventData eventData)
-    {
-        PlayForward();
-    }
-
-    private void OnPointerExit(PointerEventData eventData)
-    {
-        PlayBackward();
     }
 
     private void ApplyProgress()
@@ -59,7 +35,7 @@ public class Pointer_Animation : MonoBehaviour
         animator.Play("focus", 0, progress);
     }
 
-    private void PlayForward()
+    public void PlayForward()
     {
         seq?.Kill(false);
         animator.speed = 0f;
@@ -81,7 +57,7 @@ public class Pointer_Animation : MonoBehaviour
         seq.Play();
     }
 
-    private void PlayBackward()
+    public void PlayBackward()
     {
         seq?.Kill(false);
         animator.speed = 0f;
