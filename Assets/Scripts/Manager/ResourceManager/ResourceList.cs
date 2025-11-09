@@ -7,8 +7,8 @@ public static class ResourceList
 {
     public static Dictionary<Type, string> gameobjects = new()
     {
-        {typeof(GridCell),"GridCell"},
-        {typeof(Ship_UI),"Ship_Formation"},
+        {typeof(GridCell_Formation),"GridCell"},
+        {typeof(Ship_UIBase),"Ship"},
         {typeof(Pointer_Animation),"Pointer"},
     };
 

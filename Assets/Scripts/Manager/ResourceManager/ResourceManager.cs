@@ -68,7 +68,8 @@ public class ResourceManager : MonoBehaviour
     IEnumerator InitDataManager()
     {
         LoadingPackage pkg = new(0);
-        DataManagerChanger dataManager = new();
+        DataManager.DataManagerChanger dataManager = DataManager.GetDataManagerChanger();
+
         pkg.AddCount();
         Addressables.LoadAssetAsync<ShipData_SO>("ShipData_SO").Completed += (handle) =>
         {
@@ -79,6 +80,14 @@ public class ResourceManager : MonoBehaviour
                 v.shape_coord = JsonConvert.DeserializeObject<List<Vector2Int>>(v.shape_coord_string);
             });
             dataManager.ShipData = so;
+            pkg.AddProgress();
+        };
+
+        pkg.AddCount();
+        Addressables.LoadAssetAsync<SaveData_SO>("SaveData_SO").Completed += (handle) =>
+        {
+            var so = handle.Result;
+            dataManager.SaveData = so;
             pkg.AddProgress();
         };
 

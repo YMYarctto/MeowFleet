@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 
-public class Ship_UI : UIView
+public class Ship_Formation : Ship_UIBase
 {
     Transform drag_parent => FormationController.instance.DragGroupTrans;
     Transform ship_parent=> FormationController.instance.ShipGroupTrans;
@@ -31,14 +31,14 @@ public class Ship_UI : UIView
     }
 
     static int _uid=10000;
-    Ship ship;
+    // Ship ship;
 
-    Transform trans;
-    RectTransform rectTransform;
-    Image image;
+    // Transform trans;
+    // RectTransform rectTransform;
+    // Image image;
     EventTrigger eventTrigger;
 
-    GridCell drag_gridCell;
+    GridCell_Formation drag_gridCell;
     bool isDragging = false;
     bool inMap = false;
     Vector2Int inMap_coord;
@@ -48,42 +48,7 @@ public class Ship_UI : UIView
 
     public override void Init()
     {
-        SetShip(1);//delete
-        Task task = Task.Run(() =>
-        {
-            int loop_num = 0;
-            while (ship == null)
-            {
-                loop_num++;
-                Thread.Sleep(100);
-                if (loop_num > 50)
-                {
-                    Debug.LogError("无法获取舰船");
-                    break;
-                }
-            }
-        });
-        task.Wait();
-
-        trans = transform;
-        rectTransform = trans.GetComponent<RectTransform>();
-        original_parent = transform.parent;
-
-        // 调整大小
-        image = trans.Find("sprite").GetComponent<Image>();
-        Sprite sprite = ResourceManager.instance.GetSprite(ship.Uid);
-        image.sprite = sprite;
-        RectTransform img_rectTransform = image.rectTransform;
-        Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
-        float pixelsPerUnit = sprite.pixelsPerUnit;
-        float scale = 1f;
-        if (image.canvas) scale = image.canvas.scaleFactor;
-        img_rectTransform.sizeDelta = spriteSize / pixelsPerUnit * scale;
-        img_rectTransform.pivot = new Vector2(
-            sprite.pivot.x / sprite.rect.width,
-            sprite.pivot.y / sprite.rect.height
-        );
-        img_rectTransform.localPosition = Vector2.zero;
+        loopTween = DOTween.Sequence();
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -114,29 +79,10 @@ public class Ship_UI : UIView
         eventTrigger.triggers.Add(entry_endDrag);
     }
 
-    public void Init(int id)
+    public override void Init(Ship ship)
     {
-        SetShip(id);
-        trans = transform;
-        trans.localPosition = Vector2.zero;
-        rectTransform = trans.GetComponent<RectTransform>();
+        base.Init(ship);
         original_parent = transform.parent;
-
-        loopTween = DOTween.Sequence();
-
-        // 调整大小
-        image = trans.Find("sprite").GetComponent<Image>();
-        Sprite sprite = ResourceManager.instance.GetSprite(ship.Uid);
-        image.sprite = sprite;
-        RectTransform img_rectTransform = image.rectTransform;
-        Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
-        float pixelsPerUnit = sprite.pixelsPerUnit;
-        img_rectTransform.sizeDelta = spriteSize / pixelsPerUnit;
-        img_rectTransform.pivot = new Vector2(
-            sprite.pivot.x / sprite.rect.width,
-            sprite.pivot.y / sprite.rect.height
-        );
-        img_rectTransform.localPosition = Vector2.zero;
         pre_layout = new LayoutDATA(ship.Layout.ToList);
         pre_rotation = trans.eulerAngles;
     }
@@ -166,7 +112,7 @@ public class Ship_UI : UIView
         
         FormationController.instance.ShipOnDrag = this;
         FormationController.instance.DragBegin();
-        if (DetectGridCell(eventData, out GridCell gridCell))
+        if (DetectGridCell(eventData, out GridCell_Formation gridCell))
         {
             drag_gridCell = gridCell;
             FormationController.instance.SetDragLayout(gridCell.GetVector2Int(), ship.Layout);
@@ -181,7 +127,7 @@ public class Ship_UI : UIView
         isDragging = true;
         MoveToMouse(eventData);
 
-        if (DetectGridCell(eventData, out GridCell gridCell))
+        if (DetectGridCell(eventData, out GridCell_Formation gridCell))
         {
             if (drag_gridCell != gridCell)
             {
@@ -199,7 +145,7 @@ public class Ship_UI : UIView
     private void OnDragEnd(PointerEventData eventData)
     {
         // 检测当前鼠标下是否有格子
-        if (DetectGridCell(eventData, out GridCell gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
+        if (DetectGridCell(eventData, out GridCell_Formation gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
         {
             pre_rotation = trans.eulerAngles;
             original_parent = gridCell.transform;
@@ -217,7 +163,7 @@ public class Ship_UI : UIView
         }
         if(inMap)
         {
-            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout);
+            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,id);
         }
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();
@@ -234,7 +180,7 @@ public class Ship_UI : UIView
         rectTransform.anchoredPosition = localPos;
     }
 
-    private bool DetectGridCell(PointerEventData eventData, out GridCell gridCell)
+    private bool DetectGridCell(PointerEventData eventData, out GridCell_Formation gridCell)
     {
         gridCell = null;
         List<RaycastResult> results = new List<RaycastResult>();
@@ -258,11 +204,6 @@ public class Ship_UI : UIView
         if(drag_gridCell!=null)FormationController.instance.SetDragLayout(drag_gridCell.GetVector2Int(),ship.Layout);
     }
 
-    void SetShip(int id)
-    {
-        ship = new(DataManager.instance.GetShipData(id));
-    }
-
     void MoveAnimation(Vector2 targetPos,Vector3 targetRot)
     {
         loopTween.Kill();
@@ -272,13 +213,5 @@ public class Ship_UI : UIView
         loopTween.Join(trans.DORotate(targetRot, 0.1f).SetEase(Ease.OutQuad));
         loopTween.OnComplete(() => trans.SetParent(ship_parent, true));
         loopTween.Play();
-    }
-
-    public static Ship_UI Create(GameObject prefab, int id)
-    {
-        var obj = Instantiate(prefab);
-        var ui = obj.GetComponent<Ship_UI>();
-        ui.Init(id);
-        return ui;
     }
 }

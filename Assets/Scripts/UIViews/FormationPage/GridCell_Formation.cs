@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridCell : UIView
+public class GridCell_Formation : UIView
 {
     public override UIView currentView => this;
 
@@ -12,7 +12,7 @@ public class GridCell : UIView
 
     Transform raycast_group=>FormationController.instance.RaycastGroup;
 
-    int _ID = GridCellGroup.GridCellID;
+    int _ID = GridCellGroup_Formation.GridCellID;
     public override int ID => _ID;
 
     public override void Init()

@@ -32,12 +32,11 @@ public class ShiphouseController : MonoBehaviour
         {
             child_list.Add(shiphouse.GetChild(index));
         }
-        foreach(var id in DataManager.instance.GetShipUrlList().Keys)
+        foreach(var uid in DataManager.instance.GetShipUrlList().Keys)
         {
-            GameObject obj = Instantiate(ResourceManager.instance.GetPerfabByType<Ship_UI>());
-            obj.transform.SetParent(child_list[id], false);
-            Ship_UI ship_ui = obj.GetComponent<Ship_UI>();
-            ship_ui.Init(id);
+            int id = 10000;
+            Ship_UIBase.Create<Ship_Formation>(id,new(DataManager.instance.GetShipData(id)), child_list[id]);
+            id++;
         }
     }
 }

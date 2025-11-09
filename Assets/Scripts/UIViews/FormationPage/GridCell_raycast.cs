@@ -5,6 +5,6 @@ using UnityEngine.Animations;
 
 public class GridCell_raycast : MonoBehaviour
 {
-    GridCell parent;
-    public GridCell Parent { get => parent; set => parent = value; }
+    GridCell_Formation parent;
+    public GridCell_Formation Parent { get => parent; set => parent = value; }
 }

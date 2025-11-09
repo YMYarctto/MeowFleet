@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(GridLayoutGroup))]
-public class GridCellGroup : UIView
+public class GridCellGroup_Formation : UIView
 {
     public override UIView currentView => this;
 
@@ -13,9 +13,9 @@ public class GridCellGroup : UIView
     Transform trans;
     GameObject grid_cell;
 
-    Dictionary<int, GridCell> girdCell_dict;
-    List<GridCell> current_drag;
-    List<GridCell> placed;
+    Dictionary<int, GridCell_Formation> girdCell_dict;
+    List<GridCell_Formation> current_drag;
+    List<GridCell_Formation> placed;
 
     public override void Init()
     {
@@ -25,13 +25,13 @@ public class GridCellGroup : UIView
         placed = new();
 
         trans = transform;
-        grid_cell = ResourceManager.instance.GetPerfabByType<GridCell>();
+        grid_cell = ResourceManager.instance.GetPerfabByType<GridCell_Formation>();
         for (int i = 0; i < 100; i++)//TODO 100
         {
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(trans);
             obj.name = $"GridCell_{GridCellID}";
-            girdCell_dict.Add(GridCellID, obj.GetComponent<GridCell>());
+            girdCell_dict.Add(GridCellID, obj.GetComponent<GridCell_Formation>());
             GridCellID++;
         }
     }
@@ -66,7 +66,7 @@ public class GridCellGroup : UIView
     {
         foreach (var coord in coords)
         {
-            GridCell current = girdCell_dict[GetIndex(coord)];
+            GridCell_Formation current = girdCell_dict[GetIndex(coord)];
             current.Allow(true);
             placed.Add(current);
         }
@@ -74,7 +74,7 @@ public class GridCellGroup : UIView
 
     public void SetDragAllow(Vector2Int coord, bool isAllow)
     {
-        GridCell current = girdCell_dict[GetIndex(coord)];
+        GridCell_Formation current = girdCell_dict[GetIndex(coord)];
         current.Allow(isAllow);
         current_drag.Add(current);
     }

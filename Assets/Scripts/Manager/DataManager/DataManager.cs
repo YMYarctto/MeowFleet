@@ -1,24 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-// DataManager 管理工具
-public class DataManagerChanger
-{
-    public ShipData_SO ShipData { set => DataManager.instance.shipData_dict = value.Sheet1.ToDictionary(v => v.uid, v => v); }
-    
-    public void Init()
-    {
-        DataManager.instance.Init();
-    }
-}
-
 // DataManager 核心
-public class DataManager : MonoBehaviour
+public partial class DataManager : MonoBehaviour
 {
-    internal Dictionary<int, ShipData> shipData_dict;
+    private Dictionary<int, ShipData> shipData_dict;
+    private SaveData_SO saveData_SO;
+    public SaveData_SO SaveData => saveData_SO;
     
     private static DataManager _dataManager;
     public static DataManager instance
@@ -57,8 +49,25 @@ public class DataManager : MonoBehaviour
         return shipData_dict[id];
     }
 
-    public Dictionary<int,string> GetShipUrlList()
+    public Dictionary<int, string> GetShipUrlList()
     {
         return shipData_dict.ToDictionary(kv => kv.Key, kv => kv.Value.Url);
+    }
+
+    public static DataManagerChanger GetDataManagerChanger()
+    {
+        return new DataManagerChanger();
+    }
+    
+    // DataManager 管理工具
+    public class DataManagerChanger
+    {
+        public ShipData_SO ShipData { set => instance.shipData_dict = value.Sheet1.ToDictionary(v => v.uid, v => v); }
+        public SaveData_SO SaveData { set => instance.saveData_SO = value; }
+        
+        public void Init()
+        {
+            instance.Init();
+        }
     }
 }

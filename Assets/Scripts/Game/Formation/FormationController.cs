@@ -8,11 +8,12 @@ public class FormationController : MonoBehaviour
 {
     public Vector2Int MapSize;
 
-    public Ship_UI ShipOnDrag{ get => ship_on_drag; set => ship_on_drag = value; }
-    Ship_UI ship_on_drag;
+    public Ship_Formation ShipOnDrag{ get => ship_on_drag; set => ship_on_drag = value; }
+    Ship_Formation ship_on_drag;
 
-    GridCellGroup gridCellGroup;
+    GridCellGroup_Formation gridCellGroup;
     Dictionary<Vector2Int, LayoutDATA> placed_layout;
+    Dictionary<Vector2Int,int> formation_dict;
     List<Vector2Int> placed_map;
 
     public Canvas canvas{ get; private set; }
@@ -47,12 +48,13 @@ public class FormationController : MonoBehaviour
 
         InputController.instance.SelectActionMap(ActionMapRegistry.FormationMap);
         placed_layout = new();
+        formation_dict = new();
         RefreshPlacedMap();
     }
 
     void Start()
     {
-        gridCellGroup = UIManager.instance.GetUIView<GridCellGroup>();
+        gridCellGroup = UIManager.instance.GetUIView<GridCellGroup_Formation>();
     }
 
     void OnEnable()
@@ -102,9 +104,10 @@ public class FormationController : MonoBehaviour
         }
     }
 
-    public void SetPlacedLayout(Vector2Int center,LayoutDATA layout)
+    public void SetPlacedLayout(Vector2Int center,LayoutDATA layout,int id)
     {
         placed_layout.Add(center, layout);
+        formation_dict.Add(center, id);
         RefreshPlacedMap();
     }
 
@@ -113,6 +116,7 @@ public class FormationController : MonoBehaviour
         if (placed_layout.ContainsKey(center))
         {
             placed_layout.Remove(center);
+            formation_dict.Remove(center);
             RefreshPlacedMap();
         }
     }
