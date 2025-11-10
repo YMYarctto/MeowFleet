@@ -27,7 +27,12 @@ public class LayoutMap
     public void AddShip(Vector2Int center, LayoutDATA layout)
     {
         id++;
-        ShipStatus ship_status = new ShipStatus { id = id, layout = layout };
+        AddShip(id, center, layout);
+    }
+
+    public void AddShip(int _id,Vector2Int center, LayoutDATA layout)
+    {
+        ShipStatus ship_status = new ShipStatus { id = _id, layout = layout };
         _absolute_layout_map[id] = layout.LayoutInMap(center);
         foreach (var coord in layout.ToList)
         {

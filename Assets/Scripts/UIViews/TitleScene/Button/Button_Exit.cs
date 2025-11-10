@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Button_Exit : Button_TitleScene
+public class Button_Exit : BaseButton_TitleScene
 {
     public override UIView currentView => this;
 

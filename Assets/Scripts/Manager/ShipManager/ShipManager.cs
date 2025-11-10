@@ -34,4 +34,20 @@ public class ShipManager : MonoBehaviour
     {
         max_id = DataManager.instance.SaveData.GetShiphouseData(out shipDict);
     }
+
+    public void AddShip(Ship ship)
+    {
+        max_id++;
+        shipDict.Add(max_id, ship);
+    }
+
+    public Ship GetShip(int id)
+    {
+        if (!shipDict.ContainsKey(id))
+        {
+            Debug.LogError($"未知的 Ship ID : {id} ");
+            return null;
+        }
+        return shipDict[id];
+    }
 }

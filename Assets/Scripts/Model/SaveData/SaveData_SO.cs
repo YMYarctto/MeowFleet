@@ -11,7 +11,7 @@ public class SaveData_SO : ScriptableObject
     {
         saveData = new SaveData();
         saveData.shiphouseData = new ShiphouseData(new Dictionary<int, Ship>());
-        saveData.formationData = new FormationData(new Vector2Int(8, 8), new Dictionary<Vector2Int, int>());
+        saveData.formationData = new FormationData(new Vector2Int(8, 8), new());
     }
 
     public int GetShiphouseData(out Dictionary<int, Ship> dict)

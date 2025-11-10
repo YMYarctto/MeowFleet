@@ -5,9 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public abstract class Button_TitleScene : UIView
+public abstract class BaseButton_TitleScene : BaseButton_Default
 {
-    EventTrigger eventTrigger;
     TMP_Text text;
 
     public override void Init()

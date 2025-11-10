@@ -11,18 +11,39 @@ public class EnemyController : MonoBehaviour
     public bool isTest;
 
     public Vector2Int size;
-    public List<int> target_ships_id;
+    public List<int> enemy_ships_id;
+
+    List<int> target_ships_id;
 
     EventGroup _event;
 
     Transform playArea;
 
     List<LayoutDATA> target_ship;
+    List<Ship> enemy_ship;
 
     List<Vector2Int> available_map;
     LayoutMap layout_map;
 
     EnemyBehavior AI;
+
+    private static EnemyController _instance;
+    public static EnemyController instance
+    {
+        get
+        {
+            if (!_instance)
+            {
+                _instance = FindObjectOfType(typeof(EnemyController)) as EnemyController;
+                if (!_instance)
+                {
+                    Debug.LogError("场景中未找到 EnemyController");
+                    return null;
+                }
+            }
+            return _instance;
+        }
+    }
 
     void Awake()
     {
@@ -32,6 +53,11 @@ public class EnemyController : MonoBehaviour
         {
             ShipData ship_data = DataManager.instance.GetShipData(id);
             return new LayoutDATA(ship_data.shape_coord);
+        });
+
+        enemy_ship = enemy_ships_id.ConvertAll(id =>
+        {
+            return new Ship(DataManager.instance.GetShipData(id));
         });
 
         if (isTest)
@@ -71,8 +97,9 @@ public class EnemyController : MonoBehaviour
                 }
             }
 
-            foreach (var layout in target_ship)
+            foreach (var ship in enemy_ship)
             {
+                LayoutDATA layout = new(ship.Layout);
                 for (int i = 0; i < 400; i++)
                 {
                     System.Random rand = new();
@@ -109,7 +136,7 @@ public class EnemyController : MonoBehaviour
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
         if (isTest) DrawMap__test(target_coord, hit_point__test);
-        ActionMessage message = layout_map.GetMessage(target_coord);
+        ActionMessage message =PVEController.instance.GetPlayerMessage(target_coord);
         Debug.Log(message);
         if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
         {

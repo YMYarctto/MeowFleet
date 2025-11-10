@@ -29,6 +29,11 @@ public class LayoutDATA
         _layout = new();
     }
 
+    public LayoutDATA(LayoutDATA layout)
+    {
+        _layout = new(layout.ToList);
+    }
+
     public LayoutDATA(List<Vector2Int> layout)
     {
         _layout = new(layout);
