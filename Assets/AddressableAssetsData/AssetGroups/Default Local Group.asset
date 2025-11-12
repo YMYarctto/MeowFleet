@@ -57,8 +57,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fad632f64664042869a1c45dc67f24d1
+    m_Address: GridCell_PVE
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fec84cc05ff3c4de0a63a131d2896271
-    m_Address: GridCell
+    m_Address: GridCell_Formation
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

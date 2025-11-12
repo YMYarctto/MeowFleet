@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SeaAreaScene.unity
     guid: 0d61b632dd66144b4b5f8b50fddb3a5e
+  - enabled: 1
+    path: Assets/Scenes/PVEScene.unity
+    guid: 13124c668884e40a795a7abecf565f6b
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 8e5663382e9294117bf214f08148f952, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: c73a9b1466f0545699673299aab768a0, type: 2}

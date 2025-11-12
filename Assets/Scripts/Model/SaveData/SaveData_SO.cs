@@ -7,6 +7,8 @@ public class SaveData_SO : ScriptableObject
 {
     SaveData saveData;
 
+    public Vector2Int MapSize => saveData.formationData.size;
+
     public void New()
     {
         saveData = new SaveData();

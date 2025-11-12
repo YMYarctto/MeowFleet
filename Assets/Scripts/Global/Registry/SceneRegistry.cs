@@ -8,5 +8,6 @@ public static class SceneRegistry
     public const string TitleScene = "TitleScene";
     public const string TestScene = "TestScene";
     public const string SeaAreaScene = "SeaAreaScene";
+    public const string PVEScene = "PVEScene";
 }
 

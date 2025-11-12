@@ -49,12 +49,6 @@ public class EnemyController : MonoBehaviour
     {
         _event = EventManager.GroupBy("EnemyController");
 
-        target_ship = target_ships_id.ConvertAll(id =>
-        {
-            ShipData ship_data = DataManager.instance.GetShipData(id);
-            return new LayoutDATA(ship_data.shape_coord);
-        });
-
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
             return new Ship(DataManager.instance.GetShipData(id));
@@ -68,6 +62,17 @@ public class EnemyController : MonoBehaviour
         MapInit();
 
         AI = new EnemyBehavior();
+    }
+
+    void Start()
+    {
+        target_ships_id = PVEController.instance.GetPlayerShipsID();
+        target_ship = target_ships_id.ConvertAll(id =>
+        {
+            ShipData ship_data = DataManager.instance.GetShipData(id);
+            return new LayoutDATA(ship_data.shape_coord);
+        });
+        
         AI.Init(size, target_ship);
     }
 

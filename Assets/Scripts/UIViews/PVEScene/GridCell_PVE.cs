@@ -6,36 +6,39 @@ public class GridCell_PVE : UIView
 {
     public override UIView currentView => this;
 
-    GameObject hit;
-    GameObject raycast;
+    protected GameObject hit;
+    protected GameObject select;
 
-    int _ID = GridCellGroup_PVE.GridCellID;
+    int _ID = GridCellGroup_Player.GridCellID;
     public override int ID => _ID;
 
     public override void Init()
     {
         hit = transform.Find("hit").gameObject;
-        raycast = transform.Find("raycast").gameObject;
+        select = transform.Find("select").gameObject;
         Disable();
     }
 
     public override void Enable()
     {
         hit.SetActive(true);
+        select.SetActive(false);
     }
 
     public override void Disable()
     {
         hit.SetActive(false);
+        select.SetActive(false);
+    }
+
+    public void Select()
+    {
+        hit.SetActive(false);
+        select.SetActive(true);
     }
 
     public Vector2Int GetVector2Int()
     {
-        int id = _ID;
-        while (id >= 1000)
-        {
-            id -= 1000;
-        }
-        return new(id % 10, id / 10);
+        return new(_ID % 10, _ID / 10);
     }
 }

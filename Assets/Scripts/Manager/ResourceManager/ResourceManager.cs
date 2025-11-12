@@ -88,6 +88,7 @@ public class ResourceManager : MonoBehaviour
         {
             var so = handle.Result;
             dataManager.SaveData = so;
+            so.New();
             pkg.AddProgress();
         };
 
@@ -135,6 +136,9 @@ public class ResourceManager : MonoBehaviour
         SceneController.instance.Init();
         DOTween.Init();
         InputController.instance.Init();
+
+        ShipManager.instance.Init();
+        ShipManager.instance.Read();
 
         SceneController.instance.OnSceneLoadAction(() =>
         {

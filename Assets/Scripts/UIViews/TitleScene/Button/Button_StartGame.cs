@@ -9,6 +9,6 @@ public class Button_StartGame : BaseButton_TitleScene
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        SceneController.instance.ChangeScene(SceneRegistry.SeaAreaScene);
+        SceneController.instance.ChangeScene(SceneRegistry.PVEScene);
     }
 }

@@ -43,8 +43,8 @@ public class Ship_Formation : Ship_UIBase
     bool inMap = false;
     Vector2Int inMap_coord;
     Sequence loopTween;
-    LayoutDATA pre_layout;
     Vector3 pre_rotation;
+    int direction;
 
     public override void Init()
     {
@@ -83,7 +83,7 @@ public class Ship_Formation : Ship_UIBase
     {
         base.Init(ship);
         original_parent = transform.parent;
-        pre_layout = new LayoutDATA(ship.Layout.ToList);
+        direction = 0;
         pre_rotation = trans.eulerAngles;
     }
     
@@ -118,7 +118,7 @@ public class Ship_Formation : Ship_UIBase
             FormationController.instance.SetDragLayout(gridCell.GetVector2Int(), ship.Layout);
         }
 
-        pre_layout = new LayoutDATA(ship.Layout.ToList);
+        direction = 0;
         pre_rotation = trans.eulerAngles;
     }
 
@@ -158,12 +158,12 @@ public class Ship_Formation : Ship_UIBase
         else
         {
             trans.SetParent(original_parent, true);
-            ship.SetLayout(pre_layout);
+            ship.Rotate(-direction);
             MoveAnimation(Vector2.zero, pre_rotation);
         }
         if(inMap)
         {
-            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,id);
+            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,_ID);
         }
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();

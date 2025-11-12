@@ -7,6 +7,7 @@ public class Ship
     ShipData shipData;
     LayoutDATA layout;
     LayoutDATA init_layout;
+    int _direction = 0;
 
     public LayoutDATA Layout => layout;
     public LayoutDATA InitLayout => init_layout;
@@ -18,18 +19,17 @@ public class Ship
         init_layout = layout = new(shipData.shape_coord);
     }
 
-    public void ResetLayout()
+    public int ResetLayout()
     {
         layout = new(init_layout);
+        int value = _direction;
+        _direction = 0;
+        return value;
     }
 
     public void Rotate(int direction)
     {
         layout = layout.Rotate(direction);
-    }
-
-    public void SetLayout(LayoutDATA layoutDATA)
-    {
-        layout = layoutDATA;
+        _direction += direction;
     }
 }

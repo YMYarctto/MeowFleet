@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1159548574976810118}
   - component: {fileID: 3119510754637083044}
   m_Layer: 5
-  m_Name: GridCell
+  m_Name: GridCell_Formation
   m_TagString: GridCell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
