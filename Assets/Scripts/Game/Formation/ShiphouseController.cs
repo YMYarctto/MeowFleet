@@ -32,13 +32,14 @@ public class ShiphouseController : MonoBehaviour
         {
             child_list.Add(shiphouse.GetChild(index));
         }
+
+        int id = 10000;
         foreach(var uid in DataManager.instance.GetShipUrlList().Keys)
         {
-            int id = 10000;
+            id++;
             Ship ship = new(DataManager.instance.GetShipData(uid));
             ShipManager.instance.AddShip(ship);
             Ship_UIBase.Create<Ship_Formation>(id,ship, child_list[uid]);//delete
-            id++;
         }
     }
 }

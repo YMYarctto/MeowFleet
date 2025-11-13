@@ -43,13 +43,13 @@ public class ActionMessage
 
     public override string ToString()
     {
-        string str = $"Target: ({_target.x},{_target.y})\n";
-        str += "ActionResult:";
+        string str = "ActionResult:";
         foreach (var result in _result)
         {
             str += $"{result}; ";
         }
-        str += $"\nHit: {_hit_ships.Key} : {_hit_ships.Value}\n";
+        str += $"\nTarget: ({_target.x},{_target.y})\n";
+        str += $"Hit: {_hit_ships.Key} : {_hit_ships.Value}\n";
         str += $"Destroy: {_destroyed_ships.Key} : {_destroyed_ships.Value}\n";
         
         return str;

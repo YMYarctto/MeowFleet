@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Button_TestEnemyTurn : BaseButton_TitleScene
+public class Button_ChangePVEPage : BaseButton_Default
 {
     public override UIView currentView => this;
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn);
+        UIManager.instance.GetUIView<BG_PVE>().NextPage();
     }
 
 }

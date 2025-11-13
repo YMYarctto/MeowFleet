@@ -33,8 +33,13 @@ public abstract class BaseButton_Default : UIView
         entry_pointerUp.eventID = EventTriggerType.PointerUp;
         entry_pointerUp.callback.AddListener((data) => { OnPointerUp((PointerEventData)data); });
 
+        EventTrigger.Entry entry_pointerClick = new EventTrigger.Entry();
+        entry_pointerClick.eventID = EventTriggerType.PointerClick;
+        entry_pointerClick.callback.AddListener((data) => { OnPointerClick((PointerEventData)data); });
+
         eventTrigger.triggers.Add(entry_pointerDown);
         eventTrigger.triggers.Add(entry_pointerUp);
+        eventTrigger.triggers.Add(entry_pointerClick);
     }
 
     private void OnPointerUp(PointerEventData eventData)
@@ -50,4 +55,6 @@ public abstract class BaseButton_Default : UIView
         darkColor.a = color.a;
         tween = image.DOColor(darkColor, fadeDuration);
     }
+
+    public abstract void OnPointerClick(PointerEventData eventData);
 }

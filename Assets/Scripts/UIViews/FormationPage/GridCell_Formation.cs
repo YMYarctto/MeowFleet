@@ -21,7 +21,6 @@ public class GridCell_Formation : UIView
         forbid = transform.Find("forbid").gameObject;
         raycast = transform.Find("raycast");
         raycast.gameObject.name = $"raycast_{_ID}";
-        raycast.SetParent(raycast_group, true);
         raycast.GetComponent<GridCell_raycast>().Parent = this;
         Disable();
     }
@@ -45,6 +44,6 @@ public class GridCell_Formation : UIView
 
     public Vector2Int GetVector2Int()
     {
-        return new(_ID % 10, _ID / 10);
+        return new(ID % 10, ID / 10);
     }
 }

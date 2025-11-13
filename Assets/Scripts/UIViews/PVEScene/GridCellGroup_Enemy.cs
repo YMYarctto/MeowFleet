@@ -23,7 +23,7 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
         for (int i = 0; i < 100; i++)//TODO 100
         {
             GameObject obj = Instantiate(grid_cell);
-            obj.transform.SetParent(transform);
+            obj.transform.SetParent(transform,false);
             obj.name = $"GridCell_{GridCellID}";
             girdCell_dict.Add(GridCellID, obj.AddComponent<GridCell_Enemy>());
             GridCellID++;
@@ -38,7 +38,19 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
             {
                 GridCell_Enemy cell = (GridCell_Enemy)girdCell_dict[GetIndex(coord)];
                 select_cells.Add(cell);
-                cell.Select();
+                cell.Select(true);
+            }
+        }
+    }
+
+    public void Hit(List<Vector2Int> coords)
+    {
+        foreach (var coord in coords)
+        {
+            if (IsInMap(coord))
+            {
+                GridCell_Enemy cell = (GridCell_Enemy)girdCell_dict[GetIndex(coord)];
+                cell.Enable();
             }
         }
     }
@@ -47,7 +59,7 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
     {
         foreach (var cell in select_cells)
         {
-            cell.Disable();
+            cell.Select(false);
         }
         select_cells.Clear();
     }

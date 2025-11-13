@@ -45,6 +45,6 @@ public class GridCell_Enemy : GridCell_PVE
 
     private void OnPointerClick(PointerEventData data)
     {
-
+        PVEController.instance.PlayerHit(GetVector2Int());
     }
 }

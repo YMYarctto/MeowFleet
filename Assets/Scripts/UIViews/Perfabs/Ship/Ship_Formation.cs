@@ -17,25 +17,7 @@ public class Ship_Formation : Ship_UIBase
     Canvas canvas => FormationController.instance.canvas;
 
     public override UIView currentView => this;
-
-    int _ID = id;
-    public override int ID => _ID;
-
-    static int id
-    {
-        get
-        {
-            _uid++;
-            return _uid;
-        }
-    }
-
-    static int _uid=10000;
-    // Ship ship;
-
-    // Transform trans;
-    // RectTransform rectTransform;
-    // Image image;
+    
     EventTrigger eventTrigger;
 
     GridCell_Formation drag_gridCell;

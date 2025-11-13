@@ -27,6 +27,8 @@ public class EnemyController : MonoBehaviour
 
     EnemyBehavior AI;
 
+    public int EnemyShootCount => layout_map.Count;
+
     private static EnemyController _instance;
     public static EnemyController instance
     {
@@ -72,18 +74,18 @@ public class EnemyController : MonoBehaviour
             ShipData ship_data = DataManager.instance.GetShipData(id);
             return new LayoutDATA(ship_data.shape_coord);
         });
-        
+
         AI.Init(size, target_ship);
     }
 
     void OnEnable()
     {
-        _event.AddListener(EventRegistry.TestScene.EnemyTurn, EnemyTurn);
+        _event.AddListener(EventRegistry.PVE.EnemyTurn, EnemyTurn);
     }
 
     void OnDisable()
     {
-        _event?.RemoveListener(EventRegistry.TestScene.EnemyTurn, EnemyTurn);
+        _event?.RemoveListener(EventRegistry.PVE.EnemyTurn, EnemyTurn);
     }
 
     private void MapInit()
@@ -136,24 +138,34 @@ public class EnemyController : MonoBehaviour
         });
         task.Wait();
     }
-    
+
     public void EnemyTurn()
     {
-        Vector2Int target_coord = AI.CalculatePossibleMap();
-        if (isTest) DrawMap__test(target_coord, hit_point__test);
-        ActionMessage message =PVEController.instance.GetPlayerMessage(target_coord);
-        Debug.Log(message);
-        if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+        for (int i = 0; i < EnemyShootCount; i++)
         {
-            AI.UpdatePossibleMapAfterHit(target_coord, message.HitShips);
+            Vector2Int target_coord = AI.CalculatePossibleMap();
+            if (isTest) DrawMap__test(target_coord, hit_point__test);
+            ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
+            Debug.Log(message);
+            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                AI.UpdatePossibleMapAfterHit(target_coord, message.HitShips);
+            }
+            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+            {
+                AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
+            }
+
+            AI.Remove(target_coord);
+            Debug.Log(AI.GetCurrentProbabilityMap());
         }
-        else if (message.Contains(ActionMessage.ActionResult.Destroyed))
-        {
-            AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
-        }
-        
-        AI.Remove(target_coord);
-        Debug.Log(AI.GetCurrentProbabilityMap());
+
+        PVEController.instance.NextState();
+    }
+    
+    public ActionMessage PlayerHit(Vector2Int coord)
+    {
+        return layout_map.GetMessage(coord);
     }
 
     // 检查该点位该布局是否可行

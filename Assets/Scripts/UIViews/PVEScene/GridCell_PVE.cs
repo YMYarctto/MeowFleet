@@ -22,7 +22,6 @@ public class GridCell_PVE : UIView
     public override void Enable()
     {
         hit.SetActive(true);
-        select.SetActive(false);
     }
 
     public override void Disable()
@@ -31,14 +30,13 @@ public class GridCell_PVE : UIView
         select.SetActive(false);
     }
 
-    public void Select()
+    public void Select(bool is_select)
     {
-        hit.SetActive(false);
-        select.SetActive(true);
+        select.SetActive(is_select);
     }
 
     public Vector2Int GetVector2Int()
     {
-        return new(_ID % 10, _ID / 10);
+        return new(ID % 10, ID / 10);
     }
 }

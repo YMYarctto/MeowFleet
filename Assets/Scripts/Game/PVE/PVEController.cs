@@ -13,8 +13,15 @@ public class PVEController : MonoBehaviour
     List<Vector2Int> current_range;
 
     Transform ShipGroupTrans;
-    
+    BG_PVE bg;
+
     PVEState currentState;
+
+    bool PlayerAction => currentState == PVEState.PlayerAttack;
+
+    public int Round;
+    public int PlayerShootCount => player_layout_map.Count;
+    int current_shoot_count;
 
     private static PVEController _instance;
     public static PVEController instance
@@ -52,12 +59,17 @@ public class PVEController : MonoBehaviour
 
         currentState = PVEState.PlayerAttack;
         current_range = new List<Vector2Int>() { new(0, 0) };
+        Round = 1;
+
+        current_shoot_count = PlayerShootCount;
     }
 
     void Start()
     {
         gridCellGroup_Player = UIManager.instance.GetUIView<GridCellGroup_Player>();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
+        bg = UIManager.instance.GetUIView<BG_PVE>();
+        bg.SetInteractionActive(false);
     }
 
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
@@ -66,7 +78,13 @@ public class PVEController : MonoBehaviour
         ship.SetPosition(coord);
     }
 
-    public ActionMessage GetPlayerMessage(Vector2Int coord)
+    public void PlayerTurn()
+    {
+        bg.SetInteractionActive(false);
+        current_shoot_count = PlayerShootCount;
+    }
+
+    public ActionMessage EnemyAttack(Vector2Int coord)
     {
         gridCellGroup_Player.Hit(coord);
         return player_layout_map.GetMessage(coord);
@@ -74,11 +92,29 @@ public class PVEController : MonoBehaviour
 
     public void PlayerSelect(Vector2Int coord)
     {
-        if (currentState != PVEState.PlayerAttack)
+        if (!PlayerAction)
         {
             return;
         }
         gridCellGroup_Enemy.Select(current_range.ConvertAll(v => v + coord).ToList());
+    }
+
+    public void PlayerHit(Vector2Int coord)
+    {
+        List<Vector2Int> coords = current_range.ConvertAll(v => v + coord).ToList();
+        gridCellGroup_Enemy.Hit(coords);
+        foreach (var v2 in new List<Vector2Int>(coords))
+        {
+            ActionMessage message = EnemyController.instance.PlayerHit(v2);
+            Debug.Log(message);
+        }
+
+        current_shoot_count--;
+        Debug.Log($"剩余次数: {current_shoot_count}");
+        if(current_shoot_count<=0)
+        {
+            NextState();
+        }
     }
 
     public void ClearSelect()
@@ -90,6 +126,16 @@ public class PVEController : MonoBehaviour
     {
         int next = ((int)currentState + 1) % System.Enum.GetValues(typeof(PVEState)).Length;
         currentState = (PVEState)next;
+        Debug.Log(currentState.ToString());
+        if (currentState == PVEState.EnemyAttack)
+        {
+            EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn);
+            bg.SetInteractionActive(true);
+        }
+        if(currentState==PVEState.PlayerAttack)
+        {
+            PlayerTurn();
+        }
     }
 
     public List<int> GetPlayerShipsID()

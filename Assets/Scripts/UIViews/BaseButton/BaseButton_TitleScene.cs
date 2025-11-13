@@ -42,6 +42,4 @@ public abstract class BaseButton_TitleScene : BaseButton_Default
     {
         text.color = PresetColor.Button_Idle;
     }
-
-    public abstract void OnPointerClick(PointerEventData eventData);
 }

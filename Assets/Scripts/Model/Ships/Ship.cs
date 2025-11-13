@@ -8,10 +8,11 @@ public class Ship
     LayoutDATA layout;
     LayoutDATA init_layout;
     int _direction = 0;
-
+    
     public LayoutDATA Layout => layout;
     public LayoutDATA InitLayout => init_layout;
     public int Uid => shipData.uid;
+    public int Direction => _direction;
 
     public Ship(ShipData shipData)
     {

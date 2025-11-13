@@ -8,7 +8,7 @@ public abstract class Ship_UIBase : UIView
     public override UIView currentView => this;
 
     static int ShipID;
-    int _ID = ShipID;
+    protected int _ID = ShipID;
     public override int ID => _ID;
 
     protected Ship ship;

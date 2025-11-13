@@ -11,6 +11,8 @@ public class LayoutMap
     Dictionary<Vector2Int, int> _status_map;
     int id = 0;
 
+    public int Count => _absolute_layout_map.Count(kv => kv.Value.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
+
     struct ShipStatus
     {
         public int id;
@@ -30,16 +32,18 @@ public class LayoutMap
         AddShip(id, center, layout);
     }
 
-    public void AddShip(int _id,Vector2Int center, LayoutDATA layout)
+    public void AddShip(int _id,Vector2Int center, LayoutDATA _layout)
     {
-        ShipStatus ship_status = new ShipStatus { id = _id, layout = layout };
-        _absolute_layout_map[id] = layout.LayoutInMap(center);
-        foreach (var coord in layout.ToList)
+        ShipStatus ship_status = new ShipStatus { id = _id, layout = _layout };
+        _absolute_layout_map[_id] = _layout.LayoutInMap(center);
+        foreach (var coord in _layout.ToList)
         {
             Vector2Int absolute_coord = center + coord;
             _ship_map[absolute_coord] = ship_status;
             _status_map[absolute_coord] = 1;
         }
+
+        Debug.Log($"已添加舰船 ID: {_id}");
     }
 
     public ActionMessage GetMessage(Vector2Int target)
