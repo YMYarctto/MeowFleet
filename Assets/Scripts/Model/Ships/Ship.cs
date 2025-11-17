@@ -13,6 +13,7 @@ public class Ship
     public LayoutDATA InitLayout => init_layout;
     public int Uid => shipData.uid;
     public int Direction => _direction;
+    public string Name => shipData.ship_name_string;
 
     public Ship(ShipData shipData)
     {

@@ -30,8 +30,7 @@ public abstract class Ship_UIBase : UIView
         image.sprite = sprite;
         RectTransform img_rectTransform = image.rectTransform;
         Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
-        float pixelsPerUnit = sprite.pixelsPerUnit;
-        img_rectTransform.sizeDelta = spriteSize / pixelsPerUnit;
+        img_rectTransform.sizeDelta = spriteSize / Global.PPU;
         img_rectTransform.pivot = new Vector2(
             sprite.pivot.x / sprite.rect.width,
             sprite.pivot.y / sprite.rect.height

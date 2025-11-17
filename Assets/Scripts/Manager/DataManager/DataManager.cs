@@ -54,6 +54,17 @@ public partial class DataManager : MonoBehaviour
         return shipData_dict.ToDictionary(kv => kv.Key, kv => kv.Value.Url);
     }
 
+    public string GetShipName(int id)
+    {
+        if (!shipData_dict.ContainsKey(id))
+        {
+            Debug.LogError($"未找到id: {id}");
+            return "";
+        }
+
+        return shipData_dict[id].ship_name_string;
+    }
+
     public static DataManagerChanger GetDataManagerChanger()
     {
         return new DataManagerChanger();

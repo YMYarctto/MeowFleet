@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class ActionMessage
 {
+    int ship_id;
     Vector2Int _target;
     List<ActionResult> _result;
     KeyValuePair<int, LayoutDATA> _hit_ships;
     KeyValuePair<int, LayoutDATA> _destroyed_ships;
+
+    public string ShipName => DataManager.instance.GetShipName(ship_id);
 
     public KeyValuePair<int, LayoutDATA> HitShips
     {
@@ -18,8 +21,18 @@ public class ActionMessage
         get => _destroyed_ships;
     }
 
+    public ActionMessage(int ship, Vector2Int target, params ActionResult[] results)
+    {
+        ship_id = ship;
+        _target = target;
+        _result = new(results);
+        _hit_ships = new(-1, null);
+        _destroyed_ships = new(-1, null);
+    }
+    
     public ActionMessage(Vector2Int target,params ActionResult[] results)
     {
+        ship_id = 0;
         _target = target;
         _result = new(results);
         _hit_ships = new(-1,null);
@@ -38,7 +51,7 @@ public class ActionMessage
 
     public void AddDestroyedShip(int id, LayoutDATA layout)
     {
-        _destroyed_ships=new(id, layout);
+        _destroyed_ships = new(id, layout);
     }
 
     public override string ToString()

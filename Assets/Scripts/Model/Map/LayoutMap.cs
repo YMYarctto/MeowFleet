@@ -9,13 +9,14 @@ public class LayoutMap
     Dictionary<int, List<Vector2Int>> _absolute_layout_map;
     Dictionary<Vector2Int, ShipStatus> _ship_map;
     Dictionary<Vector2Int, int> _status_map;
+    Dictionary<int, int> _ship_id;
     int id = 0;
 
     public int Count => _absolute_layout_map.Count(kv => kv.Value.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
 
     struct ShipStatus
     {
-        public int id;
+        public int ID;
         public LayoutDATA layout;
     }
 
@@ -24,18 +25,15 @@ public class LayoutMap
         _absolute_layout_map = new();
         _ship_map = new();
         _status_map = new();
+        _ship_id = new();
     }
 
-    public void AddShip(Vector2Int center, LayoutDATA layout)
+    public void AddShip(int ship_id,Vector2Int center, LayoutDATA _layout)
     {
         id++;
-        AddShip(id, center, layout);
-    }
-
-    public void AddShip(int _id,Vector2Int center, LayoutDATA _layout)
-    {
-        ShipStatus ship_status = new ShipStatus { id = _id, layout = _layout };
-        _absolute_layout_map[_id] = _layout.LayoutInMap(center);
+        ShipStatus ship_status = new ShipStatus { ID = id, layout = _layout };
+        _ship_id.Add(id, ship_id);
+        _absolute_layout_map[id] = _layout.LayoutInMap(center);
         foreach (var coord in _layout.ToList)
         {
             Vector2Int absolute_coord = center + coord;
@@ -43,7 +41,7 @@ public class LayoutMap
             _status_map[absolute_coord] = 1;
         }
 
-        Debug.Log($"已添加舰船 ID: {_id}");
+        Debug.Log($"已添加舰船 ID: {id}");
     }
 
     public ActionMessage GetMessage(Vector2Int target)
@@ -56,17 +54,19 @@ public class LayoutMap
 
         ActionMessage message;
         _status_map[target] = 0;
-        if(!_absolute_layout_map[_ship_map[target].id].All(v=>_status_map[v]==0))
+        int _id = _ship_map[target].ID;
+        int ship_id = _ship_id[_id];
+        if(!_absolute_layout_map[_id].All(v=>_status_map[v]==0))
         {
             // Hit
-            message = new ActionMessage(target,ActionMessage.ActionResult.Hit);
-            message.AddHitShip(_ship_map[target].id, _ship_map[target].layout);
+            message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Hit);
+            message.AddHitShip(_id, _ship_map[target].layout);
             return message;
         }
         
         // Destroyed
-        message = new ActionMessage(target,ActionMessage.ActionResult.Destroyed);
-        message.AddDestroyedShip(_ship_map[target].id, _ship_map[target].layout);
+        message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Destroyed);
+        message.AddDestroyedShip(_id, _ship_map[target].layout);
 
         return message;
     }

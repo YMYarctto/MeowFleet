@@ -1,0 +1,21 @@
+<svg id="组_17" data-name="组 17" xmlns="http://www.w3.org/2000/svg" width="1011" height="1012" viewBox="0 0 1011 1012">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #003c7e;
+        stroke-width: 2px;
+      }
+
+      .cls-2 {
+        fill: #b51d04;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <rect id="矩形_2453" data-name="矩形 2453" class="cls-1" x="25.625" y="24.938" width="962.031" height="962.093"/>
+  <path id="矩形_2454" data-name="矩形 2454" class="cls-2" d="M925,0h86V86H925V0Zm0,14.438h71.562V86H925V14.438Z"/>
+  <path id="矩形_2454-2" data-name="矩形 2454" class="cls-2" d="M925,926h86v86H925V926Zm0,0h71.562v71.562H925V926Z"/>
+  <path id="矩形_2454-3" data-name="矩形 2454" class="cls-2" d="M-0.281.281h86v86h-86v-86ZM14.156,14.719H85.719V86.281H14.156V14.719Z"/>
+  <path id="矩形_2454-4" data-name="矩形 2454" class="cls-2" d="M-0.281,926.281h86v86h-86v-86Zm14.437,0H85.719v71.563H14.156V926.281Z"/>
+</svg>

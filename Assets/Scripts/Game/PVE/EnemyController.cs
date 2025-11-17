@@ -114,7 +114,7 @@ public class EnemyController : MonoBehaviour
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
-                        layout_map.AddShip(pos, layout_ran);
+                        layout_map.AddShip(ship.Uid,pos, layout_ran);
                         foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);

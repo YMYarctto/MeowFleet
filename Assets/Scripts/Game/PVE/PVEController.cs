@@ -14,6 +14,7 @@ public class PVEController : MonoBehaviour
 
     Transform ShipGroupTrans;
     BG_PVE bg;
+    PVE_Notice notice;
 
     PVEState currentState;
 
@@ -43,6 +44,7 @@ public class PVEController : MonoBehaviour
 
     void Awake()
     {
+        Global.PPU = 6.25f;
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
@@ -52,8 +54,9 @@ public class PVEController : MonoBehaviour
 
         foreach (var kv in player_ships_id)
         {
-            player_layout_map.AddShip(kv.Value, kv.Key, player_ships[kv.Key].Layout);
-            GameObject obj = Ship_UIBase.Create<Ship_PVE>(kv.Value, player_ships[kv.Key], ShipGroupTrans);
+            Ship ship = player_ships[kv.Key];
+            player_layout_map.AddShip(ship.Uid, kv.Key, ship.Layout);
+            GameObject obj = Ship_UIBase.Create<Ship_PVE>(kv.Value, ship, ShipGroupTrans);
             StartCoroutine(SetPosition_WaitForEndOfFrame(kv.Key, obj.GetComponent<Ship_PVE>()));
         }
 
@@ -69,6 +72,7 @@ public class PVEController : MonoBehaviour
         gridCellGroup_Player = UIManager.instance.GetUIView<GridCellGroup_Player>();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
         bg = UIManager.instance.GetUIView<BG_PVE>();
+        notice = UIManager.instance.GetUIView<PVE_Notice>();
         bg.SetInteractionActive(false);
     }
 
@@ -107,6 +111,10 @@ public class PVEController : MonoBehaviour
         {
             ActionMessage message = EnemyController.instance.PlayerHit(v2);
             Debug.Log(message);
+            if(!message.Contains(ActionMessage.ActionResult.Miss))
+            {
+                notice.ShowNotice(message.ShipName,"船体");
+            }
         }
 
         current_shoot_count--;
