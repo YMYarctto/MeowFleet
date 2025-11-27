@@ -5,6 +5,11 @@ using UnityEngine;
 
 public class PVEController : MonoBehaviour
 {
+    readonly string CORE = "核心";
+    readonly string BODY = "船体";
+    readonly string DESTROY = "击沉";
+    readonly string CAPTURE = "俘获";
+
     Dictionary<Vector2Int,int> player_ships_id;
     Dictionary<Vector2Int,Ship> player_ships;
     LayoutMap player_layout_map;
@@ -21,7 +26,7 @@ public class PVEController : MonoBehaviour
     bool PlayerAction => currentState == PVEState.PlayerAttack;
 
     public int Round;
-    public int PlayerShootCount => player_layout_map.Count;
+    public int PlayerShootCount => player_layout_map.AttackCount;
     int current_shoot_count;
 
     private static PVEController _instance;
@@ -111,9 +116,15 @@ public class PVEController : MonoBehaviour
         {
             ActionMessage message = EnemyController.instance.PlayerHit(v2);
             Debug.Log(message);
-            if(!message.Contains(ActionMessage.ActionResult.Miss))
+            if (message.Contains(ActionMessage.ActionResult.Hit))
             {
-                notice.ShowNotice(message.ShipName,"船体");
+                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                notice.ShowNotice_Hit(message.ShipName, LOCATE);
+            }
+            else if (!message.Contains(ActionMessage.ActionResult.Miss))
+            {
+                string ACTION = message.Locate == ActionMessage.ActionLocate.core ? DESTROY : CAPTURE;
+                notice.ShowNotice_Destroy(message.ShipName,ACTION);
             }
         }
 

@@ -11,14 +11,12 @@ public abstract class BaseButton_TitleScene : BaseButton_Default
 
     public override void Init()
     {
+        base.Init();
+
         text = GetComponentInChildren<TMP_Text>();
         text.color = PresetColor.Button_Idle;
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
-
-        EventTrigger.Entry entry_pointerClick = new EventTrigger.Entry();
-        entry_pointerClick.eventID = EventTriggerType.PointerClick;
-        entry_pointerClick.callback.AddListener((data) => { OnPointerClick((PointerEventData)data); });
 
         EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
         entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
@@ -28,7 +26,6 @@ public abstract class BaseButton_TitleScene : BaseButton_Default
         entry_pointerExit.eventID = EventTriggerType.PointerExit;
         entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
 
-        eventTrigger.triggers.Add(entry_pointerClick);
         eventTrigger.triggers.Add(entry_pointerEnter);
         eventTrigger.triggers.Add(entry_pointerExit);
     }

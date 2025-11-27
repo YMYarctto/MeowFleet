@@ -26,9 +26,15 @@ public class PVE_Notice : UIView
         Disable();
     }
 
-    public void ShowNotice(string ship_str,string coord)
+    public void ShowNotice_Hit(string ship_str, string locate)
     {
-        text.text = $"你命中了 [ {ship_str} ] 的{coord}";
+        text.text = $"你命中了 [ {ship_str} ] 的{locate}";
+        Enable();
+    }
+    
+    public void ShowNotice_Destroy(string ship_str,string action)
+    {
+        text.text = $"你{action}了 [ {ship_str} ]";
         Enable();
     }
 

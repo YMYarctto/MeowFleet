@@ -27,7 +27,7 @@ public class EnemyController : MonoBehaviour
 
     EnemyBehavior AI;
 
-    public int EnemyShootCount => layout_map.Count;
+    public int EnemyShootCount => layout_map.AttackCount;
 
     private static EnemyController _instance;
     public static EnemyController instance
@@ -72,7 +72,7 @@ public class EnemyController : MonoBehaviour
         target_ship = target_ships_id.ConvertAll(id =>
         {
             ShipData ship_data = DataManager.instance.GetShipData(id);
-            return new LayoutDATA(ship_data.shape_coord);
+            return new LayoutDATA(ship_data.shape_coord,ship_data.core_number);
         });
 
         AI.Init(size, target_ship);
@@ -110,7 +110,7 @@ public class EnemyController : MonoBehaviour
                 for (int i = 0; i < 400; i++)
                 {
                     System.Random rand = new();
-                    LayoutDATA layout_ran = rand.Next(2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)));
+                    LayoutDATA layout_ran = rand.Next(2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)),layout.CoreNumber);
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
@@ -143,7 +143,20 @@ public class EnemyController : MonoBehaviour
     {
         for (int i = 0; i < EnemyShootCount; i++)
         {
-            Vector2Int target_coord = AI.CalculatePossibleMap();
+            Attack();
+        }
+
+        PVEController.instance.NextState();
+    }
+
+    public ActionMessage PlayerHit(Vector2Int coord)
+    {
+        return layout_map.GetMessage(coord);
+    }
+    
+    private void Attack()
+    {
+        Vector2Int target_coord = AI.CalculatePossibleMap();
             if (isTest) DrawMap__test(target_coord, hit_point__test);
             ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
             Debug.Log(message);
@@ -158,14 +171,6 @@ public class EnemyController : MonoBehaviour
 
             AI.Remove(target_coord);
             Debug.Log(AI.GetCurrentProbabilityMap());
-        }
-
-        PVEController.instance.NextState();
-    }
-    
-    public ActionMessage PlayerHit(Vector2Int coord)
-    {
-        return layout_map.GetMessage(coord);
     }
 
     // 检查该点位该布局是否可行

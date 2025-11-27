@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.WSA;
 
 public class ProbabilityMap
 {
@@ -38,7 +39,7 @@ public class ProbabilityMap
 
     public void AddProbability(Vector2Int center, LayoutDATA layout)
     {
-        valid_layouts_inMap.Add(new(layout.LayoutInMap(center)));
+        valid_layouts_inMap.Add(new(layout.LayoutInMap(center),layout.CoreNumber));
         probability_map.AddProbability(layout.LayoutInMap(center));
     }
 

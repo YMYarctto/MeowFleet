@@ -9,6 +9,7 @@ public class ActionMessage
     List<ActionResult> _result;
     KeyValuePair<int, LayoutDATA> _hit_ships;
     KeyValuePair<int, LayoutDATA> _destroyed_ships;
+    ActionLocate _locate;
 
     public string ShipName => DataManager.instance.GetShipName(ship_id);
 
@@ -20,6 +21,7 @@ public class ActionMessage
     {
         get => _destroyed_ships;
     }
+    public ActionLocate Locate => _locate;
 
     public ActionMessage(int ship, Vector2Int target, params ActionResult[] results)
     {
@@ -46,12 +48,17 @@ public class ActionMessage
 
     public void AddHitShip(int id, LayoutDATA layout)
     {
-        _hit_ships = new(id,layout);
+        _hit_ships = new(id, layout);
     }
 
     public void AddDestroyedShip(int id, LayoutDATA layout)
     {
         _destroyed_ships = new(id, layout);
+    }
+
+    public void SetLocate(ActionLocate locate)
+    {
+        _locate = locate;
     }
 
     public override string ToString()
@@ -73,5 +80,12 @@ public class ActionMessage
         Miss,
         Hit,
         Destroyed,
+        Capture,
+    }
+
+    public enum ActionLocate
+    {
+        core,
+        body,
     }
 }

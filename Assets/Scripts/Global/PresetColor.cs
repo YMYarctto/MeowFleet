@@ -9,7 +9,7 @@ public static class PresetColor
         get
         {
             Color color;
-            ColorUtility.TryParseHtmlString("#023B85", out color);
+            ColorUtility.TryParseHtmlString("#000000", out color);
             return color;
         }
     }

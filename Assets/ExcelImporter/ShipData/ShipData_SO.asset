@@ -18,6 +18,7 @@ MonoBehaviour:
     level: 0
     ship_name_string: _1x2
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
+    core_number: 1
     ship_name: 0
     shape_coord: []
   - uid: 1
@@ -25,6 +26,7 @@ MonoBehaviour:
     level: 0
     ship_name_string: _1x3
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1}]'
+    core_number: 1
     ship_name: 0
     shape_coord: []
   - uid: 2
@@ -32,6 +34,7 @@ MonoBehaviour:
     level: 0
     ship_name_string: _3x3
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":-1,"y":-1},{"x":-1,"y":1},{"x":1,"y":-1},{"x":1,"y":1}]'
+    core_number: 1
     ship_name: 0
     shape_coord: []
   - uid: 3
@@ -39,5 +42,6 @@ MonoBehaviour:
     level: 0
     ship_name_string: _3a2
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
+    core_number: 1
     ship_name: 0
     shape_coord: []

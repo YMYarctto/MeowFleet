@@ -6,17 +6,17 @@ using UnityEngine;
 
 public class LayoutMap
 {
-    Dictionary<int, List<Vector2Int>> _absolute_layout_map;
-    Dictionary<Vector2Int, ShipStatus> _ship_map;
-    Dictionary<Vector2Int, int> _status_map;
-    Dictionary<int, int> _ship_id;
+    Dictionary<int, LayoutDATA> _absolute_layout_map;// map_id ->
+    Dictionary<Vector2Int, ShipStatus> _ship_map;// -> map_id
+    Dictionary<Vector2Int, int> _status_map;// -> count
+    Dictionary<int, int> _ship_id;// map_id -> uid
     int id = 0;
 
-    public int Count => _absolute_layout_map.Count(kv => kv.Value.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
+    public int AttackCount => _absolute_layout_map.Count(kv => kv.Value.BodyList.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
 
     struct ShipStatus
     {
-        public int ID;
+        public int ID;// map_id
         public LayoutDATA layout;
     }
 
@@ -33,7 +33,7 @@ public class LayoutMap
         id++;
         ShipStatus ship_status = new ShipStatus { ID = id, layout = _layout };
         _ship_id.Add(id, ship_id);
-        _absolute_layout_map[id] = _layout.LayoutInMap(center);
+        _absolute_layout_map[id] = new(_layout.LayoutInMap(center),_layout.CoreNumber);
         foreach (var coord in _layout.ToList)
         {
             Vector2Int absolute_coord = center + coord;
@@ -56,17 +56,35 @@ public class LayoutMap
         _status_map[target] = 0;
         int _id = _ship_map[target].ID;
         int ship_id = _ship_id[_id];
-        if(!_absolute_layout_map[_id].All(v=>_status_map[v]==0))
+        if(!_absolute_layout_map[_id].BodyList.All(v=>_status_map[v]==0))
         {
             // Hit
             message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Hit);
             message.AddHitShip(_id, _ship_map[target].layout);
+
+            if (_absolute_layout_map[_id].CoreList.Contains(target))
+            {
+                message.SetLocate(ActionMessage.ActionLocate.core);
+            }
+            else
+            {
+                message.SetLocate(ActionMessage.ActionLocate.body);
+            }
+            
             return message;
         }
-        
+
         // Destroyed
-        message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Destroyed);
+        message = new ActionMessage(ship_id, target, ActionMessage.ActionResult.Destroyed);
         message.AddDestroyedShip(_id, _ship_map[target].layout);
+        if (_absolute_layout_map[_id].CoreList.All(v => _status_map[v] != 0))
+        {
+            message.SetLocate(ActionMessage.ActionLocate.body);
+        }
+        else
+        {
+            message.SetLocate(ActionMessage.ActionLocate.core);
+        }
 
         return message;
     }

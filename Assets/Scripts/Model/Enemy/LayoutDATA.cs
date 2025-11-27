@@ -24,24 +24,45 @@ public class LayoutDATA
         get => _layout;
     }
 
+    public List<Vector2Int> CoreList
+    {
+        get => ToList.GetRange(0, _core_number);
+    }
+
+    public List<Vector2Int> BodyList
+    {
+        get => ToList.GetRange(_core_number,ToList.Count-_core_number);
+    }
+
+    int _core_number;
+    public int CoreNumber => _core_number;
+
     public LayoutDATA()
     {
         _layout = new();
+        _core_number = 1;
     }
 
     public LayoutDATA(LayoutDATA layout)
     {
         _layout = new(layout.ToList);
+        _core_number = layout._core_number;
     }
 
-    public LayoutDATA(List<Vector2Int> layout)
+    public LayoutDATA(List<Vector2Int> layout,int core_number)
     {
         _layout = new(layout);
+        _core_number = core_number;
+        if(_core_number>layout.Count)
+        {
+            Debug.LogError("LayoutDATA: 错误的核心数量");
+        }
     }
 
     public List<LayoutDATA> AllLayout()
     {
-        return new(){new(_layout),new(_layout_r1),new(_layout_r2),new(_layout_r3)};
+        int num = _core_number;
+        return new(){new(_layout,num),new(_layout_r1,num),new(_layout_r2,num),new(_layout_r3,num)};
     }
 
     public List<Vector2Int> LayoutInMap(Vector2Int center)

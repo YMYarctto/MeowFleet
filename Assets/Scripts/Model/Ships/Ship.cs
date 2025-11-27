@@ -18,7 +18,7 @@ public class Ship
     public Ship(ShipData shipData)
     {
         this.shipData = shipData;
-        init_layout = layout = new(shipData.shape_coord);
+        init_layout = layout = new(shipData.shape_coord,shipData.core_number);
     }
 
     public int ResetLayout()

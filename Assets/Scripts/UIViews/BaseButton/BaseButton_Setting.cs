@@ -1,0 +1,74 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public abstract class BaseButton_Setting : BaseButton_Default
+{
+    GameObject focus;
+
+    private bool isPressing = false;
+    private bool needExit = false;
+
+    public override void Init()
+    {
+        base.Init();
+
+        Transform focus_trans = transform.Find("focus");
+        focus = focus_trans.gameObject;
+        ResetImage(focus_trans.GetComponent<Image>());
+        focus.SetActive(false);
+
+        EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
+        entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
+        entry_pointerEnter.callback.AddListener((data) => { OnPointerEnter((PointerEventData)data); });
+
+        EventTrigger.Entry entry_pointerExit = new EventTrigger.Entry();
+        entry_pointerExit.eventID = EventTriggerType.PointerExit;
+        entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
+
+        eventTrigger.triggers.Add(entry_pointerEnter);
+        eventTrigger.triggers.Add(entry_pointerExit);
+    }
+
+    protected override void OnPointerDown(PointerEventData eventData)
+    {
+        base.OnPointerDown(eventData);
+        isPressing = true;
+        needExit = false;
+    }
+
+    protected override void OnPointerUp(PointerEventData eventData)
+    {
+        base.OnPointerUp(eventData);
+        isPressing = false;
+
+        if (needExit)
+        {
+            DoExit();
+        }
+    }
+
+    private void OnPointerEnter(PointerEventData eventData)
+    {
+        focus.SetActive(true);
+        needExit = false;
+    }
+
+    private void OnPointerExit(PointerEventData eventData)
+    {
+        if (isPressing)
+        {
+            needExit = true;
+            return;
+        }
+
+        DoExit();
+    } 
+
+    private void DoExit()
+    {
+        focus.SetActive(false);
+    }
+}
