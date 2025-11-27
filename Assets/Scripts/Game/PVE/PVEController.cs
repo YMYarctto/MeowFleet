@@ -19,7 +19,6 @@ public class PVEController : MonoBehaviour
 
     Transform ShipGroupTrans;
     BG_PVE bg;
-    PVE_Notice notice;
 
     PVEState currentState;
 
@@ -28,6 +27,8 @@ public class PVEController : MonoBehaviour
     public int Round;
     public int PlayerShootCount => player_layout_map.AttackCount;
     int current_shoot_count;
+
+    public Transform UI_Notice;
 
     private static PVEController _instance;
     public static PVEController instance
@@ -51,6 +52,8 @@ public class PVEController : MonoBehaviour
     {
         Global.PPU = 6.25f;
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
+
+        UI_Notice = GameObject.Find("UI_Notice").transform;
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));
@@ -77,7 +80,6 @@ public class PVEController : MonoBehaviour
         gridCellGroup_Player = UIManager.instance.GetUIView<GridCellGroup_Player>();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
         bg = UIManager.instance.GetUIView<BG_PVE>();
-        notice = UIManager.instance.GetUIView<PVE_Notice>();
         bg.SetInteractionActive(false);
     }
 
@@ -119,11 +121,13 @@ public class PVEController : MonoBehaviour
             if (message.Contains(ActionMessage.ActionResult.Hit))
             {
                 string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                PVE_Notice notice = PVE_Notice.Create();
                 notice.ShowNotice_Hit(message.ShipName, LOCATE);
             }
             else if (!message.Contains(ActionMessage.ActionResult.Miss))
             {
                 string ACTION = message.Locate == ActionMessage.ActionLocate.core ? DESTROY : CAPTURE;
+                PVE_Notice notice = PVE_Notice.Create();
                 notice.ShowNotice_Destroy(message.ShipName,ACTION);
             }
         }

@@ -11,6 +11,7 @@ public static class ResourceList
         {typeof(GridCell_PVE),"GridCell_PVE"},
         {typeof(Ship_UIBase),"Ship"},
         {typeof(Pointer_Animation),"Pointer"},
+        {typeof(PVE_Notice),"Notice"},
     };
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()
