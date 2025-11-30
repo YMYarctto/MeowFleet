@@ -14,9 +14,11 @@ public class ShipData
     public string ship_name_string;
     public string shape_coord_string;
     public int core_number;
-    public string skill_core_string;
+    public string skill_coord_string;
 
     public Ships_Enum ship_name;
+    public Skill_Enum skill_name;
     public List<Vector2Int> shape_coord;
+    public List<Vector2Int> skill_coord;
     public string Url=> $"{ship_name}_{level}";
 }

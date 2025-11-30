@@ -2,15 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridCell_PVE : UIView
+public abstract class GridCell_PVE : UIView
 {
-    public override UIView currentView => this;
-
     protected GameObject hit;
     protected GameObject select;
-
-    int _ID = GridCellGroup_Player.GridCellID;
-    public override int ID => _ID;
 
     public override void Init()
     {

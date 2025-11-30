@@ -12,6 +12,7 @@ public static class ResourceList
         {typeof(Ship_UIBase),"Ship"},
         {typeof(Pointer_Animation),"Pointer"},
         {typeof(PVE_Notice),"Notice"},
+        {typeof(SkillCard_UI),"SkillCard"},
     };
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()

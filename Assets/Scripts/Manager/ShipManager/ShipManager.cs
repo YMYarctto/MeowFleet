@@ -50,4 +50,13 @@ public class ShipManager : MonoBehaviour
         }
         return shipDict[id];
     }
+
+    public Ship GetShip_Safe(int id)
+    {
+        if (!shipDict.ContainsKey(id))
+        {
+            return null;
+        }
+        return shipDict[id];
+    }
 }

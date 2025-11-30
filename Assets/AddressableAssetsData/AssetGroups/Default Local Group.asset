@@ -42,6 +42,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c046c221c962f4823b8128b9ca6d9cd6
+    m_Address: SkillCard
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d111ebc4b03ae4c88909fef5053e714c
     m_Address: _1x3_0
     m_ReadOnly: 0

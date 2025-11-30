@@ -16,13 +16,18 @@ public class PVEController : MonoBehaviour
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
     List<Vector2Int> current_range;
+    PVEMap pve_map=PVEMap.Null;
 
     Transform ShipGroupTrans;
+    Transform SkillAreaTrans;
     BG_PVE bg;
+    
+    List<SkillCard_UI> skillUI_list;
+    Skill current_skill;
 
     PVEState currentState;
 
-    bool PlayerAction => currentState == PVEState.PlayerAttack;
+    bool PlayerAction => currentState == PVEState.PlayerAttack||currentState==PVEState.PlayerSkill;
 
     public int Round;
     public int PlayerShootCount => player_layout_map.AttackCount;
@@ -56,19 +61,28 @@ public class PVEController : MonoBehaviour
         UI_Notice = GameObject.Find("UI_Notice").transform;
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
+        SkillAreaTrans = GameObject.Find("SkillArea").transform;
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));
 
         player_layout_map = new();
+        skillUI_list = new();
 
+        Vector3 card_pos = new(0,380,0);
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
             player_layout_map.AddShip(ship.Uid, kv.Key, ship.Layout);
+
+            GameObject card = SkillCard_UI.Create(kv.Value,ship,SkillAreaTrans);
+            skillUI_list.Add(card.GetComponent<SkillCard_UI>());
+            card.transform.localPosition=card_pos;
+            card_pos.y-=271;
+
             GameObject obj = Ship_UIBase.Create<Ship_PVE>(kv.Value, ship, ShipGroupTrans);
             StartCoroutine(SetPosition_WaitForEndOfFrame(kv.Key, obj.GetComponent<Ship_PVE>()));
         }
 
-        currentState = PVEState.PlayerAttack;
+        currentState = PVEState.PlayerSkill;
         current_range = new List<Vector2Int>() { new(0, 0) };
         Round = 1;
 
@@ -89,7 +103,7 @@ public class PVEController : MonoBehaviour
         ship.SetPosition(coord);
     }
 
-    public void PlayerTurn()
+    public void PlayerAttackTurn()
     {
         bg.SetInteractionActive(false);
         current_shoot_count = PlayerShootCount;
@@ -101,13 +115,35 @@ public class PVEController : MonoBehaviour
         return player_layout_map.GetMessage(coord);
     }
 
-    public void PlayerSelect(Vector2Int coord)
+    public void PlayerSelect(Vector2Int coord,PVEMap target)
     {
-        if (!PlayerAction)
+        if (!PlayerAction||target!=pve_map)
         {
             return;
         }
-        gridCellGroup_Enemy.Select(current_range.ConvertAll(v => v + coord).ToList());
+        if(target==PVEMap.Enemy)
+        {
+            gridCellGroup_Enemy.Select(current_range.ConvertAll(v => v + coord).ToList());
+        }else if(target==PVEMap.Player)
+        {
+            gridCellGroup_Player.Select(current_range.ConvertAll(v => v + coord).ToList());
+        }
+    }
+
+    public void PlayerOP(Vector2Int coord,PVEMap target)
+    {
+        if (!PlayerAction||target!=pve_map)
+        {
+            return;
+        }
+        if(currentState==PVEState.PlayerAttack)
+        {
+            PlayerHit(coord);
+        }
+        else if(currentState==PVEState.PlayerSkill)
+        {
+            current_skill?.OnSkill(coord);
+        }
     }
 
     public void PlayerHit(Vector2Int coord)
@@ -128,20 +164,34 @@ public class PVEController : MonoBehaviour
             {
                 string ACTION = message.Locate == ActionMessage.ActionLocate.core ? DESTROY : CAPTURE;
                 PVE_Notice notice = PVE_Notice.Create();
-                notice.ShowNotice_Destroy(message.ShipName,ACTION);
+                notice.ShowNotice_Destroy(message.ShipName, ACTION);
             }
         }
 
         current_shoot_count--;
         Debug.Log($"剩余次数: {current_shoot_count}");
-        if(current_shoot_count<=0)
+        if (current_shoot_count <= 0)
         {
             NextState();
         }
     }
+    
+    public void SetSkill(Skill skill)
+    {
+        current_skill = skill;
+        current_range = skill.SkillRange;
+        pve_map = skill.TargetMap;
+    }
+
+    public void ClearSelectedSkill()
+    {
+        current_skill = null;
+        pve_map = PVEMap.Null;
+    }
 
     public void ClearSelect()
     {
+        gridCellGroup_Player.ClearSelect();
         gridCellGroup_Enemy.ClearSelect();
     }
 
@@ -157,7 +207,13 @@ public class PVEController : MonoBehaviour
         }
         if(currentState==PVEState.PlayerAttack)
         {
-            PlayerTurn();
+            pve_map = PVEMap.Enemy;
+            current_range = new List<Vector2Int>() { new(0, 0) };
+            PlayerAttackTurn();
+        }
+        if(currentState==PVEState.PlayerSkill)
+        {
+            skillUI_list.ForEach(ui =>ui.SetActive());
         }
     }
 
@@ -168,9 +224,16 @@ public class PVEController : MonoBehaviour
 
     public enum PVEState
     {
-        //PlayerSkill,
+        PlayerSkill,
         PlayerAttack,
         //EnemySkill,
         EnemyAttack
+    }
+
+    public enum PVEMap
+    {
+        Player,
+        Enemy,
+        Null,
     }
 }

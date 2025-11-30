@@ -77,7 +77,9 @@ public class ResourceManager : MonoBehaviour
             so.Sheet1.ForEach(v =>
             {
                 v.ship_name = Enum.Parse<Ships_Enum>(v.ship_name_string);
+                v.skill_name = Enum.Parse<Skill_Enum>(v.skill_name_string);
                 v.shape_coord = JsonConvert.DeserializeObject<List<Vector2Int>>(v.shape_coord_string);
+                v.skill_coord = JsonConvert.DeserializeObject<List<Vector2Int>>(v.skill_coord_string);
             });
             dataManager.ShipData = so;
             pkg.AddProgress();

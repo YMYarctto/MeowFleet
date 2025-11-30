@@ -9,9 +9,12 @@ public class GridCellGroup_Player : GridCellGroup_PVE
     public static int GridCellID = 0;
     GameObject grid_cell;
 
+    List<GridCell_Player> select_cells;
+
     public override void Init()
     {
         base.Init();
+        select_cells = new();
         GridCellID = 0;
         grid_cell = ResourceManager.instance.GetPerfabByType<GridCell_PVE>();
         mapSize = DataManager.instance.SaveData.MapSize;
@@ -20,8 +23,35 @@ public class GridCellGroup_Player : GridCellGroup_PVE
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(transform, false);
             obj.name = $"GridCell_{GridCellID}";
-            girdCell_dict.Add(GridCellID, obj.AddComponent<GridCell_PVE>());
+            girdCell_dict.Add(GridCellID, obj.AddComponent<GridCell_Player>());
             GridCellID++;
         }
+    }
+
+    public void Select(List<Vector2Int> coords)
+    {
+        foreach (var coord in coords)
+        {
+            if (IsInMap(coord))
+            {
+                GridCell_Player cell = (GridCell_Player)girdCell_dict[GetIndex(coord)];
+                select_cells.Add(cell);
+                cell.Select(true);
+            }
+        }
+    }
+
+    public void ClearSelect()
+    {
+        foreach (var cell in select_cells)
+        {
+            cell.Select(false);
+        }
+        select_cells.Clear();
+    }
+
+    private bool IsInMap(Vector2Int v2)
+    {
+        return v2.x >= 0 && v2.x < mapSize.x && v2.y >= 0 && v2.y < mapSize.y;
     }
 }

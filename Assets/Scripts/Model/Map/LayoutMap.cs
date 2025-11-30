@@ -41,7 +41,7 @@ public class LayoutMap
             _status_map[absolute_coord] = 1;
         }
 
-        Debug.Log($"已添加舰船 ID: {id}");
+        Debug.Log($"已添加舰船 ID: {ship_id}");
     }
 
     public ActionMessage GetMessage(Vector2Int target)
@@ -56,6 +56,7 @@ public class LayoutMap
         _status_map[target] = 0;
         int _id = _ship_map[target].ID;
         int ship_id = _ship_id[_id];
+        ShipManager.instance.GetShip_Safe(ship_id)?.Hit(target);
         if(!_absolute_layout_map[_id].BodyList.All(v=>_status_map[v]==0))
         {
             // Hit

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GridCell_Enemy : GridCell_PVE
+public class GridCell_Player : GridCell_PVE
 {
     public override UIView currentView => this;
 
-    int _ID = GridCellGroup_Enemy.GridCellID;
+    int _ID = GridCellGroup_Player.GridCellID;
     public override int ID => _ID;
 
     EventTrigger eventTrigger;
@@ -35,7 +35,7 @@ public class GridCell_Enemy : GridCell_PVE
 
     private void OnPointerEnter(PointerEventData data)
     {
-        PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Enemy);
+        PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Player);
     }
 
     private void OnPointerExit(PointerEventData data)
@@ -45,6 +45,6 @@ public class GridCell_Enemy : GridCell_PVE
 
     private void OnPointerClick(PointerEventData data)
     {
-        PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Enemy);
+        PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Player);
     }
 }
