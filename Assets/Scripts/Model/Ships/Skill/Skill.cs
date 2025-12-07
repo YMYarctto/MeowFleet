@@ -22,7 +22,7 @@ public abstract class Skill
     public void OnSkill(Vector2Int target)
     {
         OnSkillInvoke(target);
-        ui.OnSelectEnd();
+        ui.OnSkillEnd();
         PVEController.instance.ClearSelectedSkill();
     }
 
@@ -45,6 +45,7 @@ public abstract class Skill
             _=>null,
         };
         _this.ui = ui;
+        _this.ship = ship;
         _this.skill_coord = new(ship.SkillRange);
         _this.on_enemy_map = skill switch
         {

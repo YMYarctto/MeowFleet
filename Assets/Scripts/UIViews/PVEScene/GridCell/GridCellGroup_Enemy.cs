@@ -44,15 +44,12 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
         }
     }
 
-    public void Hit(List<Vector2Int> coords)
+    public override void Hit(Vector2Int coord,bool isHit)
     {
-        foreach (var coord in coords)
+        if (IsInMap(coord))
         {
-            if (IsInMap(coord))
-            {
-                GridCell_Enemy cell = (GridCell_Enemy)girdCell_dict[GetIndex(coord)];
-                cell.Enable();
-            }
+            GridCell_Enemy cell = (GridCell_Enemy)girdCell_dict[GetIndex(coord)];
+            cell.Hit(isHit);
         }
     }
 

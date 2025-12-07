@@ -44,12 +44,12 @@ public class SceneController : MonoBehaviour
         StartCoroutine(EChangeScene());
     }
 
-    public void OnSceneLoadAction(UnityAction action)
+    public void AfterSceneLoadAction(UnityAction action)
     {
         sceneLoader.ActionAfterLoad = action;
     }
 
-    public void OnSceneUnloadAction(UnityAction action)
+    public void AfterSceneUnloadAction(UnityAction action)
     {
         sceneLoader.ActionAfterUnload = action;
     }

@@ -4,24 +4,28 @@ using UnityEngine;
 
 public abstract class GridCell_PVE : UIView
 {
-    protected GameObject hit;
+    protected GameObject hit_on;
+    protected GameObject hit_null;
     protected GameObject select;
 
     public override void Init()
     {
-        hit = transform.Find("hit").gameObject;
+        hit_on = transform.Find("hit_on").gameObject;
+        hit_null = transform.Find("hit_null").gameObject;
         select = transform.Find("select").gameObject;
         Disable();
     }
 
-    public override void Enable()
+    public void Hit(bool isHit)
     {
-        hit.SetActive(true);
+        hit_on.SetActive(isHit);
+        hit_null.SetActive(!isHit);
     }
 
     public override void Disable()
     {
-        hit.SetActive(false);
+        hit_on.SetActive(false);
+        hit_null.SetActive(false);
         select.SetActive(false);
     }
 

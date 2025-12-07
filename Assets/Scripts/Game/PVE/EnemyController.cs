@@ -146,7 +146,13 @@ public class EnemyController : MonoBehaviour
             Attack();
         }
 
-        PVEController.instance.NextState();
+        StartCoroutine(EnemyBehave());
+    }
+
+    IEnumerator EnemyBehave()
+    {
+        yield return new WaitForSeconds(2f);
+        PVEController.instance.NextRound();
     }
 
     public ActionMessage PlayerHit(Vector2Int coord)
@@ -157,20 +163,27 @@ public class EnemyController : MonoBehaviour
     private void Attack()
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
-            if (isTest) DrawMap__test(target_coord, hit_point__test);
-            ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
-            Debug.Log(message);
-            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
-            {
-                AI.UpdatePossibleMapAfterHit(target_coord, message.HitShips);
-            }
-            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
-            {
-                AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
-            }
+        if (isTest) DrawMap__test(target_coord, hit_point__test);
+        ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
+        Debug.Log(message);
+        if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+        {
+            AI.UpdatePossibleMapAfterHit(target_coord, message.HitShips);
+        }
+        else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+        {
+            AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
+        }
 
-            AI.Remove(target_coord);
-            Debug.Log(AI.GetCurrentProbabilityMap());
+        AI.Remove(target_coord);
+        Debug.Log(AI.GetCurrentProbabilityMap());
+
+        if(message.Contains(ActionMessage.ActionResult.GameOver))
+        {
+            Debug.Log("Lose");
+
+            //TODO
+        }
     }
 
     // 检查该点位该布局是否可行

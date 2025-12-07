@@ -61,6 +61,11 @@ public class ActionMessage
         _locate = locate;
     }
 
+    public void AddResult(ActionResult result)
+    {
+        _result.Add(result);
+    }
+
     public override string ToString()
     {
         string str = "ActionResult:";
@@ -81,6 +86,7 @@ public class ActionMessage
         Hit,
         Destroyed,
         Capture,
+        GameOver,
     }
 
     public enum ActionLocate

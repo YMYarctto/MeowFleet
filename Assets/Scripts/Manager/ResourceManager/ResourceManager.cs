@@ -142,7 +142,7 @@ public class ResourceManager : MonoBehaviour
         ShipManager.instance.Init();
         ShipManager.instance.Read();
 
-        SceneController.instance.OnSceneLoadAction(() =>
+        SceneController.instance.AfterSceneLoadAction(() =>
         {
             UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
         });

@@ -9,7 +9,7 @@ public class Button_TestReturnTitle : BaseButton_TitleScene
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        SceneController.instance.OnSceneLoadAction(() =>
+        SceneController.instance.AfterSceneLoadAction(() =>
         {
             UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
         });

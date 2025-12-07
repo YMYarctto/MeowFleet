@@ -13,10 +13,10 @@ public abstract class GridCellGroup_PVE : UIView
         girdCell_dict = new();
     }
 
-    public void Hit(Vector2Int v2)
+    public virtual void Hit(Vector2Int v2,bool isHit)
     {
         int index = GetIndex(v2);
-        girdCell_dict[index].Enable();
+        girdCell_dict[index].Hit(isHit);
     }
 
     public GridCell_PVE GetGridCell(Vector2Int coord)

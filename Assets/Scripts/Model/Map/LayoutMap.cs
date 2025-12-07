@@ -51,9 +51,13 @@ public class LayoutMap
             // Miss
             return new ActionMessage(target,ActionMessage.ActionResult.Miss);
         }
+        if(_status_map[target] == 0)
+        {
+            return new ActionMessage(target,ActionMessage.ActionResult.Miss);
+        }
 
         ActionMessage message;
-        _status_map[target] = 0;
+        _status_map[target]--;
         int _id = _ship_map[target].ID;
         int ship_id = _ship_id[_id];
         ShipManager.instance.GetShip_Safe(ship_id)?.Hit(target);
@@ -85,6 +89,12 @@ public class LayoutMap
         else
         {
             message.SetLocate(ActionMessage.ActionLocate.core);
+        }
+        _absolute_layout_map[_id].ToList.ForEach(v=>_status_map[v]=0);
+        if(_status_map.All(kv=>kv.Value==0))
+        {
+            // GameOver
+            message.AddResult(ActionMessage.ActionResult.GameOver);
         }
 
         return message;

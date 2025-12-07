@@ -29,10 +29,12 @@ public class SkillCard_UI : UIView
     Transform shadow;
 
     Tween waveTween;
-    Sequence pointer_seq;
+    Tween clickTween;
+    Tween moveTween;
     EventTrigger eventTrigger;
 
     Vector3 startPos;
+    Vector3 this_initPos;
 
     public override void Init()
     {
@@ -54,6 +56,22 @@ public class SkillCard_UI : UIView
         entry_pointerClick.eventID = EventTriggerType.PointerClick;
         entry_pointerClick.callback.AddListener((data) => { OnPointerClick((PointerEventData)data); });
 
+        EventTrigger.Entry entry_beginDrag = new EventTrigger.Entry();
+        entry_beginDrag.eventID = EventTriggerType.BeginDrag;
+        entry_beginDrag.callback.AddListener((data) => { OnBeginDrag((PointerEventData)data); });
+
+        EventTrigger.Entry entry_endDrag = new EventTrigger.Entry();
+        entry_endDrag.eventID = EventTriggerType.EndDrag;
+        entry_endDrag.callback.AddListener((data) => { OnEndDrag((PointerEventData)data); });
+
+        EventTrigger.Entry entry_onDrag = new EventTrigger.Entry();
+        entry_onDrag.eventID = EventTriggerType.Drag;
+        entry_onDrag.callback.AddListener((data) => { OnDrag((PointerEventData)data); });
+
+        eventTrigger.triggers.Add(entry_beginDrag);
+        eventTrigger.triggers.Add(entry_endDrag);
+        eventTrigger.triggers.Add(entry_onDrag);
+
         eventTrigger.triggers.Add(entry_pointerEnter);
         eventTrigger.triggers.Add(entry_pointerExit);
         eventTrigger.triggers.Add(entry_pointerClick);
@@ -65,8 +83,14 @@ public class SkillCard_UI : UIView
     {
         skill = Skill.Get(ship,this);
         startPos = shadow.position;
+        this_initPos = transform.localPosition;
 
         isInit =true;
+    }
+
+    public void InitPosition()
+    {
+        transform.localPosition = this_initPos;
     }
 
     void FixedUpdate()
@@ -76,8 +100,8 @@ public class SkillCard_UI : UIView
             return;
         }
         shadow.rotation = Quaternion.Euler(Vector3.zero);
-        shadow.position = startPos;
-        if(MouseListener.MouseMove&&MouseListener.Distance(transform.position+new Vector3(200,0,0))<400)
+        shadow.position = new Vector3(startPos.x,shadow.position.y,0);
+        if(MouseListener.Distance(transform.position+new Vector3(200,0,0))<400)
         {
             if(!waveLock&&!pointerLock)
             {
@@ -92,14 +116,16 @@ public class SkillCard_UI : UIView
         }
     }
 
-    public void SetActive()
+    public bool SetActive(float delay=0)
     {
-        SetActive(skill.CanSkill);
+        SetActive(skill.CanSkill,delay);
+        return skill.CanSkill;
     }
 
-    public void SetActive(bool active)
+    public void SetActive(bool active,float delay=0)
     {
-        gameObject.SetActive(active);
+        moveTween?.Kill();
+        moveTween = transform.DOLocalMoveX(active?-215:-815,0.3f).SetDelay(active?delay:0).SetEase(Ease.InOutQuad);
     }
 
     private void Wave()
@@ -124,14 +150,23 @@ public class SkillCard_UI : UIView
         waveTween = card_trans.DOLocalRotate(new Vector3(0, 0, targetAngle), duration).SetEase(Ease.OutQuad);
     }
 
+    public void MoveUp_Animation(float value,float delay=0)
+    {
+        moveTween?.Kill();
+        moveTween = transform.DOLocalMoveY(transform.localPosition.y+value,0.3f).SetDelay(delay).SetEase(Ease.InOutQuad);
+    }
+
+    public void MoveUp(float value)
+    {
+        transform.localPosition += new Vector3(0,value,0);
+    }
+
     private void OnPointerEnter(PointerEventData eventData)
     {
         pointerLock=true;
-        pointer_seq?.Kill();
-        pointer_seq = DOTween.Sequence();
-        pointer_seq.Append(card_trans.DOLocalRotate(Vector3.zero, 0.1f).SetEase(Ease.OutQuad));
-        pointer_seq.Join(card_trans.DOScale(new Vector3(1.1f,1.1f,1.1f),0.1f).SetEase(Ease.OutQuad));
-        pointer_seq.Play();
+
+        waveTween?.Kill();
+        waveTween = card_trans.DOLocalRotate(Vector3.zero, 0.15f).SetEase(Ease.OutQuad);
     }
 
     private void OnPointerExit(PointerEventData eventData)
@@ -147,13 +182,16 @@ public class SkillCard_UI : UIView
 
     private void OnPointerClick(PointerEventData eventData)
     {
-        // if(is_select)
-        // {
-        //     is_select = false;
-        //     PVEController.instance.ClearSelectedSkill();
-        //     return;
-        // }
+        if(UIManager.instance.GetUIView<SkillArea>().IsDragging)
+        {
+            return;
+        }
         is_select = true;
+
+        clickTween?.Kill();
+        clickTween = card_trans.DOScale(new Vector3(1.1f,1.1f,1.1f),0.1f).SetEase(Ease.OutQuad);
+
+        UIManager.instance.GetUIView<SkillArea>().SelectSkillCard(this);
         skill.OnSelect();
     }
 
@@ -163,25 +201,45 @@ public class SkillCard_UI : UIView
         if(need_exit)
         {
             DoPointerExit();
-            SetActive(false);
+            need_exit = false;
         }
+
+        clickTween?.Kill();
+        clickTween = card_trans.DOScale(Vector3.one,0.1f).SetEase(Ease.OutQuad);
+    }
+
+    public void OnSkillEnd()
+    {
+        UIManager.instance.GetUIView<SkillArea>().DisableSkillCard(this);
+        PVEController.instance.ResetPVEMap();
+        OnSelectEnd();
     }
 
     private void DoPointerExit()
     {
         pointerLock=false;
-        pointer_seq?.Kill();
-        pointer_seq = DOTween.Sequence();
-        pointer_seq.Join(card_trans.DOScale(Vector3.one,0.1f).SetEase(Ease.OutQuad));
-        pointer_seq.Play();
     }
 
-    public static GameObject Create(int id,Ship ship,Transform parent)
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        UIManager.instance.GetUIView<SkillArea>().OnBeginDrag(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        UIManager.instance.GetUIView<SkillArea>().OnEndDrag(eventData);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        UIManager.instance.GetUIView<SkillArea>().OnDrag(eventData);
+    }
+
+    public static GameObject Create(int id,Transform parent)
     {
         CardID = id;
         var obj = Instantiate(ResourceManager.instance.GetPerfabByType<SkillCard_UI>(),parent,false);
         var ui = obj.AddComponent<SkillCard_UI>();
-        ui.Init(ship);
         return obj;
     }
 }

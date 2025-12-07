@@ -10,11 +10,8 @@ public class BG_PVE : UIView
     Tween tween;
     bool page_on_player;
 
-    GameObject Interaction;
-
     public override void Init()
     {
-        Interaction = transform.Find("Interaction").gameObject;
     }
 
     public void NextPage()
@@ -27,10 +24,5 @@ public class BG_PVE : UIView
         page_on_player = !page_on_player;
         tween?.Kill();
         tween = transform.DOLocalMoveY(page_index * 1440, 0.2f).SetEase(Ease.InOutQuad);
-    }
-
-    public void SetInteractionActive(bool active)
-    {
-        Interaction.SetActive(active);
     }
 }
