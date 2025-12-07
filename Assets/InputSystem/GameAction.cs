@@ -137,6 +137,84 @@ public partial class @GameAction: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""PVEMap"",
+            ""id"": ""02f94a30-e77c-43e6-b259-3a243ae879a4"",
+            ""actions"": [
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Button"",
+                    ""id"": ""29095cd7-d1be-4a37-aa9c-bd5c9cac6b90"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Tap(duration=1.401298E-45,pressPoint=1.401298E-45)"",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""Rotate"",
+                    ""id"": ""956769f4-35de-46f2-a28f-805f5491a309"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""a75c4592-6d9d-4335-bad8-91b93cedf585"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""aba754f8-976a-44f2-ae0d-fa3d5009c4b1"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
+        },
+        {
+            ""name"": ""DefaultMap"",
+            ""id"": ""925ccee8-41c6-4f00-b296-b671c799da10"",
+            ""actions"": [
+                {
+                    ""name"": ""ESC"",
+                    ""type"": ""Button"",
+                    ""id"": ""2f203c09-03ae-4bd9-81c2-3b353d6b04b7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""56535275-caf3-4783-b6d8-2a45e347bb68"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ESC"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -150,11 +228,19 @@ public partial class @GameAction: IInputActionCollection2, IDisposable
         // FormationMap
         m_FormationMap = asset.FindActionMap("FormationMap", throwIfNotFound: true);
         m_FormationMap_Rotate = m_FormationMap.FindAction("Rotate", throwIfNotFound: true);
+        // PVEMap
+        m_PVEMap = asset.FindActionMap("PVEMap", throwIfNotFound: true);
+        m_PVEMap_Rotate = m_PVEMap.FindAction("Rotate", throwIfNotFound: true);
+        // DefaultMap
+        m_DefaultMap = asset.FindActionMap("DefaultMap", throwIfNotFound: true);
+        m_DefaultMap_ESC = m_DefaultMap.FindAction("ESC", throwIfNotFound: true);
     }
 
     ~@GameAction()
     {
         UnityEngine.Debug.Assert(!m_FormationMap.enabled, "This will cause a leak and performance issues, GameAction.FormationMap.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_PVEMap.enabled, "This will cause a leak and performance issues, GameAction.PVEMap.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_DefaultMap.enabled, "This will cause a leak and performance issues, GameAction.DefaultMap.Disable() has not been called.");
     }
 
     /// <summary>
@@ -322,6 +408,198 @@ public partial class @GameAction: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="FormationMapActions" /> instance referencing this action map.
     /// </summary>
     public FormationMapActions @FormationMap => new FormationMapActions(this);
+
+    // PVEMap
+    private readonly InputActionMap m_PVEMap;
+    private List<IPVEMapActions> m_PVEMapActionsCallbackInterfaces = new List<IPVEMapActions>();
+    private readonly InputAction m_PVEMap_Rotate;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "PVEMap".
+    /// </summary>
+    public struct PVEMapActions
+    {
+        private @GameAction m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public PVEMapActions(@GameAction wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "PVEMap/Rotate".
+        /// </summary>
+        public InputAction @Rotate => m_Wrapper.m_PVEMap_Rotate;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_PVEMap; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="PVEMapActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(PVEMapActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="PVEMapActions" />
+        public void AddCallbacks(IPVEMapActions instance)
+        {
+            if (instance == null || m_Wrapper.m_PVEMapActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_PVEMapActionsCallbackInterfaces.Add(instance);
+            @Rotate.started += instance.OnRotate;
+            @Rotate.performed += instance.OnRotate;
+            @Rotate.canceled += instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="PVEMapActions" />
+        private void UnregisterCallbacks(IPVEMapActions instance)
+        {
+            @Rotate.started -= instance.OnRotate;
+            @Rotate.performed -= instance.OnRotate;
+            @Rotate.canceled -= instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="PVEMapActions.UnregisterCallbacks(IPVEMapActions)" />.
+        /// </summary>
+        /// <seealso cref="PVEMapActions.UnregisterCallbacks(IPVEMapActions)" />
+        public void RemoveCallbacks(IPVEMapActions instance)
+        {
+            if (m_Wrapper.m_PVEMapActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="PVEMapActions.AddCallbacks(IPVEMapActions)" />
+        /// <seealso cref="PVEMapActions.RemoveCallbacks(IPVEMapActions)" />
+        /// <seealso cref="PVEMapActions.UnregisterCallbacks(IPVEMapActions)" />
+        public void SetCallbacks(IPVEMapActions instance)
+        {
+            foreach (var item in m_Wrapper.m_PVEMapActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_PVEMapActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="PVEMapActions" /> instance referencing this action map.
+    /// </summary>
+    public PVEMapActions @PVEMap => new PVEMapActions(this);
+
+    // DefaultMap
+    private readonly InputActionMap m_DefaultMap;
+    private List<IDefaultMapActions> m_DefaultMapActionsCallbackInterfaces = new List<IDefaultMapActions>();
+    private readonly InputAction m_DefaultMap_ESC;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "DefaultMap".
+    /// </summary>
+    public struct DefaultMapActions
+    {
+        private @GameAction m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public DefaultMapActions(@GameAction wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "DefaultMap/ESC".
+        /// </summary>
+        public InputAction @ESC => m_Wrapper.m_DefaultMap_ESC;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_DefaultMap; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="DefaultMapActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(DefaultMapActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="DefaultMapActions" />
+        public void AddCallbacks(IDefaultMapActions instance)
+        {
+            if (instance == null || m_Wrapper.m_DefaultMapActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_DefaultMapActionsCallbackInterfaces.Add(instance);
+            @ESC.started += instance.OnESC;
+            @ESC.performed += instance.OnESC;
+            @ESC.canceled += instance.OnESC;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="DefaultMapActions" />
+        private void UnregisterCallbacks(IDefaultMapActions instance)
+        {
+            @ESC.started -= instance.OnESC;
+            @ESC.performed -= instance.OnESC;
+            @ESC.canceled -= instance.OnESC;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="DefaultMapActions.UnregisterCallbacks(IDefaultMapActions)" />.
+        /// </summary>
+        /// <seealso cref="DefaultMapActions.UnregisterCallbacks(IDefaultMapActions)" />
+        public void RemoveCallbacks(IDefaultMapActions instance)
+        {
+            if (m_Wrapper.m_DefaultMapActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="DefaultMapActions.AddCallbacks(IDefaultMapActions)" />
+        /// <seealso cref="DefaultMapActions.RemoveCallbacks(IDefaultMapActions)" />
+        /// <seealso cref="DefaultMapActions.UnregisterCallbacks(IDefaultMapActions)" />
+        public void SetCallbacks(IDefaultMapActions instance)
+        {
+            foreach (var item in m_Wrapper.m_DefaultMapActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_DefaultMapActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="DefaultMapActions" /> instance referencing this action map.
+    /// </summary>
+    public DefaultMapActions @DefaultMap => new DefaultMapActions(this);
     private int m_KeyboardSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -349,5 +627,35 @@ public partial class @GameAction: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRotate(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "PVEMap" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="PVEMapActions.AddCallbacks(IPVEMapActions)" />
+    /// <seealso cref="PVEMapActions.RemoveCallbacks(IPVEMapActions)" />
+    public interface IPVEMapActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotate(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "DefaultMap" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="DefaultMapActions.AddCallbacks(IDefaultMapActions)" />
+    /// <seealso cref="DefaultMapActions.RemoveCallbacks(IDefaultMapActions)" />
+    public interface IDefaultMapActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "ESC" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnESC(InputAction.CallbackContext context);
     }
 }

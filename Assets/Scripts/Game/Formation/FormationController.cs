@@ -57,6 +57,11 @@ public class FormationController : MonoBehaviour
         gridCellGroup = UIManager.instance.GetUIView<GridCellGroup_Formation>();
     }
 
+    void OnDestroy()
+    {
+        InputController.instance.SelectActionMap(ActionMapRegistry.DefaultMap);
+    }
+
     void OnEnable()
     {
         InputController.InputAction.FormationMap.Rotate.started += OnRotate;

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PVEController : MonoBehaviour
 {
@@ -17,6 +19,7 @@ public class PVEController : MonoBehaviour
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
     List<Vector2Int> current_range;
+    Vector2Int select = default;
     PVEMap pve_map=PVEMap.Null;
     Aim aim;
 
@@ -91,6 +94,7 @@ public class PVEController : MonoBehaviour
         init = true;
         PlayerSkillTurn();
         stage_notice.Open_PlayerSkill();
+        InputController.instance.SelectActionMap(ActionMapRegistry.PVEMap);
     }
 
     void Start()
@@ -107,6 +111,21 @@ public class PVEController : MonoBehaviour
             GameObject obj = Ship_UIBase.Create<Ship_PVE>(kv.Value, ship, ShipGroupTrans);
             StartCoroutine(SetPosition_WaitForEndOfFrame(kv.Key, obj.GetComponent<Ship_PVE>()));
         }
+    }
+
+    void OnEnable()
+    {
+        InputController.InputAction.PVEMap.Rotate.started += Rotate;
+    }
+
+    void OnDisable()
+    {
+        InputController.InputAction.PVEMap.Rotate.started -= Rotate;
+    }
+
+    void OnDestroy()
+    {
+        InputController.instance.SelectActionMap(ActionMapRegistry.DefaultMap);
     }
 
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
@@ -154,6 +173,7 @@ public class PVEController : MonoBehaviour
         {
             return;
         }
+        select = coord;
         if(target==PVEMap.Enemy)
         {
             gridCellGroup_Enemy.Select(current_range.ConvertAll(v => v + coord).ToList());
@@ -258,6 +278,7 @@ public class PVEController : MonoBehaviour
     {
         gridCellGroup_Player.ClearSelect();
         gridCellGroup_Enemy.ClearSelect();
+        select = default;
     }
 
     // Next
@@ -328,6 +349,21 @@ public class PVEController : MonoBehaviour
         if(!enable)
         {
             aim.Disable();
+        }
+    }
+
+    // Input
+
+    public void Rotate(InputAction.CallbackContext ctx)
+    {
+        int direction = (int)ctx.ReadValue<float>();
+        LayoutDATA skill_rotated_layout = new(current_range,0);
+        current_range = skill_rotated_layout.Rotate(direction).ToList;
+        Vector2Int current_select = select;
+        ClearSelect();
+        if(select!=default&&pve_map!=PVEMap.Null)
+        {
+            PlayerSelect(current_select,pve_map);
         }
     }
 

@@ -51,6 +51,84 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "PVEMap",
+            "id": "02f94a30-e77c-43e6-b259-3a243ae879a4",
+            "actions": [
+                {
+                    "name": "Rotate",
+                    "type": "Button",
+                    "id": "29095cd7-d1be-4a37-aa9c-bd5c9cac6b90",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Tap(duration=1.401298E-45,pressPoint=1.401298E-45)",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "Rotate",
+                    "id": "956769f4-35de-46f2-a28f-805f5491a309",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "a75c4592-6d9d-4335-bad8-91b93cedf585",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "aba754f8-976a-44f2-ae0d-fa3d5009c4b1",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "DefaultMap",
+            "id": "925ccee8-41c6-4f00-b296-b671c799da10",
+            "actions": [
+                {
+                    "name": "ESC",
+                    "type": "Button",
+                    "id": "2f203c09-03ae-4bd9-81c2-3b353d6b04b7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "56535275-caf3-4783-b6d8-2a45e347bb68",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ESC",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [
