@@ -205,6 +205,18 @@ public class EnemyController : MonoBehaviour
         return true;
     }
 
+    public List<Vector2Int> GetWholeLine(Vector2Int center,Vector2Int direction)
+    {
+        List<Vector2Int> line = new();
+        bool vertical = direction.x == 0;
+        for(int i=0;i<(vertical?size.y:size.x);i++)
+        {
+            Vector2Int coord = vertical ? new Vector2Int(center.x, i) : new Vector2Int(i, center.y);
+            line.Add(coord);
+        }
+        return line;
+    }
+
     public void DrawMap__test(Vector2Int target_coord,GameObject perfab)
     {
         Vector3 coord_in_map = new Vector3(target_coord.x*100 + 50, target_coord.y*100 + 50);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public abstract class Skill
@@ -8,14 +9,17 @@ public abstract class Skill
     protected bool on_enemy_map;
     protected Ship ship;
     protected SkillCard_UI ui;
+    protected Vector2Int _direction=new(0,1);
 
     public List<Vector2Int> SkillRange=>new(skill_coord);
     public PVEController.PVEMap TargetMap =>on_enemy_map?PVEController.PVEMap.Enemy:PVEController.PVEMap.Player;
+    public Vector2Int Direction => _direction;
 
     public bool CanSkill=>ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage;
 
-    public void OnSelect()
+    public virtual void OnSelect()
     {
+        _direction = new(0, 1);
         PVEController.instance.SetSkill(this);
     }
 
@@ -26,6 +30,16 @@ public abstract class Skill
         PVEController.instance.ClearSelectedSkill();
     }
 
+    public void Rotate(int direction)
+    {
+        _direction = direction switch
+        {
+            1 => new Vector2Int(_direction.y, -_direction.x),
+            -1 => new Vector2Int(-_direction.y, _direction.x),
+            _ => _direction,
+        };
+    }
+
     public abstract void OnSkillInvoke(Vector2Int target);
 
     public static Skill Get(Ship ship,SkillCard_UI ui)
@@ -33,7 +47,7 @@ public abstract class Skill
         Skill_Enum skill = ship.Skill;
         Skill _this = skill switch
         {
-            Skill_Enum.rader => null,
+            Skill_Enum.rader => new radar(),
             Skill_Enum.interference => null,
             Skill_Enum.bomb_focus => new bomb_focus(),
             Skill_Enum.bomb_wide => new bomb_wide(),

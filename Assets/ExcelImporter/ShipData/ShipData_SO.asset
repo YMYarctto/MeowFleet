@@ -17,11 +17,11 @@ MonoBehaviour:
     pre_id: 0
     brench: AB
     level: 0
-    skill_name_string: bomb_focus
+    skill_name_string: rader
     ship_name_string: _1x2
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
     core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
+    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
     ship_name: 0
     skill_name: 0
     shape_coord: []
@@ -60,7 +60,7 @@ MonoBehaviour:
     ship_name_string: _3a2
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
     core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
+    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
     ship_name: 0
     skill_name: 0
     shape_coord: []

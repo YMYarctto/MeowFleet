@@ -119,6 +119,11 @@ public class LayoutMap
             if(message.Contains(ActionMessage.ActionResult.Destroyed))
             {
                 _absolute_layout_map[_id].ToList.ForEach(v=>_status_map[v]=0);
+                if(_status_map.All(kv=>kv.Value==0))
+                {
+                    // GameOver
+                    message.AddResult(ActionMessage.ActionResult.GameOver);
+                }
             }
         }
     }

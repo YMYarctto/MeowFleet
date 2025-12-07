@@ -18,7 +18,7 @@ public class PVEController : MonoBehaviour
     LayoutMap player_layout_map;
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
-    List<Vector2Int> current_range;
+    List<Vector2Int> current_skill_range;
     Vector2Int select = default;
     PVEMap pve_map=PVEMap.Null;
     Aim aim;
@@ -83,7 +83,7 @@ public class PVEController : MonoBehaviour
         }
 
         currentState = PVEState.PlayerSkill;
-        current_range = new List<Vector2Int>() { new(0, 0) };
+        current_skill_range = new List<Vector2Int>() { new(0, 0) };
         Round = 1;
 
         current_shoot_count = PlayerShootCount;
@@ -125,7 +125,7 @@ public class PVEController : MonoBehaviour
 
     void OnDestroy()
     {
-        InputController.instance.SelectActionMap(ActionMapRegistry.DefaultMap);
+        InputController.instance?.SelectActionMap(ActionMapRegistry.DefaultMap);
     }
 
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
@@ -145,7 +145,7 @@ public class PVEController : MonoBehaviour
     {
         current_shoot_count = PlayerShootCount;
         pve_map = PVEMap.Enemy;
-        current_range = new List<Vector2Int>() { new(0, 0) };
+        current_skill_range = new List<Vector2Int>() { new(0, 0) };
     }
 
     public void ResetPVEMap()
@@ -174,12 +174,19 @@ public class PVEController : MonoBehaviour
             return;
         }
         select = coord;
+        if(current_skill is radar)
+        {
+            coord = GetEdgeCoord(coord, current_skill.Direction);
+            gridCellGroup_Enemy.Select(current_skill_range.ConvertAll(v => v + coord)
+                .Union(EnemyController.instance.GetWholeLine(coord, current_skill.Direction)).ToList());
+            return;
+        }
         if(target==PVEMap.Enemy)
         {
-            gridCellGroup_Enemy.Select(current_range.ConvertAll(v => v + coord).ToList());
+            gridCellGroup_Enemy.Select(current_skill_range.ConvertAll(v => v + coord).ToList());
         }else if(target==PVEMap.Player)
         {
-            gridCellGroup_Player.Select(current_range.ConvertAll(v => v + coord).ToList());
+            gridCellGroup_Player.Select(current_skill_range.ConvertAll(v => v + coord).ToList());
         }
     }
 
@@ -199,9 +206,9 @@ public class PVEController : MonoBehaviour
         }
     }
 
-    public void PlayerHit(Vector2Int coord)
+    public bool PlayerHit(Vector2Int coord)
     {
-        List<Vector2Int> coords = current_range.ConvertAll(v => v + coord).ToList();
+        List<Vector2Int> coords = current_skill_range.ConvertAll(v => v + coord).ToList();
         List<ActionMessage> messages = new();
         // UI以及合并逻辑初始化
         foreach (var v2 in new List<Vector2Int>(coords))
@@ -257,12 +264,14 @@ public class PVEController : MonoBehaviour
                 pve_map = PVEMap.Null;
             }
         }
+
+        return messages.Count>0 && messages.Any(v=>!v.Contains(ActionMessage.ActionResult.Miss));
     }
     
     public void SetSkill(Skill skill)
     {
         current_skill = skill;
-        current_range = skill.SkillRange;
+        current_skill_range = skill.SkillRange;
         pve_map = skill.TargetMap;
     }
 
@@ -329,6 +338,22 @@ public class PVEController : MonoBehaviour
         return player_ships.Values.Select(ship => ship.Uid).ToList();
     }
 
+    public Vector2Int GetEdgeCoord(Vector2Int target,Vector2Int direction)
+    {
+        Vector2Int mapSize = EnemyController.instance.size;
+        Vector2Int edge = target;
+        while (true)
+        {
+            Vector2Int next = edge - direction;
+            if (next.x < 0 || next.y < 0 || next.x >= mapSize.x || next.y >= mapSize.y)
+            {
+                break;
+            }
+            edge = next;
+        }
+        return edge;
+    }
+
     // UI
 
     public void Aim(PVEMap target,Vector2 position)
@@ -357,11 +382,12 @@ public class PVEController : MonoBehaviour
     public void Rotate(InputAction.CallbackContext ctx)
     {
         int direction = (int)ctx.ReadValue<float>();
-        LayoutDATA skill_rotated_layout = new(current_range,0);
-        current_range = skill_rotated_layout.Rotate(direction).ToList;
+        LayoutDATA skill_rotated_layout = new(current_skill_range,0);
+        current_skill_range = skill_rotated_layout.Rotate(direction).ToList;
+        current_skill?.Rotate(direction);
         Vector2Int current_select = select;
         ClearSelect();
-        if(select!=default&&pve_map!=PVEMap.Null)
+        if(current_select!=default&&pve_map!=PVEMap.Null)
         {
             PlayerSelect(current_select,pve_map);
         }

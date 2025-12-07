@@ -59,7 +59,7 @@ public class FormationController : MonoBehaviour
 
     void OnDestroy()
     {
-        InputController.instance.SelectActionMap(ActionMapRegistry.DefaultMap);
+        InputController.instance?.SelectActionMap(ActionMapRegistry.DefaultMap);
     }
 
     void OnEnable()
