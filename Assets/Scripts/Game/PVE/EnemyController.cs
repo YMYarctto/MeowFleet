@@ -25,6 +25,8 @@ public class EnemyController : MonoBehaviour
     List<Vector2Int> available_map;
     LayoutMap layout_map;
 
+    public LayoutMap EnemyLayoutMap => layout_map;
+
     EnemyBehavior AI;
 
     public int EnemyShootCount => layout_map.AttackCount;
@@ -146,10 +148,10 @@ public class EnemyController : MonoBehaviour
             Attack();
         }
 
-        StartCoroutine(EnemyBehave());
+        StartCoroutine(EEnemyBehavior());
     }
 
-    IEnumerator EnemyBehave()
+    IEnumerator EEnemyBehavior()
     {
         yield return new WaitForSeconds(2f);
         PVEController.instance.NextRound();
@@ -159,12 +161,18 @@ public class EnemyController : MonoBehaviour
     {
         return layout_map.GetMessage(coord);
     }
+
+    public void DisposeMessage(List<ActionMessage> messages)
+    {
+        layout_map.DisposeMessage(messages);
+    }
     
     private void Attack()
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
         if (isTest) DrawMap__test(target_coord, hit_point__test);
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
+        PVEController.instance.DisposeMessage(message);
         Debug.Log(message);
         if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
         {

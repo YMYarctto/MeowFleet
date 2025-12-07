@@ -12,11 +12,15 @@ public class PVEController : MonoBehaviour
 
     Dictionary<Vector2Int,int> player_ships_id;
     Dictionary<Vector2Int,Ship> player_ships;
+    List<Vector2Int> hitted_coords;
     LayoutMap player_layout_map;
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
     List<Vector2Int> current_range;
     PVEMap pve_map=PVEMap.Null;
+    Aim aim;
+
+    public LayoutMap PlayerLayoutMap => player_layout_map;
 
     Transform ShipGroupTrans;
     StageNotice_Animator stage_notice;
@@ -67,6 +71,7 @@ public class PVEController : MonoBehaviour
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));
 
         player_layout_map = new();
+        hitted_coords = new();
 
         foreach (var kv in player_ships_id)
         {
@@ -94,6 +99,7 @@ public class PVEController : MonoBehaviour
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
         stage_notice = UIManager.instance.GetUIView<StageNotice_Animator>();
         skillArea = UIManager.instance.GetUIView<SkillArea>();
+        aim = UIManager.instance.GetUIView<Aim>();
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
@@ -108,6 +114,8 @@ public class PVEController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         ship.SetPosition(coord);
     }
+
+    // Pack
 
     public void PlayerSkillTurn()
     {
@@ -125,6 +133,13 @@ public class PVEController : MonoBehaviour
     {
         pve_map = PVEMap.Null;
     }
+
+    public void DisposeMessage(ActionMessage message)
+    {
+        player_layout_map.DisposeMessage(message);
+    }
+
+    // Behavior
 
     public ActionMessage EnemyAttack(Vector2Int coord)
     {
@@ -167,11 +182,32 @@ public class PVEController : MonoBehaviour
     public void PlayerHit(Vector2Int coord)
     {
         List<Vector2Int> coords = current_range.ConvertAll(v => v + coord).ToList();
+        List<ActionMessage> messages = new();
+        // UI以及合并逻辑初始化
         foreach (var v2 in new List<Vector2Int>(coords))
         {
+            if(hitted_coords.Contains(v2))continue;
+            hitted_coords.Add(v2);
             ActionMessage message = EnemyController.instance.PlayerHit(v2);
             Debug.Log(message);
+            messages.Add(message);
             gridCellGroup_Enemy.Hit(v2,!message.Contains(ActionMessage.ActionResult.Miss));
+        }
+        EnemyController.instance.DisposeMessage(messages);
+        // 判断是否结束
+        if(messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver)))
+        {
+            Debug.Log("Win");
+
+            //TODO
+        }
+        // 分类合并
+        messages = messages.Where(v=>!v.Contains(ActionMessage.ActionResult.Miss))
+            .GroupBy(v=>(v.ShipID,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.core,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.body))
+            .Select(v=>v.FirstOrDefault(v=>v.Contains(ActionMessage.ActionResult.Destroyed)&&v.Locate==ActionMessage.ActionLocate.core)??v.First()).ToList();
+        // 处理结果
+        foreach (var message in messages)
+        {
             if (message.Contains(ActionMessage.ActionResult.Hit))
             {
                 string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
@@ -191,7 +227,7 @@ public class PVEController : MonoBehaviour
                 //TODO
             }
         }
-
+        // 减少齐射次数
         if(currentState==PVEState.PlayerAttack)
         {
             current_shoot_count--;
@@ -210,6 +246,8 @@ public class PVEController : MonoBehaviour
         pve_map = skill.TargetMap;
     }
 
+    // Clear
+
     public void ClearSelectedSkill()
     {
         current_skill = null;
@@ -221,6 +259,8 @@ public class PVEController : MonoBehaviour
         gridCellGroup_Player.ClearSelect();
         gridCellGroup_Enemy.ClearSelect();
     }
+
+    // Next
 
     public void NextState()
     {
@@ -261,9 +301,34 @@ public class PVEController : MonoBehaviour
         }
     }
 
+    // Get
+
     public List<int> GetPlayerShipsID()
     {
         return player_ships.Values.Select(ship => ship.Uid).ToList();
+    }
+
+    // UI
+
+    public void Aim(PVEMap target,Vector2 position)
+    {
+        if(!init)return;
+        if(!PlayerAction||target!=pve_map)
+        {
+            aim.Disable();
+            return;
+        }
+        aim.MoveTo(position);
+        aim.Enable();
+    }
+
+    public void Aim(bool enable)
+    {
+        if(!init)return;
+        if(!enable)
+        {
+            aim.Disable();
+        }
     }
 
     public enum PVEState

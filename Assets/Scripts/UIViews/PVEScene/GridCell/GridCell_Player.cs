@@ -36,15 +36,18 @@ public class GridCell_Player : GridCell_PVE
     private void OnPointerEnter(PointerEventData data)
     {
         PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Player);
+        PVEController.instance.Aim(PVEController.PVEMap.Player,transform.position);
     }
 
     private void OnPointerExit(PointerEventData data)
     {
         PVEController.instance.ClearSelect();
+        PVEController.instance.Aim(false);
     }
 
     private void OnPointerClick(PointerEventData data)
     {
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Player);
+        PVEController.instance.Aim(false);
     }
 }

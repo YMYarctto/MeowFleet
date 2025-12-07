@@ -36,15 +36,18 @@ public class GridCell_Enemy : GridCell_PVE
     private void OnPointerEnter(PointerEventData data)
     {
         PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Enemy);
+        PVEController.instance.Aim(PVEController.PVEMap.Enemy,transform.position);
     }
 
     private void OnPointerExit(PointerEventData data)
     {
         PVEController.instance.ClearSelect();
+        PVEController.instance.Aim(false);
     }
 
     private void OnPointerClick(PointerEventData data)
     {
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Enemy);
+        PVEController.instance.Aim(false);
     }
 }

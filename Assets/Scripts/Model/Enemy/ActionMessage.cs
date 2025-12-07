@@ -11,6 +11,10 @@ public class ActionMessage
     KeyValuePair<int, LayoutDATA> _destroyed_ships;
     ActionLocate _locate;
 
+    public int ShipID => ship_id;
+    public Vector2Int Target => _target;
+    public ActionResult ResultFirst => _result[0];
+
     public string ShipName => DataManager.instance.GetShipName(ship_id);
 
     public KeyValuePair<int, LayoutDATA> HitShips
@@ -23,20 +27,20 @@ public class ActionMessage
     }
     public ActionLocate Locate => _locate;
 
-    public ActionMessage(int ship, Vector2Int target, params ActionResult[] results)
+    public ActionMessage(int ship, Vector2Int target, ActionResult result)
     {
         ship_id = ship;
         _target = target;
-        _result = new(results);
+        _result = new() { result };
         _hit_ships = new(-1, null);
         _destroyed_ships = new(-1, null);
     }
     
-    public ActionMessage(Vector2Int target,params ActionResult[] results)
+    public ActionMessage(Vector2Int target,ActionResult result)
     {
         ship_id = 0;
         _target = target;
-        _result = new(results);
+        _result = new() { result };
         _hit_ships = new(-1,null);
         _destroyed_ships = new(-1,null);
     }
@@ -80,12 +84,12 @@ public class ActionMessage
         return str;
     }
 
-    public enum ActionResult
+    public enum ActionResult 
     {
         Miss,
         Hit,
         Destroyed,
-        Capture,
+        // Destroyed Body => Capture
         GameOver,
     }
 

@@ -90,7 +90,6 @@ public class LayoutMap
         {
             message.SetLocate(ActionMessage.ActionLocate.core);
         }
-        _absolute_layout_map[_id].ToList.ForEach(v=>_status_map[v]=0);
         if(_status_map.All(kv=>kv.Value==0))
         {
             // GameOver
@@ -100,4 +99,27 @@ public class LayoutMap
         return message;
     }
 
+    public void DisposeMessage(ActionMessage message)
+    {
+        if(!_ship_map.ContainsKey(message.Target))return;
+        int _id = _ship_map[message.Target].ID;
+        if(message.Contains(ActionMessage.ActionResult.Destroyed))
+        {
+            _absolute_layout_map[_id].ToList.ForEach(v=>_status_map[v]=0);
+        }
+    }
+
+    public void DisposeMessage(List<ActionMessage> messages)
+    {
+        for(int i=0;i< messages.Count;i++)
+        {
+            ActionMessage message = messages[i];
+            if(!_ship_map.ContainsKey(message.Target))continue;
+            int _id = _ship_map[message.Target].ID;
+            if(message.Contains(ActionMessage.ActionResult.Destroyed))
+            {
+                _absolute_layout_map[_id].ToList.ForEach(v=>_status_map[v]=0);
+            }
+        }
+    }
 }

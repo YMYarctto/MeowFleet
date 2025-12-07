@@ -125,7 +125,7 @@ public class SkillCard_UI : UIView
     public void SetActive(bool active,float delay=0)
     {
         moveTween?.Kill();
-        moveTween = transform.DOLocalMoveX(active?-215:-815,0.3f).SetDelay(active?delay:0).SetEase(Ease.InOutQuad);
+        moveTween = transform.DOLocalMoveX(active?-215:-915,0.3f).SetDelay(active?delay:0).SetEase(Ease.InOutQuad);
     }
 
     private void Wave()
