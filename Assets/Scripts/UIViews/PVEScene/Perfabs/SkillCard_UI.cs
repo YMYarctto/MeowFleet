@@ -239,7 +239,7 @@ public class SkillCard_UI : UIView
     {
         CardID = id;
         var obj = Instantiate(ResourceManager.instance.GetPerfabByType<SkillCard_UI>(),parent,false);
-        var ui = obj.AddComponent<SkillCard_UI>();
+        obj.AddComponent<SkillCard_UI>();
         return obj;
     }
 }

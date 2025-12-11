@@ -4,10 +4,11 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SkillArea : UIView
+public class InformationBoard : UIView
 {
-    RectTransform content;
-    RectTransform viewport;
+    public override UIView currentView => this;
+
+    public static int CardID=0;
 
     float rubberPower = 0.6f;
     float inertia = 0.90f;
@@ -19,25 +20,25 @@ public class SkillArea : UIView
     bool isDragging;
     public bool IsDragging=>isDragging;
 
+    Vector3 card_pos = Vector3.zero;
+    Vector3 init_pos = new(590,0,0);
+    const float CARD_GAP = 160f;
+
+    RectTransform content;
+    RectTransform viewport;
+
     Tweener reboundTween;
     EventTrigger eventTrigger;
 
-    Vector2 content_init = new(600,450);
-    Vector3 card_pos = new(-215,-340,0);
-    const float CARD_GAP = 271f;
-
-    List<SkillCard_UI> skill_list;
-    SkillCard_UI current_select;
-
-    public override UIView currentView => this;
+    List<InformationCard_UI> card_list;
 
     public override void Init()
     {
-        skill_list??=new();
-        content = transform.Find("content").GetComponent<RectTransform>();
-        viewport = GetComponent<RectTransform>();
+        card_list??=new();
+        viewport = transform.Find("viewport").GetComponent<RectTransform>();
+        content = viewport.Find("content").GetComponent<RectTransform>();
 
-        content.sizeDelta = content_init;
+        content.sizeDelta = init_pos;
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -67,76 +68,10 @@ public class SkillArea : UIView
             {
                 MoveContent(velocityY * Time.deltaTime);
                 velocityY *= inertia;
+                if (content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
+                    velocityY *= rubberPower;
             }
         }
-    }
-
-    public void AddSkillCard(int id,Ship ship)
-    {
-        skill_list??=new();
-        GameObject card = SkillCard_UI.Create(id,content);
-        SkillCard_UI card_ui = card.GetComponent<SkillCard_UI>();
-        card.transform.localPosition=card_pos;
-        card_pos.y-=CARD_GAP;
-        card_ui.Init(ship);
-        skill_list.Add(card_ui);
-        content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
-    }
-
-    public void SelectSkillCard(SkillCard_UI card)
-    {
-        if(current_select==card)
-        {
-            return;
-        }
-        current_select?.OnSelectEnd();
-        current_select=card;
-    }
-
-    public void DisableSkillCard(SkillCard_UI card)
-    {
-        card.SetActive(false);
-        if(current_select==card)
-        {
-            current_select=null;
-        }
-        int index = skill_list.IndexOf(card);
-        if(index<0)
-        {
-            Debug.LogError("找不到SkillCard");
-            return;
-        }
-        for(int i=index+1;i<skill_list.Count;i++)
-        {
-            skill_list[i].MoveUp_Animation(CARD_GAP,0.2f);
-        }
-    }
-
-    public void ShowSkill()
-    {
-        content.sizeDelta = content_init;
-        skill_list.ForEach(ui =>ui.InitPosition());
-        float delay = 0f;
-        for(int i=0;i<skill_list.Count;i++)
-        {
-            if(!skill_list[i].SetActive(delay))
-            {
-                for(int j=i+1;j<skill_list.Count;j++)
-                {
-                    skill_list[j].MoveUp(CARD_GAP);
-                }
-            }
-            else
-            {
-                delay+=0.1f;
-                content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
-            }
-        }
-    }
-
-    public void ShowSkill(bool active)
-    {
-        skill_list.ForEach(ui =>ui.SetActive(active));
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -160,7 +95,7 @@ public class SkillArea : UIView
             delta *= rubberPower;
 
         MoveContent(delta);
-        velocityY = delta / Time.deltaTime; // 记录速度
+        velocityY = Mathf.Clamp(-30,delta / Time.deltaTime,30); // 记录速度
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -209,5 +144,17 @@ public class SkillArea : UIView
         reboundTween?.Kill();
 
         reboundTween = content.DOAnchorPos(target, reboundDuration).SetEase(reboundEase);
+    }
+
+    public InformationCard_UI NewInformation()
+    {
+        GameObject card = Instantiate(ResourceManager.instance.GetPerfabByType<InformationCard_UI>(), content);
+        InformationCard_UI card_ui = card.GetComponent<InformationCard_UI>();
+        CardID++;
+        card.transform.localPosition=card_pos;
+        card_pos.y-=CARD_GAP;
+        card_list.Add(card_ui);
+        content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
+        return card_ui;
     }
 }

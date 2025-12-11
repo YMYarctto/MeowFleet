@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,20 +21,26 @@ public class PVEController : MonoBehaviour
     GridCellGroup_Enemy gridCellGroup_Enemy;
     List<Vector2Int> current_skill_range;
     Vector2Int select = default;
+    Vector3 hit_position = Vector3.zero;
     PVEMap pve_map=PVEMap.Null;
     Aim aim;
+    InformationBoard information_board;
 
     public LayoutMap PlayerLayoutMap => player_layout_map;
 
     Transform ShipGroupTrans;
     StageNotice_Animator stage_notice;
+    Transform FX_Group;
     
     SkillArea skillArea;
     Skill current_skill;
 
     PVEState currentState;
+    public PVEState CurrentState => currentState;
 
-    bool PlayerAction => currentState == PVEState.PlayerAttack||currentState==PVEState.PlayerSkill;
+    bool onAnim=false;
+    public bool PlayerAction => currentState == PVEState.PlayerAttack||currentState==PVEState.PlayerSkill;
+    public bool OnAnim => onAnim;
 
     public int Round;
     public int PlayerShootCount => player_layout_map.AttackCount;
@@ -69,6 +76,7 @@ public class PVEController : MonoBehaviour
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
 
         UI_Notice = GameObject.Find("UI_Notice").transform;
+        FX_Group = GameObject.Find("FX_Group").transform;
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));
@@ -104,6 +112,7 @@ public class PVEController : MonoBehaviour
         stage_notice = UIManager.instance.GetUIView<StageNotice_Animator>();
         skillArea = UIManager.instance.GetUIView<SkillArea>();
         aim = UIManager.instance.GetUIView<Aim>();
+        information_board = UIManager.instance.GetUIView<InformationBoard>();
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
@@ -169,12 +178,13 @@ public class PVEController : MonoBehaviour
 
     public void PlayerSelect(Vector2Int coord,PVEMap target)
     {
-        if (!PlayerAction||target!=pve_map||!init)
+        if (!PlayerAction||target!=pve_map||!init||onAnim)
         {
             return;
         }
         select = coord;
-        if(current_skill is radar)
+        
+        if(current_skill is torpedo)
         {
             coord = GetEdgeCoord(coord, current_skill.Direction);
             gridCellGroup_Enemy.Select(current_skill_range.ConvertAll(v => v + coord)
@@ -190,15 +200,15 @@ public class PVEController : MonoBehaviour
         }
     }
 
-    public void PlayerOP(Vector2Int coord,PVEMap target)
+    public void PlayerOP(Vector2Int coord,PVEMap target,bool fx = false)
     {
-        if (!PlayerAction||target!=pve_map||!init)
+        if (!PlayerAction||target!=pve_map||!init||onAnim)
         {
             return;
         }
         if(currentState==PVEState.PlayerAttack)
         {
-            PlayerHit(coord);
+            PlayerHit(coord,fx);
         }
         else if(currentState==PVEState.PlayerSkill)
         {
@@ -206,9 +216,17 @@ public class PVEController : MonoBehaviour
         }
     }
 
-    public bool PlayerHit(Vector2Int coord)
+    public bool PlayerHit(Vector2Int coord,bool fx = false)
     {
-        List<Vector2Int> coords = current_skill_range.ConvertAll(v => v + coord).ToList();
+        // fx
+        if(fx)
+        {
+            onAnim = true;
+            hit_position = gridCellGroup_Enemy.GetGridCellPosition(coord);
+            FX.Create<FX_bomb>(hit_position,FX_Group).OnComplete(()=>onAnim=false);
+        }
+
+        List<Vector2Int> coords =  current_skill_range.ConvertAll(v => v + coord).ToList();
         List<ActionMessage> messages = new();
         // UI以及合并逻辑初始化
         foreach (var v2 in new List<Vector2Int>(coords))
@@ -238,14 +256,14 @@ public class PVEController : MonoBehaviour
             if (message.Contains(ActionMessage.ActionResult.Hit))
             {
                 string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
-                PVE_Notice notice = PVE_Notice.Create();
-                notice.ShowNotice_Hit(message.ShipName, LOCATE);
+                PVE_Notice.Create().ShowNotice_Hit(message.ShipName, LOCATE);
+                information_board.NewInformation();
             }
             else if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
                 string ACTION = message.Locate == ActionMessage.ActionLocate.core ? DESTROY : CAPTURE;
-                PVE_Notice notice = PVE_Notice.Create();
-                notice.ShowNotice_Destroy(message.ShipName, ACTION);
+                PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
+                information_board.NewInformation();
             }
             if(message.Contains(ActionMessage.ActionResult.GameOver))
             {
@@ -273,6 +291,11 @@ public class PVEController : MonoBehaviour
         current_skill = skill;
         current_skill_range = skill.SkillRange;
         pve_map = skill.TargetMap;
+    }
+
+    public void SetSkillRange(List<Vector2Int> range)
+    {
+        current_skill_range = range;
     }
 
     // Clear
@@ -314,8 +337,7 @@ public class PVEController : MonoBehaviour
         Debug.Log(currentState.ToString());
         if (currentState == PVEState.EnemyAttack)
         {
-            EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn);
-            stage_notice.Close();
+            EnmeyRound();
         }
         if(currentState==PVEState.PlayerAttack)
         {
@@ -329,6 +351,17 @@ public class PVEController : MonoBehaviour
             PlayerSkillTurn();
             stage_notice.Open_PlayerSkill();
         }
+    }
+
+    void EnmeyRound()
+    {
+        stage_notice.Close();
+        Sequence sequence = DOTween.Sequence();
+        sequence.AppendInterval(0.6f);
+        sequence.AppendCallback(()=>UIManager.instance.GetUIView<BG_PVE>().PlayerPage());
+        sequence.AppendInterval(1.25f);
+        sequence.AppendCallback(()=>EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn));
+        sequence.Play();
     }
 
     // Get
@@ -375,6 +408,11 @@ public class PVEController : MonoBehaviour
         {
             aim.Disable();
         }
+    }
+
+    public void FX_OnPlayer<T>(Vector2Int coord)where T:FX
+    {
+        FX.Create<T>(gridCellGroup_Player.GetGridCellPosition(coord),FX_Group);
     }
 
     // Input

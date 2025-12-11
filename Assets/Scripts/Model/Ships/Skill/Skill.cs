@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public abstract class Skill
@@ -47,7 +46,7 @@ public abstract class Skill
         Skill_Enum skill = ship.Skill;
         Skill _this = skill switch
         {
-            Skill_Enum.rader => new radar(),
+            Skill_Enum.rader => null,
             Skill_Enum.interference => null,
             Skill_Enum.bomb_focus => new bomb_focus(),
             Skill_Enum.bomb_wide => new bomb_wide(),
@@ -55,7 +54,7 @@ public abstract class Skill
             Skill_Enum.shield => null,
             Skill_Enum.bait => null,
             Skill_Enum.fort => null,
-            Skill_Enum.torpedo => null,
+            Skill_Enum.torpedo => new torpedo(),
             _=>null,
         };
         _this.ui = ui;

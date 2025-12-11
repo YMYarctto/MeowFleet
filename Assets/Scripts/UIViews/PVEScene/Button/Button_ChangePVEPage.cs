@@ -9,6 +9,10 @@ public class Button_ChangePVEPage : BaseButton_Default
 
     public override void OnPointerClick(PointerEventData eventData)
     {
+        if(!PVEController.instance.PlayerAction||PVEController.instance.OnAnim)
+        {
+            return;
+        }
         UIManager.instance.GetUIView<BG_PVE>().NextPage();
     }
 

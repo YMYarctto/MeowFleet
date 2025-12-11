@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,5 +28,19 @@ public abstract class GridCellGroup_PVE : UIView
     protected int GetIndex(Vector2Int v2)
     {
         return v2.y * mapSize.x + v2.x;
+    }
+
+    public Vector3 GetGridCellPosition(Vector2Int coord)
+    {
+        if(!IsInMap(coord))
+        {
+            throw new Exception("Coord out of map");
+        }
+        return girdCell_dict[GetIndex(coord)].transform.position;
+    }
+
+    protected bool IsInMap(Vector2Int v2)
+    {
+        return v2.x >= 0 && v2.x < mapSize.x && v2.y >= 0 && v2.y < mapSize.y;
     }
 }

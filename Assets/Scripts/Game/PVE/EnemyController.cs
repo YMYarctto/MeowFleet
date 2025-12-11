@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DG.Tweening;
 using PimDeWitte.UnityMainThreadDispatcher;
 using UnityEngine;
 
@@ -77,7 +78,7 @@ public class EnemyController : MonoBehaviour
             return new LayoutDATA(ship_data.shape_coord,ship_data.core_number);
         });
 
-        AI.Init(size, target_ship);
+        AI.Init(DataManager.instance.SaveData.MapSize, target_ship);
     }
 
     void OnEnable()
@@ -143,18 +144,14 @@ public class EnemyController : MonoBehaviour
 
     public void EnemyTurn()
     {
+        Sequence sequence = DOTween.Sequence();
         for (int i = 0; i < EnemyShootCount; i++)
         {
-            Attack();
+            sequence.AppendInterval(0.2f);
+            sequence.AppendCallback(()=>Attack());
         }
-
-        StartCoroutine(EEnemyBehavior());
-    }
-
-    IEnumerator EEnemyBehavior()
-    {
-        yield return new WaitForSeconds(2f);
-        PVEController.instance.NextRound();
+        sequence.AppendInterval(1.5f);
+        sequence.AppendCallback(()=>PVEController.instance.NextRound());
     }
 
     public ActionMessage PlayerHit(Vector2Int coord)
@@ -170,6 +167,7 @@ public class EnemyController : MonoBehaviour
     private void Attack()
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
+        PVEController.instance.FX_OnPlayer<FX_bomb>(target_coord);
         if (isTest) DrawMap__test(target_coord, hit_point__test);
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);
@@ -224,5 +222,4 @@ public class EnemyController : MonoBehaviour
         obj.transform.SetParent(playArea);
         obj.transform.localPosition = coord_in_map;
     }
-
 }
