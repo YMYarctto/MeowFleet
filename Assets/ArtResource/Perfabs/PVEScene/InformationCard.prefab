@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3045066054086907562}
   - component: {fileID: 6776417490876009607}
   m_Layer: 5
-  m_Name: context
+  m_Name: content
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -278,8 +278,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u7B2C 1 \u8F6E:  \u6280\u80FD\u9636\u6BB5"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
-  m_sharedMaterial: {fileID: 6809811635698538494, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f95263ebb08304939b1e226fee233633, type: 2}
+  m_sharedMaterial: {fileID: -5166324849824741512, guid: f95263ebb08304939b1e226fee233633, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -303,8 +303,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 32
+  m_fontSizeBase: 32
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

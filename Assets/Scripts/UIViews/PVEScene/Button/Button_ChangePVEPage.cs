@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Button_ChangePVEPage : BaseButton_Default
+public class Button_ChangePVEPage : BaseButton_Setting
 {
     public override UIView currentView => this;
 

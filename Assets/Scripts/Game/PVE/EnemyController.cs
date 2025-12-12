@@ -56,7 +56,7 @@ public class EnemyController : MonoBehaviour
 
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
-            return new Ship(DataManager.instance.GetShipData(id));
+            return new Ship(-1,DataManager.instance.GetShipData(id));
         });
 
         if (isTest)
@@ -117,7 +117,7 @@ public class EnemyController : MonoBehaviour
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
-                        layout_map.AddShip(ship.Uid,pos, layout_ran);
+                        layout_map.AddShip(ship.DataId,pos, layout_ran);
                         foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);
@@ -154,6 +154,11 @@ public class EnemyController : MonoBehaviour
         sequence.AppendCallback(()=>PVEController.instance.NextRound());
     }
 
+    public ActionMessage PlayerCheck(Vector2Int coord)
+    {
+        return layout_map.CheckOut(coord);
+    }
+
     public ActionMessage PlayerHit(Vector2Int coord)
     {
         return layout_map.GetMessage(coord);
@@ -167,7 +172,7 @@ public class EnemyController : MonoBehaviour
     private void Attack()
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
-        PVEController.instance.FX_OnPlayer<FX_bomb>(target_coord);
+        PVEController.instance.FX_OnPlayer<FX_bomb2>(target_coord);
         if (isTest) DrawMap__test(target_coord, hit_point__test);
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);

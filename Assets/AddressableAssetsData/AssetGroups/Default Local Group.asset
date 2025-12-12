@@ -27,6 +27,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1d3911158ca994821891b5f4ebf2a152
+    m_Address: FX_bomb2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 471d97ae99c6e465989c835c46539882
     m_Address: Ship
     m_ReadOnly: 0

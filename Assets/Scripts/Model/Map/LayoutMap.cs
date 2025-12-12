@@ -44,6 +44,26 @@ public class LayoutMap
         Debug.Log($"已添加舰船 ID: {ship_id}");
     }
 
+    public ActionMessage CheckOut(Vector2Int target)
+    {
+        if (!_ship_map.ContainsKey(target))
+        {
+            return new ActionMessage(target,ActionMessage.ActionResult.Miss);
+        }
+        int _id = _ship_map[target].ID;
+        int ship_id = _ship_id[_id];
+        ActionMessage message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Hit);
+        if(!_absolute_layout_map[_id].BodyList.Contains(target))
+        {
+            message.SetLocate(ActionMessage.ActionLocate.core);
+        }
+        else
+        {
+            message.SetLocate(ActionMessage.ActionLocate.body);
+        }
+        return message;
+    }
+
     public ActionMessage GetMessage(Vector2Int target)
     {
         if (!_ship_map.ContainsKey(target))
@@ -60,7 +80,8 @@ public class LayoutMap
         _status_map[target]--;
         int _id = _ship_map[target].ID;
         int ship_id = _ship_id[_id];
-        ShipManager.instance.GetShip_Safe(ship_id)?.Hit(target);
+        Vector2Int layout_coord = _ship_map[target].layout.ToList[_absolute_layout_map[_id].ToList.IndexOf(target)];
+        ShipManager.instance.GetShip_Safe(ship_id)?.Hit(layout_coord);
         if(!_absolute_layout_map[_id].BodyList.All(v=>_status_map[v]==0))
         {
             // Hit

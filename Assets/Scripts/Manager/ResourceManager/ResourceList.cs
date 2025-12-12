@@ -15,6 +15,7 @@ public static class ResourceList
         {typeof(SkillCard_UI),"SkillCard"},
         {typeof(FX_bomb),"FX_bomb"},
         {typeof(InformationCard_UI),"InformationCard"},
+        {typeof(FX_bomb2),"FX_bomb2"},
     };
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()

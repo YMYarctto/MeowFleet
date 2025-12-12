@@ -37,7 +37,7 @@ public class ShiphouseController : MonoBehaviour
         foreach(var uid in DataManager.instance.GetShipUrlList().Keys)
         {
             id++;
-            Ship ship = new(DataManager.instance.GetShipData(uid));
+            Ship ship = new(id,DataManager.instance.GetShipData(uid));
             ShipManager.instance.AddShip(ship);
             Ship_UIBase.Create<Ship_Formation>(id,ship, child_list[uid]);//delete
         }

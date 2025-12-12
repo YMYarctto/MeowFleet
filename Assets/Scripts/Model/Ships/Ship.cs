@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Ship
 {
+    int id;
     ShipData shipData;
     LayoutDATA layout;
     LayoutDATA init_layout;
@@ -18,7 +17,8 @@ public class Ship
     
     public LayoutDATA Layout => layout;
     public LayoutDATA InitLayout => init_layout;
-    public int Uid => shipData.uid;
+    public int DataId => shipData.uid;
+    public int ShipId => id;
     public int Direction => _direction;
     public string Name => shipData.ship_name_string;
     public Skill_Enum Skill => shipData.skill_name;
@@ -50,8 +50,9 @@ public class Ship
         }
     }
 
-    public Ship(ShipData shipData)
+    public Ship(int id,ShipData shipData)
     {
+        this.id = id;
         this.shipData = shipData;
         init_layout = layout = new(shipData.shape_coord,shipData.core_number);
         damage_condition = init_layout.ToList.ConvertAll(v=>1);
@@ -74,14 +75,12 @@ public class Ship
     public void Hit(Vector2Int coord)
     {
         int index = layout.ToList.IndexOf(coord);
-        if(index<0)
+        if(index<0||damage_condition[index]<=0)
         {
             return;
         }
-        if(damage_condition[index]>=0)
-        {
-            damage_condition[index]--;
-        }
+        damage_condition[index]--;
+        Debug.Log($"Ship {id} 受到攻击, 当前状态: {ShipStatus}");
     }
 
     public enum Status

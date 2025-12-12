@@ -20,15 +20,24 @@ public class InformationBoard : UIView
     bool isDragging;
     public bool IsDragging=>isDragging;
 
-    Vector3 card_pos = Vector3.zero;
-    Vector3 init_pos = new(590,0,0);
+    Vector3 card_pos = new(300,0,0);
+    Vector2 init_size = new(590,0);
     const float CARD_GAP = 160f;
 
     RectTransform content;
     RectTransform viewport;
+    InfomationRollBar infomationRollBar;
 
     Tweener reboundTween;
     EventTrigger eventTrigger;
+
+    int round;
+    string stage;
+
+    public float UnviewLength => content.rect.height<=viewport.rect.height?0:content.rect.height - viewport.rect.height;
+    public float CurrentLength => Mathf.Clamp(content.anchoredPosition.y,0,UnviewLength);
+    public float ViewLength => viewport.rect.height;
+    public float TotalLength => ViewLength + UnviewLength;
 
     List<InformationCard_UI> card_list;
 
@@ -38,7 +47,7 @@ public class InformationBoard : UIView
         viewport = transform.Find("viewport").GetComponent<RectTransform>();
         content = viewport.Find("content").GetComponent<RectTransform>();
 
-        content.sizeDelta = init_pos;
+        content.sizeDelta = init_size;
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -59,6 +68,12 @@ public class InformationBoard : UIView
         eventTrigger.triggers.Add(entry_onDrag);
     }
 
+    void Start()
+    {
+        infomationRollBar = UIManager.instance.GetUIView<InfomationRollBar>();
+        infomationRollBar.Set();
+    }
+
     void Update()
     {
         if (!isDragging)
@@ -70,8 +85,36 @@ public class InformationBoard : UIView
                 velocityY *= inertia;
                 if (content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
                     velocityY *= rubberPower;
+                infomationRollBar.Set();
             }
         }
+    }
+
+    public void SetRound(int r)
+    {
+        round = r;
+    }
+
+    public void SetStage(PVEController.PVEState s)
+    {
+        stage = s switch
+        {
+            PVEController.PVEState.PlayerAttack => "齐射阶段",
+            PVEController.PVEState.PlayerSkill => "技能阶段",
+            PVEController.PVEState.EnemyAttack => "敌方回合",
+            _ => "敌方回合",
+        };
+    }
+
+    public void Set(float per)
+    {
+        float targetY = per * UnviewLength;
+        content.anchoredPosition = new Vector2(content.anchoredPosition.x, targetY);
+    }
+
+    public string GetTitle()
+    {
+        return $"第 {round} 回合：{stage}";
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -83,6 +126,8 @@ public class InformationBoard : UIView
 
         velocityY = 0;
         lastMouseY = eventData.position.y;
+
+        infomationRollBar.Set();
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -95,7 +140,8 @@ public class InformationBoard : UIView
             delta *= rubberPower;
 
         MoveContent(delta);
-        velocityY = Mathf.Clamp(-30,delta / Time.deltaTime,30); // 记录速度
+        velocityY = Mathf.Clamp(delta / Time.deltaTime,-30,30); // 记录速度
+        infomationRollBar.Set();
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -143,7 +189,21 @@ public class InformationBoard : UIView
     {
         reboundTween?.Kill();
 
-        reboundTween = content.DOAnchorPos(target, reboundDuration).SetEase(reboundEase);
+        reboundTween = content.DOAnchorPos(target, reboundDuration).SetEase(reboundEase).OnUpdate(()=>infomationRollBar.Set());
+    }
+
+    public void MoveToEnd()
+    {
+        float contentHeight = content.rect.height;
+        float viewHeight = viewport.rect.height;
+
+        if (contentHeight <= viewHeight)
+        {
+            return;
+        }
+
+        float max = contentHeight - viewHeight;
+        PlayRebound(new Vector2(content.anchoredPosition.x, max));
     }
 
     public InformationCard_UI NewInformation()
@@ -155,6 +215,8 @@ public class InformationBoard : UIView
         card_pos.y-=CARD_GAP;
         card_list.Add(card_ui);
         content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
+        MoveToEnd();
+
         return card_ui;
     }
 }

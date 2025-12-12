@@ -38,13 +38,13 @@ public class PVE_Notice : UIView
 
     public void ShowNotice_Hit(string ship_str, string locate)
     {
-        text.text = $"你命中了 [ {ship_str} ] 的{locate}";
+        text.text = $"你命中了【 {ship_str} 】的{locate}";
         Enable();
     }
     
     public void ShowNotice_Destroy(string ship_str,string action)
     {
-        text.text = $"你{action}了 [ {ship_str} ]";
+        text.text = $"你{action}了【 {ship_str} 】";
         Enable();
     }
 
