@@ -32,7 +32,6 @@ public class PVEController : MonoBehaviour
 
     Transform ShipGroupTrans;
     StageNotice_Animator stage_notice;
-    Transform FX_Group;
     
     SkillArea skillArea;
     Skill current_skill;
@@ -78,7 +77,6 @@ public class PVEController : MonoBehaviour
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
 
         UI_Notice = GameObject.Find("UI_Notice").transform;
-        FX_Group = GameObject.Find("FX_Group").transform;
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));
@@ -153,11 +151,13 @@ public class PVEController : MonoBehaviour
 
     public void PlayerSkillTurn()
     {
+        skillArea.ShowSkill();
         pve_map = PVEMap.Null;
     }
 
     public void PlayerAttackTurn()
     {
+        skillArea.ShowSkill(false);
         current_shoot_count = PlayerShootCount;
         playerAttackCount.SetCount(current_shoot_count);
         playerAttackCount.Enable();
@@ -233,7 +233,7 @@ public class PVEController : MonoBehaviour
         {
             onAnim = true;
             hit_position = gridCellGroup_Enemy.GetGridCellPosition(coord);
-            FX.Create<FX_bomb2>(hit_position,FX_Group).OnComplete(()=>onAnim=false);
+            FXManager.instance.AttackFX(hit_position).OnComplete(()=>onAnim=false);
         }
 
         List<Vector2Int> coords =  current_skill_range.ConvertAll(v => v + coord).ToList();
@@ -346,12 +346,10 @@ public class PVEController : MonoBehaviour
         }
         if(currentState==PVEState.PlayerAttack)
         {
-            skillArea.ShowSkill(false);
             PlayerAttackTurn();
         }
         if(currentState==PVEState.PlayerSkill)
         {
-            skillArea.ShowSkill();
             PlayerSkillTurn();
             stage_notice.Open_PlayerSkill();
         }
@@ -393,6 +391,11 @@ public class PVEController : MonoBehaviour
         return edge;
     }
 
+    public Vector3 GetPositionInScene(Vector2Int coord)
+    {
+        return gridCellGroup_Player.GetGridCellPosition(coord);
+    }
+
     // UI
 
     public void Aim(PVEMap target,Vector2 position)
@@ -414,11 +417,6 @@ public class PVEController : MonoBehaviour
         {
             aim.Disable();
         }
-    }
-
-    public void FX_OnPlayer<T>(Vector2Int coord)where T:FX
-    {
-        FX.Create<T>(gridCellGroup_Player.GetGridCellPosition(coord),FX_Group);
     }
 
     // Input

@@ -18,6 +18,13 @@ public static class ResourceList
         {typeof(FX_bomb2),"FX_bomb2"},
     };
 
+    public static Dictionary<Type,string> skill_card_sprite = new()
+    {
+        {typeof(bomb_focus),"bomb_focus"},
+        {typeof(bomb_wide),"bomb_wide"},
+        {typeof(torpedo),"torpedo"},
+    };
+
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()
     {
         {"_1x2_0",new(0.75f,0.25f)},

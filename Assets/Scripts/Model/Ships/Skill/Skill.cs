@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class Skill
@@ -46,7 +47,7 @@ public abstract class Skill
         Skill_Enum skill = ship.Skill;
         Skill _this = skill switch
         {
-            Skill_Enum.rader => null,
+            Skill_Enum.radar => null,
             Skill_Enum.interference => null,
             Skill_Enum.bomb_focus => new bomb_focus(),
             Skill_Enum.bomb_wide => new bomb_wide(),
@@ -57,12 +58,17 @@ public abstract class Skill
             Skill_Enum.torpedo => new torpedo(),
             _=>null,
         };
+        if (_this == null)
+        {
+            Debug.LogError("位置类型的舰船");
+            return null;
+        }
         _this.ui = ui;
         _this.ship = ship;
         _this.skill_coord = new(ship.SkillRange);
         _this.on_enemy_map = skill switch
         {
-            Skill_Enum.rader => true,
+            Skill_Enum.radar => true,
             Skill_Enum.interference => true,
             Skill_Enum.bomb_focus => true,
             Skill_Enum.bomb_wide => true,

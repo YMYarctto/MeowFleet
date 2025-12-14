@@ -64,6 +64,8 @@ public class SceneController : MonoBehaviour
             {
                 yield return null;
             }
+
+            System.GC.Collect();
         }
 
         AsyncOperation op = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);

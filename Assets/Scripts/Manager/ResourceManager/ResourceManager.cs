@@ -54,13 +54,22 @@ public class ResourceManager : MonoBehaviour
         return null;
     }
 
-    public Sprite GetSprite(int id)
+    public Sprite GetSpriteByType(Type type)
+    {
+        if (ResourceList.skill_card_sprite.TryGetValue(type, out string url)&&_sprites.TryGetValue(url,out Sprite sprite))
+        {
+            return sprite;
+        }
+        return null;
+    }
+
+    public Sprite GetShipSprite(int id)
     {
         if (_sprites.TryGetValue(id.ToString(), out Sprite sprite))
         {
             return sprite;
         }
-        Debug.LogError($"获取 \"{id}\" 预制体失败");
+        Debug.LogError($"获取 \"{id}\" Texture2d 失败");
         return null;
     }
 
@@ -113,6 +122,18 @@ public class ResourceManager : MonoBehaviour
             {
                 var obj = handle.Result;
                 _perfabs[kv.Key] = obj;
+                pkg.AddProgress();
+            };
+        }
+
+        foreach (var kv in ResourceList.skill_card_sprite)
+        {
+            pkg.AddCount();
+            Addressables.LoadAssetAsync<Texture2D>(kv.Value).Completed += (handle) =>
+            {
+                var t2d = handle.Result;
+                Vector2 pivot = new(0.5f,0.5f);
+                _sprites[kv.Value] = Sprite.Create(t2d, new Rect(0, 0, t2d.width, t2d.height),pivot);
                 pkg.AddProgress();
             };
         }

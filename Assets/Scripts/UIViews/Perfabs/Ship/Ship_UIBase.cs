@@ -26,7 +26,7 @@ public abstract class Ship_UIBase : UIView
 
         // 调整大小
         image = trans.Find("sprite").GetComponent<Image>();
-        Sprite sprite = ResourceManager.instance.GetSprite(ship.DataId);
+        Sprite sprite = ResourceManager.instance.GetShipSprite(ship.DataId);
         image.sprite = sprite;
         RectTransform img_rectTransform = image.rectTransform;
         Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);

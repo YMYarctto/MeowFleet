@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum Skill_Enum
 {
-    rader,
+    radar,
     interference,
     bomb_focus,
     bomb_wide,

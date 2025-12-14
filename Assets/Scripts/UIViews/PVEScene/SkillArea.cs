@@ -23,7 +23,7 @@ public class SkillArea : UIView
     EventTrigger eventTrigger;
 
     Vector2 content_init = new(600,450);
-    Vector3 card_pos = new(-215,-340,0);
+    Vector3 card_pos = new(-915,-340,0);
     const float CARD_GAP = 271f;
 
     List<SkillCard_UI> skill_list;

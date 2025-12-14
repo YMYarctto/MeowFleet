@@ -32,6 +32,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 22549a39e7b7a4d4d968031ce120f0ae
+    m_Address: radar
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45d92313461154350bd526890ffdbcd8
+    m_Address: interference
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 471d97ae99c6e465989c835c46539882
     m_Address: Ship
     m_ReadOnly: 0
@@ -42,13 +52,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74416e64f50744e8681bde2c0c7184bd
+    m_Address: torpedo
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 752ae0f64d55c434cad5e7b882ac932a
     m_Address: FX_bomb
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76921ea2884ed40d18b4409112689837
+    m_Address: bomb_wide
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8d61c065656b04ea3b959ad28314bcff
     m_Address: _3x3_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a923326c73b4840ac8faad48b1e93c77
+    m_Address: bomb_focus
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

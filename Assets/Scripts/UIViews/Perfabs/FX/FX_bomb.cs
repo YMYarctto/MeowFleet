@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FX_bomb : FX
 {
-    void Start()
+    void OnEnable()
     {
         DestroySelf_Delay(0.5f);
     }

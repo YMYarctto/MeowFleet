@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SkillCard_UI : UIView
 {
@@ -82,6 +83,8 @@ public class SkillCard_UI : UIView
     public void Init(Ship ship)
     {
         skill = Skill.Get(ship,this);
+        Sprite sprite = ResourceManager.instance.GetSpriteByType(skill.GetType());
+        if(sprite!=null)card_trans.Find("image").GetComponent<Image>().sprite = sprite;
         startPos = shadow.position;
         this_initPos = transform.localPosition;
 

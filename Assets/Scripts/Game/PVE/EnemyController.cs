@@ -172,7 +172,7 @@ public class EnemyController : MonoBehaviour
     private void Attack()
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
-        PVEController.instance.FX_OnPlayer<FX_bomb2>(target_coord);
+        FXManager.instance.AttackFX(PVEController.instance.GetPositionInScene(target_coord));
         if (isTest) DrawMap__test(target_coord, hit_point__test);
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);
