@@ -16,6 +16,7 @@ public static class ResourceList
         {typeof(FX_bomb),"FX_bomb"},
         {typeof(InformationCard_UI),"InformationCard"},
         {typeof(FX_bomb2),"FX_bomb2"},
+        {typeof(SkillRange_UI),"range"},
     };
 
     public static Dictionary<Type,string> skill_card_sprite = new()

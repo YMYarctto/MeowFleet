@@ -79,6 +79,7 @@ public class SkillArea : UIView
         card.transform.localPosition=card_pos;
         card_pos.y-=CARD_GAP;
         card_ui.Init(ship);
+        card.GetComponentInChildren<SkillRange_UI>().Init(card_ui.SkillRange);
         skill_list.Add(card_ui);
         content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
     }

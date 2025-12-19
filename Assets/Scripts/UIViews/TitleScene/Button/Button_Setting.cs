@@ -10,5 +10,6 @@ public class Button_Setting : BaseButton_TitleScene
     public override void OnPointerClick(PointerEventData eventData)
     {
         UIManager.instance.GetUIView<BGAnimator_TitleScene>().SettingEnable();
+        InputController.instance.LoadBindings();
     }
 }

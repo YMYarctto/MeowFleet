@@ -102,7 +102,7 @@ public class PVEController : MonoBehaviour
         init = true;
         PlayerSkillTurn();
         stage_notice.Open_PlayerSkill();
-        InputController.instance.SelectActionMap(ActionMapRegistry.PVEMap);
+        InputController.instance.SelectActionMap(InputController.InputAction.PVEMap);
     }
 
     void Start()
@@ -135,12 +135,7 @@ public class PVEController : MonoBehaviour
     {
         InputController.InputAction.PVEMap.Rotate.started -= Rotate;
     }
-
-    void OnDestroy()
-    {
-        InputController.instance?.SelectActionMap(ActionMapRegistry.DefaultMap);
-    }
-
+    
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
     {
         yield return new WaitForEndOfFrame();

@@ -10,6 +10,7 @@ public abstract class BaseButton_Setting : BaseButton_Default
 
     private bool isPressing = false;
     private bool needExit = false;
+    protected bool isSelect = false;
 
     public override void Init()
     {
@@ -17,7 +18,7 @@ public abstract class BaseButton_Setting : BaseButton_Default
 
         Transform focus_trans = transform.Find("focus");
         focus = focus_trans.gameObject;
-        ResetImage(focus_trans.GetComponent<Image>());
+        if(focus_trans.TryGetComponent<Image>(out var image)) ResetImage(image);
         focus.SetActive(false);
 
         EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
@@ -52,6 +53,7 @@ public abstract class BaseButton_Setting : BaseButton_Default
 
     private void OnPointerEnter(PointerEventData eventData)
     {
+        if(isSelect)return;
         focus.SetActive(true);
         needExit = false;
     }
@@ -67,7 +69,7 @@ public abstract class BaseButton_Setting : BaseButton_Default
         DoExit();
     } 
 
-    private void DoExit()
+    protected void DoExit()
     {
         focus.SetActive(false);
     }

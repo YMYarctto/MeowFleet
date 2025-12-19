@@ -46,7 +46,7 @@ public class FormationController : MonoBehaviour
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         RaycastGroup = GameObject.Find("RaycastGroup").transform;
 
-        InputController.instance.SelectActionMap(ActionMapRegistry.FormationMap);
+        InputController.instance.SelectActionMap(InputController.InputAction.PVEMap);
         placed_layout = new();
         formation_dict = new();
         RefreshPlacedMap();
@@ -57,19 +57,14 @@ public class FormationController : MonoBehaviour
         gridCellGroup = UIManager.instance.GetUIView<GridCellGroup_Formation>();
     }
 
-    void OnDestroy()
-    {
-        InputController.instance?.SelectActionMap(ActionMapRegistry.DefaultMap);
-    }
-
     void OnEnable()
     {
-        InputController.InputAction.FormationMap.Rotate.started += OnRotate;
+        InputController.InputAction.PVEMap.Rotate.started += OnRotate;
     }
 
     void OnDisable()
     {
-        InputController.InputAction.FormationMap.Rotate.started -= OnRotate;
+        InputController.InputAction.PVEMap.Rotate.started -= OnRotate;
     }
 
     public void RefreshPlacedMap()

@@ -9,11 +9,12 @@ public class SkillCard_UI : UIView
 {
     public override UIView currentView => this;
 
-    static int CardID;
+    public static int CardID;
     int _id = CardID;
     public override int ID => _id;
 
     Skill skill;
+    public List<Vector2Int> SkillRange => skill.SkillRange;
 
     private float intensity = 6f;
     private Vector2 duration_range = new(0.1f, 0.25f);
@@ -34,14 +35,12 @@ public class SkillCard_UI : UIView
     Tween moveTween;
     EventTrigger eventTrigger;
 
-    Vector3 startPos;
     Vector3 this_initPos;
 
     public override void Init()
     {
         card_trans = transform.Find("bg");
         shadow = card_trans.Find("mask").Find("shadow_2");
-        startPos = shadow.position;
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -85,7 +84,6 @@ public class SkillCard_UI : UIView
         skill = Skill.Get(ship,this);
         Sprite sprite = ResourceManager.instance.GetSpriteByType(skill.GetType());
         if(sprite!=null)card_trans.Find("image").GetComponent<Image>().sprite = sprite;
-        startPos = shadow.position;
         this_initPos = transform.localPosition;
 
         isInit =true;
@@ -103,7 +101,6 @@ public class SkillCard_UI : UIView
             return;
         }
         shadow.rotation = Quaternion.Euler(Vector3.zero);
-        shadow.position = new Vector3(startPos.x,shadow.position.y,0);
         if(MouseListener.Distance(transform.position+new Vector3(200,0,0))<400)
         {
             if(!waveLock&&!pointerLock)
