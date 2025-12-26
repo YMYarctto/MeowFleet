@@ -16,6 +16,7 @@ public abstract class Ship_UIBase : UIView
     protected Transform trans;
     protected RectTransform rectTransform;
     protected Image image;
+    protected RectTransform img_rect;
 
     public virtual void Init(Ship ship)
     {
@@ -28,14 +29,14 @@ public abstract class Ship_UIBase : UIView
         image = trans.Find("sprite").GetComponent<Image>();
         Sprite sprite = ResourceManager.instance.GetShipSprite(ship.DataId);
         image.sprite = sprite;
-        RectTransform img_rectTransform = image.rectTransform;
+        img_rect = image.rectTransform;
         Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
-        img_rectTransform.sizeDelta = spriteSize / Global.PPU;
-        img_rectTransform.pivot = new Vector2(
+        img_rect.sizeDelta = spriteSize / Global.PPU;
+        img_rect.pivot = new Vector2(
             sprite.pivot.x / sprite.rect.width,
             sprite.pivot.y / sprite.rect.height
         );
-        img_rectTransform.localPosition = Vector2.zero;
+        img_rect.localPosition = Vector2.zero;
     }
 
     public static GameObject Create<T>(int id,Ship ship,Transform parent)where T:Ship_UIBase

@@ -10,7 +10,7 @@ public class InformationBoard : UIView
 
     public static int CardID=0;
 
-    float rubberPower = 0.6f;
+    float rubberPower = 0.2f;
     float inertia = 0.90f;
     float reboundDuration = 0.35f;
     Ease reboundEase = Ease.OutQuad;
@@ -83,7 +83,7 @@ public class InformationBoard : UIView
             {
                 MoveContent(velocityY * Time.deltaTime);
                 velocityY *= inertia;
-                if (content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
+                if (content.rect.height <viewport.rect.height || content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
                     velocityY *= rubberPower;
                 infomationRollBar.Set();
             }

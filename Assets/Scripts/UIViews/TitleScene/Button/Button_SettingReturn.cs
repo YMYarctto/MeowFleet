@@ -10,5 +10,6 @@ public class Button_SettingReturn : BaseButton_Setting
     public override void OnPointerClick(PointerEventData eventData)
     {
         UIManager.instance.GetUIView<BGAnimator_TitleScene>().SettingDisable();
+        InputController.instance.SaveBindings();
     }
 }

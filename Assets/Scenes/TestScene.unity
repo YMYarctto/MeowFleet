@@ -454,11 +454,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1c07622d06e84868b8a7702046a2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ship_coord__test: {fileID: 8337779275683882613, guid: 0734b8f657ad14075af5fc001f32c170, type: 3}
-  hit_point__test: {fileID: 8879212774116936953, guid: 49eaedac88ed548a99a156dce249e0fd, type: 3}
-  isTest: 1
   size: {x: 10, y: 10}
-  target_ships_id: 
+  enemy_ships_id: 
 --- !u!4 &747842005
 Transform:
   m_ObjectHideFlags: 0
@@ -1033,55 +1030,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1568620836
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1568620838}
-  - component: {fileID: 1568620837}
-  m_Layer: 0
-  m_Name: FormationController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1568620837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1568620836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c385660211125474d90c7148a3308b89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MapSize: {x: 10, y: 10}
-  canvas: {fileID: 0}
-  DragGroupTrans: {fileID: 0}
-  ShipGroupTrans: {fileID: 0}
-  RaycastGroup: {fileID: 0}
---- !u!4 &1568620838
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1568620836}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1584663161
 GameObject:
   m_ObjectHideFlags: 0
@@ -1293,55 +1241,9 @@ RectTransform:
   m_AnchoredPosition: {x: -910, y: -511}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &2050895724
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2050895726}
-  - component: {fileID: 2050895725}
-  m_Layer: 0
-  m_Name: ShiphouseController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2050895725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2050895724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86247fdc229740d9bebd5103a419f08, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &2050895726
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2050895724}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1684076305}
   - {fileID: 747842005}
-  - {fileID: 1568620838}
-  - {fileID: 2050895726}

@@ -17,51 +17,47 @@ MonoBehaviour:
     pre_id: 0
     brench: AB
     level: 0
-    skill_name_string: torpedo
-    ship_name_string: _1x2
-    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
-    core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
-    ship_name: 0
-    skill_name: 0
-    shape_coord: []
-    skill_coord: []
-  - uid: 1
-    pre_id: 1
-    brench: AB
-    level: 0
     skill_name_string: bomb_focus
-    ship_name_string: _1x3
+    ship_name_string: "\u4FE1\u53F7\u6728\u7B4F"
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1}]'
     core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1}]'
-    ship_name: 0
+    skill_coord_string: '[{"x":0,"y":1},{"x":1,"y":1},{"x":0,"y":0},{"x":1,"y":0}]'
     skill_name: 0
     shape_coord: []
     skill_coord: []
-  - uid: 2
+  - uid: 14
     pre_id: 2
     brench: AB
     level: 0
-    skill_name_string: bomb_wide
-    ship_name_string: _3x3
-    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":-1,"y":-1},{"x":-1,"y":1},{"x":1,"y":-1},{"x":1,"y":1}]'
+    skill_name_string: bomb_focus
+    ship_name_string: "\u6728\u74DC\u8239"
+    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":0,"y":-1}]'
     core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":-1,"y":-1},{"x":-1,"y":1},{"x":1,"y":-1},{"x":1,"y":1}]'
-    ship_name: 0
+    skill_coord_string: '[{"x":0,"y":0},{"x":1,"y":0}]'
     skill_name: 0
     shape_coord: []
     skill_coord: []
-  - uid: 3
-    pre_id: 3
-    brench: AB
-    level: 0
+  - uid: 16
+    pre_id: 2
+    brench: B
+    level: 1
     skill_name_string: bomb_wide
-    ship_name_string: _3a2
-    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
+    ship_name_string: "\u6728\u74DC\u9999\u8549\u8239"
+    shape_coord_string: '[{"x":0,"y":0},{"x":-1,"y":1},{"x":0,"y":1},{"x":1,"y":1},{"x":-1,"y":0},{"x":1,"y":0},{"x":-1,"y":-1},{"x":0,"y":-1},{"x":1,"y":-1}]'
     core_number: 1
-    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0},{"x":1,"y":0}]'
-    ship_name: 0
+    skill_coord_string: '[{"x":0,"y":0},{"x":1,"y":-1}]'
+    skill_name: 0
+    shape_coord: []
+    skill_coord: []
+  - uid: 28
+    pre_id: 4
+    brench: A
+    level: 0
+    skill_name_string: torpedo
+    ship_name_string: "\u53EF\u4E50\u6F5C\u8247"
+    shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":1},{"x":-1,"y":0}]'
+    core_number: 1
+    skill_coord_string: '[{"x":0,"y":0},{"x":0,"y":1}]'
     skill_name: 0
     shape_coord: []
     skill_coord: []

@@ -1,24 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
-using PimDeWitte.UnityMainThreadDispatcher;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public GameObject ship_coord__test;
-    public GameObject hit_point__test;
-    public bool isTest;
-
     public Vector2Int size;
     public List<int> enemy_ships_id;
 
     List<int> target_ships_id;
 
     EventGroup _event;
-
-    Transform playArea;
 
     List<LayoutDATA> target_ship;
     List<Ship> enemy_ship;
@@ -58,11 +52,6 @@ public class EnemyController : MonoBehaviour
         {
             return new Ship(-1,DataManager.instance.GetShipData(id));
         });
-
-        if (isTest)
-        {
-            playArea = GameObject.Find("PlayArea").transform;
-        }
 
         MapInit();
 
@@ -121,10 +110,6 @@ public class EnemyController : MonoBehaviour
                         foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);
-                            UnityMainThreadDispatcher.Instance().Enqueue(() =>
-                            {
-                                if (isTest) DrawMap__test(pos + coord, ship_coord__test);
-                            });
                         }
                         foreach(var coord in layout_ran.GetAdjacentCellsInMap(pos))
                         {
@@ -173,7 +158,6 @@ public class EnemyController : MonoBehaviour
     {
         Vector2Int target_coord = AI.CalculatePossibleMap();
         FXManager.instance.AttackFX(PVEController.instance.GetPositionInScene(target_coord));
-        if (isTest) DrawMap__test(target_coord, hit_point__test);
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);
         Debug.Log(message);
@@ -197,6 +181,45 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    private void Skill(Skill skill)
+    {
+        if(skill is bomb)
+        {
+            goto Bomb;
+        }else
+        {
+            goto End;
+        }
+Bomb:
+        Vector2Int target_coord = AI.CalculatePossibleMap();
+        List<Vector2Int> skill_range = AI.CalculateSkillRange(target_coord,new LayoutDATA(skill.SkillRange,0));
+        
+        List<ActionMessage> messages = PVEController.instance.EnemyAttack(target_coord,skill_range);
+        PVEController.instance.DisposeMessage(messages);
+        if(messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver)))
+        {
+            Debug.Log("Lose");
+
+            //TODO
+        }
+        foreach(var message in messages)
+        {
+            Debug.Log(message);
+            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
+            }
+            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+            {
+                AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
+            }
+            AI.Remove(message.Target);
+        }
+        Debug.Log(AI.GetCurrentProbabilityMap());
+End:
+        return;
+    }
+
     // 检查该点位该布局是否可行
     private bool CheckLayoutValid(Vector2Int center, LayoutDATA layout)
     {
@@ -218,13 +241,5 @@ public class EnemyController : MonoBehaviour
             line.Add(coord);
         }
         return line;
-    }
-
-    public void DrawMap__test(Vector2Int target_coord,GameObject perfab)
-    {
-        Vector3 coord_in_map = new Vector3(target_coord.x*100 + 50, target_coord.y*100 + 50);
-        GameObject obj = Instantiate(perfab);
-        obj.transform.SetParent(playArea);
-        obj.transform.localPosition = coord_in_map;
     }
 }

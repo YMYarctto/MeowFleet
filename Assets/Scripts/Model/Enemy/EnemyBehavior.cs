@@ -66,6 +66,18 @@ public class EnemyBehavior
         return task.Result;
     }
 
+    public List<Vector2Int> CalculateSkillRange(Vector2Int target,LayoutDATA range)
+    {
+        ProbabilityMap map = map_dict[current_target_index];
+
+        Task<LayoutDATA> task = Task.Run(() =>
+        {
+            return map.GetHighProbabilityRange(target,range);
+        });
+
+        return task.Result.ToList;
+    }
+
     public void UpdatePossibleMapAfterHit(Vector2Int target, KeyValuePair<int, LayoutDATA> hit_ship)
     {
         Task task = Task.Run(() =>

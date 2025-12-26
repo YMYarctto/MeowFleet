@@ -60,7 +60,7 @@ public abstract class Skill
         };
         if (_this == null)
         {
-            Debug.LogError("位置类型的舰船");
+            Debug.LogError("暂无该类型的舰船");
             return null;
         }
         _this.ui = ui;

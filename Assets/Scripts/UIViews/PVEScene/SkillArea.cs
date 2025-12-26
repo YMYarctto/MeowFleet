@@ -9,7 +9,7 @@ public class SkillArea : UIView
     RectTransform content;
     RectTransform viewport;
 
-    float rubberPower = 0.6f;
+    float rubberPower = 0.2f;
     float inertia = 0.90f;
     float reboundDuration = 0.35f;
     Ease reboundEase = Ease.OutQuad;
@@ -157,7 +157,7 @@ public class SkillArea : UIView
         lastMouseY = eventData.position.y;
 
         // 内容短时加入阻力
-        if (content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
+        if (content.rect.height <viewport.rect.height||content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
             delta *= rubberPower;
 
         MoveContent(delta);

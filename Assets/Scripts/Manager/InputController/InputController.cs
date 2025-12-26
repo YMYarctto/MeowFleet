@@ -166,21 +166,25 @@ public class InputController : MonoBehaviour
         string json = inputAsset.SaveBindingOverridesAsJson();
         PlayerPrefs.SetString(SAVE_KEY, json);
         PlayerPrefs.Save();
+        Debug.Log("Save Binding");
     }
 
     public void LoadBindings()
     {
-        OnLoadComplete.Invoke();
-        if (!PlayerPrefs.HasKey(SAVE_KEY))
-            return;
+        if (PlayerPrefs.HasKey(SAVE_KEY))
+        {
+            inputAsset.LoadBindingOverridesFromJson(PlayerPrefs.GetString(SAVE_KEY));
+            Debug.Log("Load Binding");
+        }
 
-        inputAsset.LoadBindingOverridesFromJson(PlayerPrefs.GetString(SAVE_KEY));
+        OnLoadComplete.Invoke();
     }
 
     public void ResetToDefault()
     {
         inputAsset.RemoveAllBindingOverrides();
         PlayerPrefs.DeleteKey(SAVE_KEY);
+        OnLoadComplete.Invoke();
     }
 
     public string GetBindingDisplay(InputAction action, int bindingIndex = 0)

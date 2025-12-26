@@ -4237,11 +4237,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1c07622d06e84868b8a7702046a2b62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ship_coord__test: {fileID: 0}
-  hit_point__test: {fileID: 0}
-  isTest: 0
   size: {x: 10, y: 10}
-  enemy_ships_id: 00000000010000000200000003000000
+  enemy_ships_id: 000000000e000000100000001c000000
 --- !u!4 &2143963313
 Transform:
   m_ObjectHideFlags: 0

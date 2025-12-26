@@ -41,7 +41,9 @@ public class FormationController : MonoBehaviour
 
     void Awake()
     {
-        canvas = GameObject.Find("Canvas_FormationScene").GetComponent<Canvas>();
+        Global.PPU = 1f;
+
+        canvas = GameObject.Find("FormationPage").GetComponent<Canvas>();
         DragGroupTrans = GameObject.Find("OnDrag").transform;
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         RaycastGroup = GameObject.Find("RaycastGroup").transform;

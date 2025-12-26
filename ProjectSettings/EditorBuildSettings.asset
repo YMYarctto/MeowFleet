@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/TestScene.unity
     guid: ca93b4eb0e6eb4e75bc505babfd8afff
   - enabled: 1
-    path: Assets/Scenes/SeaAreaScene.unity
+    path: Assets/Scenes/FrontScene.unity
     guid: 0d61b632dd66144b4b5f8b50fddb3a5e
   - enabled: 1
     path: Assets/Scenes/PVEScene.unity

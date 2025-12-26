@@ -96,6 +96,15 @@ public class ProbabilityMap
         Vector2Int target = max_map[rand.Next(max_map.Count)];
         return target;
     }
+
+    public LayoutDATA GetHighProbabilityRange(Vector2Int target,LayoutDATA layout)
+    {
+        List<KeyValuePair<LayoutDATA, int>> probability_map_list = layout.AllLayout().ConvertAll(v=>new KeyValuePair<LayoutDATA, int>(v,probability_map.GetProbability(target,v.ToList)));
+        // 按概率排序
+        List<LayoutDATA> max_map = probability_map_list.Where(kv => kv.Value >= probability_map_list[0].Value).Select(kv=>kv.Key).ToList();
+
+        return max_map[0];
+    }
     
     public string GetProbabilityMap()
     {

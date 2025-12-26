@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Global
 {
-    public static float PPU = 5f;
+    public static float PPU = 1f;
 }

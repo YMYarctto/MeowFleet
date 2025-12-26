@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class ShipManager : MonoBehaviour
 {
+    public List<int> DataID;
+
     int max_id;
     Dictionary<int, Ship> shipDict;
+
+    public Dictionary<int,Ship> Shiphouse => new(shipDict);
 
     private static ShipManager _instance;
     public static ShipManager instance
@@ -33,6 +37,18 @@ public class ShipManager : MonoBehaviour
     public void Read()
     {
         max_id = DataManager.instance.SaveData.GetShiphouseData(out shipDict);
+    }
+
+    //TODO
+    public void New()
+    {
+        max_id = 10000;
+        foreach(var data_id in DataID)
+        {
+            max_id++;
+            Ship ship = new(max_id,DataManager.instance.GetShipData(data_id));
+            AddShip(ship);
+        }
     }
 
     public void AddShip(Ship ship)

@@ -14,9 +14,9 @@ public class Ship_Formation : Ship_UIBase
     Transform ship_parent=> FormationController.instance.ShipGroupTrans;
     Transform original_parent;
 
-    Canvas canvas => FormationController.instance.canvas;
-
     public override UIView currentView => this;
+
+    public Vector2 SizeDelta=>img_rect.sizeDelta;
     
     EventTrigger eventTrigger;
 
@@ -132,7 +132,7 @@ public class Ship_Formation : Ship_UIBase
             pre_rotation = trans.eulerAngles;
             original_parent = gridCell.transform;
             trans.SetParent(original_parent, true);
-            MoveAnimation(Vector2.zero, pre_rotation);
+            MoveAnimation(Vector2.zero, pre_rotation,ship_parent);
             inMap = true;
             inMap_coord = gridCell.GetVector2Int();
             Debug.Log($"检测到放置行为\n坐标: {inMap_coord}\n布局: {ship.Layout}");
@@ -141,7 +141,7 @@ public class Ship_Formation : Ship_UIBase
         {
             trans.SetParent(original_parent, true);
             ship.Rotate(-direction);
-            MoveAnimation(Vector2.zero, pre_rotation);
+            MoveAnimation(Vector2.zero, pre_rotation,original_parent);
         }
         if(inMap)
         {
@@ -153,13 +153,7 @@ public class Ship_Formation : Ship_UIBase
 
     private void MoveToMouse(PointerEventData eventData)
     {
-        Vector2 localPos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvas.transform as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out localPos);
-        rectTransform.anchoredPosition = localPos;
+        transform.position = eventData.position;
     }
 
     private bool DetectGridCell(PointerEventData eventData, out GridCell_Formation gridCell)
@@ -186,14 +180,14 @@ public class Ship_Formation : Ship_UIBase
         if(drag_gridCell!=null)FormationController.instance.SetDragLayout(drag_gridCell.GetVector2Int(),ship.Layout);
     }
 
-    void MoveAnimation(Vector2 targetPos,Vector3 targetRot)
+    void MoveAnimation(Vector2 targetPos,Vector3 targetRot,Transform parent)
     {
         loopTween.Kill();
         loopTween = DOTween.Sequence();
         loopTween.SetUpdate(true);
         loopTween.Append(trans.DOLocalMove(targetPos, 0.1f).SetEase(Ease.OutQuad));
         loopTween.Join(trans.DORotate(targetRot, 0.1f).SetEase(Ease.OutQuad));
-        loopTween.OnComplete(() => trans.SetParent(ship_parent, true));
+        loopTween.OnComplete(() => trans.SetParent(parent, true));
         loopTween.Play();
     }
 }

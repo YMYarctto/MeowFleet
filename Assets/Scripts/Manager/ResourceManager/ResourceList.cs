@@ -17,6 +17,7 @@ public static class ResourceList
         {typeof(InformationCard_UI),"InformationCard"},
         {typeof(FX_bomb2),"FX_bomb2"},
         {typeof(SkillRange_UI),"range"},
+        {typeof(ShipContainer),"ShipContainer"},
     };
 
     public static Dictionary<Type,string> skill_card_sprite = new()
@@ -28,9 +29,9 @@ public static class ResourceList
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()
     {
-        {"_1x2_0",new(0.75f,0.25f)},
-        {"_1x3_0",new(0.5f,0.5f)},
-        {"_3a2_0",new(0.5f,0.5f)},
-        {"_3x3_0",new(0.5f,0.5f)},
+        {"bomb_focus#0_AB0",new(0.5f,0.5f)},
+        {"bomb_focus#2_AB0",new(0.5f,0.5f)},
+        {"bomb_wide#2_B1",new(0.5f,0.5f)},
+        {"torpedo#4_A0",new(0.75f,0.25f)},
     };
 }

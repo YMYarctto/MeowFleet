@@ -73,7 +73,7 @@ public class PVEController : MonoBehaviour
 
     void Awake()
     {
-        Global.PPU = 6.25f;
+        Global.PPU = 1f;
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
 
         UI_Notice = GameObject.Find("UI_Notice").transform;
@@ -135,7 +135,7 @@ public class PVEController : MonoBehaviour
     {
         InputController.InputAction.PVEMap.Rotate.started -= Rotate;
     }
-    
+
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
     {
         yield return new WaitForEndOfFrame();
@@ -171,6 +171,11 @@ public class PVEController : MonoBehaviour
         player_layout_map.DisposeMessage(message);
     }
 
+    public void DisposeMessage(List<ActionMessage> message)
+    {
+        player_layout_map.DisposeMessage(message);
+    }
+
     // Behavior
 
     public ActionMessage EnemyAttack(Vector2Int coord)
@@ -178,6 +183,19 @@ public class PVEController : MonoBehaviour
         ActionMessage message = player_layout_map.GetMessage(coord);
         gridCellGroup_Player.Hit(coord,!message.Contains(ActionMessage.ActionResult.Miss));
         return message;
+    }
+
+    public List<ActionMessage> EnemyAttack(Vector2Int coord,List<Vector2Int> range)
+    {
+        List<Vector2Int> coords =  range.ConvertAll(v => v + coord).ToList();
+        List<ActionMessage> messages = new();
+        foreach (var v2 in new List<Vector2Int>(coords))
+        {
+            ActionMessage message = player_layout_map.GetMessage(v2);
+            messages.Add(message);
+            gridCellGroup_Player.Hit(coord,!message.Contains(ActionMessage.ActionResult.Miss));
+        }
+        return messages;
     }
 
     public void PlayerSelect(Vector2Int coord,PVEMap target)
@@ -221,6 +239,7 @@ public class PVEController : MonoBehaviour
         ClearSelect();
     }
 
+    //Core
     public void PlayerHit(Vector2Int coord,bool fx = false)
     {
         // fx

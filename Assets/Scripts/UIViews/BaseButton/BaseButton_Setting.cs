@@ -17,9 +17,12 @@ public abstract class BaseButton_Setting : BaseButton_Default
         base.Init();
 
         Transform focus_trans = transform.Find("focus");
-        focus = focus_trans.gameObject;
-        if(focus_trans.TryGetComponent<Image>(out var image)) ResetImage(image);
-        focus.SetActive(false);
+        if(focus_trans)
+        {
+            focus = focus_trans.gameObject;
+            if(focus_trans.TryGetComponent<Image>(out var image)) ResetImage(image);
+            focus.SetActive(false);
+        }
 
         EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
         entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
@@ -54,7 +57,7 @@ public abstract class BaseButton_Setting : BaseButton_Default
     private void OnPointerEnter(PointerEventData eventData)
     {
         if(isSelect)return;
-        focus.SetActive(true);
+        DoEnter();
         needExit = false;
     }
 
@@ -67,9 +70,14 @@ public abstract class BaseButton_Setting : BaseButton_Default
         }
 
         DoExit();
-    } 
+    }
 
-    protected void DoExit()
+    protected virtual void DoEnter()
+    {
+        focus.SetActive(true);
+    }
+
+    protected virtual void DoExit()
     {
         focus.SetActive(false);
     }

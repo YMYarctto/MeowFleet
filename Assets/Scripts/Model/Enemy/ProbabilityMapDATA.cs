@@ -42,6 +42,20 @@ public class ProbabilityMapDATA
         }
     }
 
+    public int GetProbability(Vector2Int target,List<Vector2Int> coords)
+    {
+        int result = 0;
+        for(int i =0;i<coords.Count;i++)
+        {
+            if(!_map.TryGetValue(target+coords[i],out int value))
+            {
+                continue;
+            }
+            result+=value;
+        }
+        return result;
+    }
+
     public void RemoveProbability(Vector2Int coord)
     {
         _map.Remove(coord);
