@@ -42,10 +42,8 @@ public class BGAnimator_TitleScene : UIView
     Image bg_shadow_image;
     Color bg_shadow_color;
     Image bg_shadow2_image;
-    Color bg_shadow2_color;
 
     Transform button_return;
-    Transform button_mainMenu;
 
     Vector3 bg_2_targetPos;
     Vector3 bg_3_targetPos;
@@ -71,13 +69,12 @@ public class BGAnimator_TitleScene : UIView
         bg_2 = inner.Find("bg_2").GetComponent<RectTransform>();
         bg_3 = inner.Find("bg_3").GetComponent<RectTransform>();
         bg_4 = inner.Find("bg_4").GetComponent<RectTransform>();
-        bg_setting = transform.Find("bg_setting").GetComponent<RectTransform>();
+        bg_setting = transform.Find("Setting").GetComponent<RectTransform>();
         bg_shadow_image = transform.Find("bg_shadow").GetComponent<Image>();
         bg_shadow_color = bg_shadow_image.color;
         bg_shadow2_image = transform.Find("bg_shadow_2").GetComponent<Image>();
 
         button_return = transform.Find("button_setting_return");
-        button_mainMenu = transform.Find("button_setting_main_menu");
 
         bg_1_color.a = 1f;
         bg_1_image.color = bg_1_color;
@@ -102,7 +99,6 @@ public class BGAnimator_TitleScene : UIView
         button_targetPosX = -1280;
         button_initPosX = -1680;
         button_return.localPosition = new Vector3(button_initPosX, button_return.localPosition.y, 0);
-        button_mainMenu.localPosition = new Vector3(button_initPosX, button_mainMenu.localPosition.y, 0);
 
         bg_1.localPosition = Vector3.zero;
         bg_1.localEulerAngles = Vector3.zero;
