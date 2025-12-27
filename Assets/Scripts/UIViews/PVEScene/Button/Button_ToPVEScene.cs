@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Button_TestEnemyTurn : BaseButton_TitleScene
+public class Button_ToPVEScene : BaseButton_Setting
 {
     public override UIView currentView => this;
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn);
+        SceneController.instance.AfterSceneLoadAction(()=>PVEController.instance.Init());
+        SceneController.instance.ChangeScene(SceneRegistry.PVEScene);
     }
-
 }

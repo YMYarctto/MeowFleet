@@ -1,9 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
-using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
@@ -136,6 +132,18 @@ public class Ship_Formation : Ship_UIBase
             inMap = true;
             inMap_coord = gridCell.GetVector2Int();
             Debug.Log($"检测到放置行为\n坐标: {inMap_coord}\n布局: {ship.Layout}");
+            if(UIManager.instance.TryGetUIView(_ID,out ShipContainer container))
+            {
+                UIManager.instance.GetUIView<Shiphouse>().DecreaseShipUi(container);
+            }
+        }
+        else if(inMap&&RaycastCompareTag(eventData,"Shiphouse",out GameObject _))
+        {
+            inMap = false;
+            UIManager.instance.GetUIView<Shiphouse>().AddShipUI(this);
+            original_parent = UIManager.instance.GetUIView<ShipContainer>(_ID).transform;
+            ship.ResetLayout();
+            MoveAnimation(Vector2.zero, Vector3.zero,original_parent);
         }
         else
         {
@@ -159,14 +167,27 @@ public class Ship_Formation : Ship_UIBase
     private bool DetectGridCell(PointerEventData eventData, out GridCell_Formation gridCell)
     {
         gridCell = null;
+        if(RaycastCompareTag(eventData,"GridCell",out GameObject obj))
+        {
+            gridCell = obj.GetComponent<GridCell_raycast>().Parent;
+            return true;
+        }
+        
+        return false;
+    }
+    
+
+    private bool RaycastCompareTag(PointerEventData eventData,string tag,out GameObject obj)
+    {
+        obj = null;
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
         foreach (var r in results)
         {
-            if (r.gameObject.CompareTag("GridCell"))
+            if (r.gameObject.CompareTag(tag))
             {
-                gridCell = r.gameObject.GetComponent<GridCell_raycast>().Parent;
+                obj = r.gameObject;
                 return true;
             }
         }

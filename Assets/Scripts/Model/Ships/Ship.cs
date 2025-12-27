@@ -83,6 +83,11 @@ public class Ship
         Debug.Log($"Ship {id} 受到攻击, 当前状态: {ShipStatus}");
     }
 
+    public void ForceSetLayout(LayoutDATA layout)
+    {
+        this.layout = layout;
+    }
+
     public enum Status
     {
         Intact,

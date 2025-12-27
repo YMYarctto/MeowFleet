@@ -9,7 +9,6 @@ public class Button_StartGame : BaseButton_TitleScene
 
     public override void OnPointerClick(PointerEventData eventData)
     {
-        //SceneController.instance.AfterSceneLoadAction(()=>PVEController.instance.Init());
         SceneController.instance.ChangeScene(SceneRegistry.FrontScene);
     }
 }

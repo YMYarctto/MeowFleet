@@ -16,16 +16,19 @@ public class Shiphouse : UIView
     float reboundDuration = 0.35f;
     Ease reboundEase = Ease.OutQuad;
 
+    float seq_duration=0.3f;
+
     float lastMouseX;
     float velocityX;
     bool isDragging;
 
     Tweener reboundTween;
+    Sequence decreaseSeq;
     EventTrigger eventTrigger;
 
     Vector2 content_init = new(0,307);
     Vector3 ship_pos = new(50,0,0);
-    const float CARD_GAP = 50f;
+    const float CONTAINER_GAP = 50f;
 
     public override UIView currentView => this;
 
@@ -90,9 +93,41 @@ public class Shiphouse : UIView
         Vector2 sizeDelta= ship_container.rectTransform.sizeDelta;
         ship_container.rectTransform.anchoredPosition=ship_pos+new Vector3(sizeDelta.x/2,0,0);
         
-        ship_pos.x+=CARD_GAP+sizeDelta.x;
+        ship_pos.x+=CONTAINER_GAP+sizeDelta.x;
         ship_list.Add(ship_container);
-        content.sizeDelta = new Vector2(content.sizeDelta.x+CARD_GAP+sizeDelta.x,content.sizeDelta.y);
+        content.sizeDelta = new Vector2(content.sizeDelta.x+CONTAINER_GAP+sizeDelta.x,content.sizeDelta.y);
+    }
+
+    public void AddShipUI(Ship_Formation ship_ui)
+    {
+        ship_list??=new();
+        ShipContainer ship_container = ShipContainer.Create(ship_ui, content);
+        Vector2 sizeDelta= ship_container.rectTransform.sizeDelta;
+        ship_container.rectTransform.anchoredPosition=ship_pos+new Vector3(sizeDelta.x/2,0,0);
+        
+        ship_pos.x+=CONTAINER_GAP+sizeDelta.x;
+        ship_list.Add(ship_container);
+        content.sizeDelta = new Vector2(content.sizeDelta.x+CONTAINER_GAP+sizeDelta.x,content.sizeDelta.y);
+    }
+
+    public void DecreaseShipUi(ShipContainer container)
+    {
+        int index = ship_list.IndexOf(container);
+        if(index<0)
+        {
+            return;
+        }
+        decreaseSeq?.Complete();
+        decreaseSeq = DOTween.Sequence();
+        float delta = container.rectTransform.sizeDelta.x+CONTAINER_GAP;
+        for(int i=index+1;i<ship_list.Count;i++)
+        {
+            float target = ship_list[i].transform.position.x - delta;
+            decreaseSeq.Insert(0,ship_list[i].transform.DOMoveX(target,seq_duration).SetEase(Ease.InOutQuad));
+        }
+        ship_list.Remove(container);
+        ship_pos-=new Vector3(delta,0,0);
+        decreaseSeq.Play();
     }
 
     public void OnBeginDrag(PointerEventData eventData)

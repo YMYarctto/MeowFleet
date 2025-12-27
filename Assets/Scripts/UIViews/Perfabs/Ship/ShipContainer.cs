@@ -32,4 +32,17 @@ public class ShipContainer : UIView
         ui.Init(id,ship);
         return ui;
     }
+
+    public static ShipContainer Create(Ship_Formation ship_ui,Transform parent)
+    {
+        if(!UIManager.instance.TryGetUIView(ship_ui.ID,out ShipContainer ui))
+        {
+            var obj = Instantiate(ResourceManager.instance.GetPerfabByType<ShipContainer>(),parent,false);
+            ui = obj.AddComponent<ShipContainer>();
+        }
+        ShipID = ship_ui.ID;
+        ui.rectTransform.sizeDelta = new(ship_ui.SizeDelta.x,ui.rectTransform.sizeDelta.y);
+        ship_ui.transform.SetParent(ui.gameObject.transform);
+        return ui;
+    }
 }

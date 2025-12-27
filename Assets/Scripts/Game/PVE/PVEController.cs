@@ -87,7 +87,7 @@ public class PVEController : MonoBehaviour
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
-            player_layout_map.AddShip(ship.ShipId, kv.Key, ship.Layout);
+            player_layout_map.AddShip(kv.Key, ship);
         }
 
         currentState = PVEState.PlayerSkill;
@@ -193,7 +193,7 @@ public class PVEController : MonoBehaviour
         {
             ActionMessage message = player_layout_map.GetMessage(v2);
             messages.Add(message);
-            gridCellGroup_Player.Hit(coord,!message.Contains(ActionMessage.ActionResult.Miss));
+            gridCellGroup_Player.Hit(v2,!message.Contains(ActionMessage.ActionResult.Miss));
         }
         return messages;
     }

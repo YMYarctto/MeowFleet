@@ -16,6 +16,7 @@ public class EnemyController : MonoBehaviour
 
     List<LayoutDATA> target_ship;
     List<Ship> enemy_ship;
+    List<Skill> enemy_skill;
 
     List<Vector2Int> available_map;
     LayoutMap layout_map;
@@ -47,10 +48,19 @@ public class EnemyController : MonoBehaviour
     void Awake()
     {
         _event = EventManager.GroupBy("EnemyController");
+        enemy_skill = new();
 
+        int ShipID = 20000;
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
-            return new Ship(-1,DataManager.instance.GetShipData(id));
+            ShipID++;
+            Ship ship = new Ship(ShipID,DataManager.instance.GetShipData(id));
+            Skill skill = Skill.Get(ship,null);
+            if (skill != null)
+            {
+                enemy_skill.Add(skill);
+            }
+            return ship;
         });
 
         MapInit();
@@ -106,7 +116,8 @@ public class EnemyController : MonoBehaviour
                     Vector2Int pos = available_map[rand.Next(available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
-                        layout_map.AddShip(ship.DataId,pos, layout_ran);
+                        ship.ForceSetLayout(layout_ran);
+                        layout_map.AddShip(pos, ship);
                         foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);
@@ -130,6 +141,14 @@ public class EnemyController : MonoBehaviour
     public void EnemyTurn()
     {
         Sequence sequence = DOTween.Sequence();
+        for (int i = 0; i < enemy_skill.Count; i++)
+        {
+            if(!enemy_skill[i].CanSkill)continue;
+            Skill skill = enemy_skill[i];
+            sequence.AppendInterval(0.5f);
+            sequence.AppendCallback(()=>ShipSkill(skill));
+        }
+        sequence.AppendInterval(1f);
         for (int i = 0; i < EnemyShootCount; i++)
         {
             sequence.AppendInterval(0.2f);
@@ -137,11 +156,12 @@ public class EnemyController : MonoBehaviour
         }
         sequence.AppendInterval(1.5f);
         sequence.AppendCallback(()=>PVEController.instance.NextRound());
+        sequence.Play();
     }
 
     public ActionMessage PlayerCheck(Vector2Int coord)
     {
-        return layout_map.CheckOut(coord);
+        return layout_map.Checkout(coord);
     }
 
     public ActionMessage PlayerHit(Vector2Int coord)
@@ -181,7 +201,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private void Skill(Skill skill)
+    private void ShipSkill(Skill skill)
     {
         if(skill is bomb)
         {

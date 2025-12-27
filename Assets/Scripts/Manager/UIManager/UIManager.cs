@@ -65,6 +65,18 @@ public class UIManager : MonoBehaviour
         }
         return _UIs[(url, id)].gameObject.GetComponent<T>();
     }
+
+    public bool TryGetUIView<T>(int id,out T result) where T : UIView
+    {
+        Type url = typeof(T);
+        result = null;
+        if (!_UIs.ContainsKey((url, id)))
+        {
+            return false;
+        }
+        result = _UIs[(url, id)].gameObject.GetComponent<T>();
+        return true;
+    }
     
     public void EnableUIView<T>()where T:UIView
     {
