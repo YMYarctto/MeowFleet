@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GridCell
   - Shiphouse
+  - SafeAreaContainer
   layers:
   - Default
   - TransparentFX

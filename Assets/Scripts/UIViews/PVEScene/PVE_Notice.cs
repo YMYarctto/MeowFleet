@@ -48,6 +48,18 @@ public class PVE_Notice : UIView
         Enable();
     }
 
+    public void ShowNotice_Victory()
+    {
+        text.text = $"你击溃了敌方舰队";
+        Enable();
+    }
+
+    public void ShowNotice_Defeat()
+    {
+        text.text = $"你的舰队被击溃了";
+        Enable();
+    }
+
     public override void Enable()
     {
         Disable();

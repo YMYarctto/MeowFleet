@@ -2,12 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class PVEController : MonoBehaviour
 {
+    public UnityAction OnEnemyShipDestroyed;
+    public UnityAction OnEnemyShipCaptured;
+    public UnityAction<bool> OnPlayerHit;
+    public UnityAction<bool> OnEnemyHit;
+    public UnityAction OnSkillEffective;
+
     readonly string CORE = "核心";
     readonly string BODY = "船体";
     readonly string DESTROY = "击沉";
@@ -16,6 +22,7 @@ public class PVEController : MonoBehaviour
     Dictionary<Vector2Int,int> player_ships_id;
     Dictionary<Vector2Int,Ship> player_ships;
     List<Vector2Int> hitted_coords;
+    List<Vector2Int> enemy_hitted_coords;
     LayoutMap player_layout_map;
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
@@ -83,6 +90,7 @@ public class PVEController : MonoBehaviour
 
         player_layout_map = new();
         hitted_coords = new();
+        enemy_hitted_coords = new();
 
         foreach (var kv in player_ships_id)
         {
@@ -180,8 +188,11 @@ public class PVEController : MonoBehaviour
 
     public ActionMessage EnemyAttack(Vector2Int coord)
     {
+        enemy_hitted_coords.Add(coord);
         ActionMessage message = player_layout_map.GetMessage(coord);
-        gridCellGroup_Player.Hit(coord,!message.Contains(ActionMessage.ActionResult.Miss));
+        bool isHit = message.Contains(ActionMessage.ActionResult.Miss);
+        gridCellGroup_Player.Hit(coord,!isHit);
+        OnEnemyHit?.Invoke(isHit);
         return message;
     }
 
@@ -189,12 +200,20 @@ public class PVEController : MonoBehaviour
     {
         List<Vector2Int> coords =  range.ConvertAll(v => v + coord).ToList();
         List<ActionMessage> messages = new();
+        bool isHit = false;
         foreach (var v2 in new List<Vector2Int>(coords))
         {
+            if(enemy_hitted_coords.Contains(v2))continue;
+            enemy_hitted_coords.Add(v2);
             ActionMessage message = player_layout_map.GetMessage(v2);
             messages.Add(message);
             gridCellGroup_Player.Hit(v2,!message.Contains(ActionMessage.ActionResult.Miss));
+            if(!message.Contains(ActionMessage.ActionResult.Miss))
+            {
+                isHit = true;
+            }
         }
+        OnEnemyHit?.Invoke(isHit);
         return messages;
     }
 
@@ -252,6 +271,7 @@ public class PVEController : MonoBehaviour
 
         List<Vector2Int> coords =  current_skill_range.ConvertAll(v => v + coord).ToList();
         List<ActionMessage> messages = new();
+        bool isHit=false;
         // UI以及合并逻辑初始化
         foreach (var v2 in new List<Vector2Int>(coords))
         {
@@ -261,15 +281,25 @@ public class PVEController : MonoBehaviour
             Debug.Log(message);
             messages.Add(message);
             gridCellGroup_Enemy.Hit(v2,!message.Contains(ActionMessage.ActionResult.Miss));
+            if(!message.Contains(ActionMessage.ActionResult.Miss))
+            {
+                isHit = true;
+            }
         }
         EnemyController.instance.DisposeMessage(messages);
         // 判断是否结束
-        if(messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver)))
-        {
-            Debug.Log("Win");
+        bool GameOver = messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver));
 
-            //TODO
+        // 统计
+        if(currentState==PVEState.PlayerAttack)
+        {
+            OnPlayerHit?.Invoke(isHit);
         }
+        else if(currentState==PVEState.PlayerSkill&&isHit)
+        {
+            OnSkillEffective?.Invoke();
+        }
+        
         // 分类合并
         messages = messages.Where(v=>!v.Contains(ActionMessage.ActionResult.Miss))
             .GroupBy(v=>(v.ShipID,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.core,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.body))
@@ -285,10 +315,29 @@ public class PVEController : MonoBehaviour
             }
             else if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
-                string ACTION = message.Locate == ActionMessage.ActionLocate.core ? DESTROY : CAPTURE;
+                string ACTION;
+                if(message.Locate == ActionMessage.ActionLocate.core)
+                {
+                    ACTION = DESTROY;
+                    OnEnemyShipDestroyed?.Invoke();
+                }
+                else
+                {
+                    ACTION = CAPTURE;
+                    OnEnemyShipCaptured?.Invoke();
+                }
                 PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
                 information_board.NewInformation().Destroy(message.ShipName, ACTION).Enable();
             }
+        }
+        if(GameOver)
+        {
+            UIManager.instance.EnableUIView<Interaction>();
+            PVE_Notice.Create().ShowNotice_Victory();
+            Sequence sequence=DOTween.Sequence();
+            sequence.AppendInterval(2f);
+            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Victory());
+            return;
         }
         // 减少齐射次数
         if(currentState==PVEState.PlayerAttack)

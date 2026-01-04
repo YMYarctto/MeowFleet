@@ -195,9 +195,11 @@ public class EnemyController : MonoBehaviour
 
         if(message.Contains(ActionMessage.ActionResult.GameOver))
         {
-            Debug.Log("Lose");
-
-            //TODO
+            PVE_Notice.Create().ShowNotice_Defeat();
+            Sequence sequence=DOTween.Sequence();
+            sequence.AppendInterval(2f);
+            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Defeat());
+            return;
         }
     }
 
@@ -218,9 +220,11 @@ Bomb:
         PVEController.instance.DisposeMessage(messages);
         if(messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver)))
         {
-            Debug.Log("Lose");
-
-            //TODO
+            PVE_Notice.Create().ShowNotice_Defeat();
+            Sequence sequence=DOTween.Sequence();
+            sequence.AppendInterval(2f);
+            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Defeat());
+            return;
         }
         foreach(var message in messages)
         {

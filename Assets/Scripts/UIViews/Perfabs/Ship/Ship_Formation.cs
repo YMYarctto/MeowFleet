@@ -18,15 +18,18 @@ public class Ship_Formation : Ship_UIBase
 
     GridCell_Formation drag_gridCell;
     bool isDragging = false;
-    bool inMap = false;
     Vector2Int inMap_coord;
     Sequence loopTween;
     Vector3 pre_rotation;
     int direction;
+    Formation.Place place=Formation.Place.Shiphouse;
+
+    CanvasGroup canvasGroup;
 
     public override void Init()
     {
         loopTween = DOTween.Sequence();
+        canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -80,10 +83,12 @@ public class Ship_Formation : Ship_UIBase
 
     private void OnDragBegin(PointerEventData eventData)
     {
+        canvasGroup.blocksRaycasts = false;
+
         trans.SetParent(drag_parent,true);
         MoveToMouse(eventData);
 
-        if (inMap)
+        if (place==Formation.Place.Map)
         {
             FormationController.instance.RemovePlaced(inMap_coord);
         }
@@ -122,6 +127,8 @@ public class Ship_Formation : Ship_UIBase
 
     private void OnDragEnd(PointerEventData eventData)
     {
+        canvasGroup.blocksRaycasts = true;
+        Formation.Place new_place = place;
         // 检测当前鼠标下是否有格子
         if (DetectGridCell(eventData, out GridCell_Formation gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
         {
@@ -129,19 +136,23 @@ public class Ship_Formation : Ship_UIBase
             original_parent = gridCell.transform;
             trans.SetParent(original_parent, true);
             MoveAnimation(Vector2.zero, pre_rotation,ship_parent);
-            inMap = true;
+            new_place=Formation.Place.Map;
             inMap_coord = gridCell.GetVector2Int();
             Debug.Log($"检测到放置行为\n坐标: {inMap_coord}\n布局: {ship.Layout}");
-            if(UIManager.instance.TryGetUIView(_ID,out ShipContainer container))
-            {
-                UIManager.instance.GetUIView<Shiphouse>().DecreaseShipUi(container);
-            }
         }
-        else if(inMap&&RaycastCompareTag(eventData,"Shiphouse",out GameObject _))
+        else if(place!=Formation.Place.Shiphouse&&RaycastCompareTag(eventData,"Shiphouse",out GameObject _)) //船舱
         {
-            inMap = false;
+            new_place=Formation.Place.Shiphouse;
             UIManager.instance.GetUIView<Shiphouse>().AddShipUI(this);
             original_parent = UIManager.instance.GetUIView<ShipContainer>(_ID).transform;
+            ship.ResetLayout();
+            MoveAnimation(Vector2.zero, Vector3.zero,original_parent);
+        }
+        else if(RaycastCompareTag(eventData,"SafeAreaContainer",out GameObject container)&&container.transform.childCount==0) //安全区
+        {
+            new_place=Formation.Place.SafeArea;
+            original_parent = container.transform;
+            trans.SetParent(original_parent, true);
             ship.ResetLayout();
             MoveAnimation(Vector2.zero, Vector3.zero,original_parent);
         }
@@ -151,12 +162,21 @@ public class Ship_Formation : Ship_UIBase
             ship.Rotate(-direction);
             MoveAnimation(Vector2.zero, pre_rotation,original_parent);
         }
-        if(inMap)
+        if(place==Formation.Place.Shiphouse&&new_place!=Formation.Place.Shiphouse&&UIManager.instance.TryGetUIView(_ID,out ShipContainer ship_container))
+        {
+            UIManager.instance.GetUIView<Shiphouse>().DecreaseShipUi(ship_container);
+        }
+        if(new_place==Formation.Place.Map)
         {
             FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,_ID);
         }
+        if(place==Formation.Place.SafeArea^new_place==Formation.Place.SafeArea)
+        {
+            UIManager.instance.GetUIView<SafeArea>().UpdateCount();
+        }
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();
+        place = new_place;
     }
 
     private void MoveToMouse(PointerEventData eventData)
