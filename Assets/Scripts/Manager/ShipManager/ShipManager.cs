@@ -42,6 +42,7 @@ public class ShipManager : MonoBehaviour
     //TODO
     public void New()
     {
+        shipDict.Clear();
         max_id = 10000;
         foreach(var data_id in DataID)
         {
