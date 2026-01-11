@@ -10,5 +10,6 @@ public class Button_PVEMenu : BaseButton_Setting
     public override void OnPointerClick(PointerEventData eventData)
     {
         UIManager.instance.GetUIView<BGAnimator_PVEScene>().SettingEnable();
+        InputController.instance.LoadBindings();
     }
 }

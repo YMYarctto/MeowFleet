@@ -35,18 +35,18 @@ public class Button_BindKey : BaseButton_Setting
     void OnEnable()
     {
         bindInfo = GetBindInfo(bindKey);
-        InputController.instance.OnRebindStart += info =>WaitForInput(info);
-        InputController.instance.OnRebindComplete += _ =>RefreshUI();
-        InputController.instance.OnLoadComplete += ()=>RefreshUI();
+        InputController.instance.OnRebindStart += WaitForInputHandler;
+        InputController.instance.OnRebindComplete += RefreshUIHandler;
+        InputController.instance.OnLoadComplete += RefreshUIHandler;
     }
 
     void OnDisable()
     {
         if(!InputController.instance)return;
 
-        InputController.instance.OnRebindStart-= info =>WaitForInput(info);
-        InputController.instance.OnRebindComplete -= _ =>RefreshUI();
-        InputController.instance.OnLoadComplete -= ()=>RefreshUI();
+        InputController.instance.OnRebindStart-= WaitForInputHandler;
+        InputController.instance.OnRebindComplete -= RefreshUIHandler;
+        InputController.instance.OnLoadComplete -= RefreshUIHandler;
     }
 
     public override void OnPointerClick(PointerEventData eventData)
@@ -54,19 +54,25 @@ public class Button_BindKey : BaseButton_Setting
         InputController.instance.StartRebind(bindInfo.Item1,bindInfo.Item2);
     }
 
-    void WaitForInput((InputAction,int) info)
+    void WaitForInputHandler((InputAction,int) info)
     {
         if(bindInfo!=info)return;
         RefreshUI(WaitForInputStr,true);
     }
 
-    void RefreshUI()
+    void RefreshUIHandler()
     {
         RefreshUI(InputController.instance.GetBindingDisplay(bindInfo.Item1,bindInfo.Item2),false);
     }
 
+    void RefreshUIHandler((InputAction,int) info)
+    {
+        RefreshUIHandler();
+    }
+
     void RefreshUI(string str,bool focus = false)
     {
+        if (!this || !gameObject) return;
         isSelect = focus;
         text.text = str;
         DoExit();

@@ -74,11 +74,13 @@ public abstract class BaseButton_Setting : BaseButton_Default
 
     protected virtual void DoEnter()
     {
+        if (!focus) return;
         focus.SetActive(true);
     }
 
     protected virtual void DoExit()
     {
+        if (!focus) return;
         focus.SetActive(false);
     }
 }
