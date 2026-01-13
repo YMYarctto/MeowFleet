@@ -23,6 +23,7 @@ public class Ship_Formation : Ship_UIBase
     Vector3 pre_rotation;
     int direction;
     Formation.Place place=Formation.Place.Shiphouse;
+    Vector3 forign_scale;
 
     CanvasGroup canvasGroup;
 
@@ -41,6 +42,14 @@ public class Ship_Formation : Ship_UIBase
         entry_pointerDown.eventID = EventTriggerType.PointerDown;
         entry_pointerDown.callback.AddListener((data) => { OnPointerDown((PointerEventData)data); });
 
+        EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
+        entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
+        entry_pointerEnter.callback.AddListener((data) => { OnPointerEnter((PointerEventData)data); });
+
+        EventTrigger.Entry entry_pointerExit = new EventTrigger.Entry();
+        entry_pointerExit.eventID = EventTriggerType.PointerExit;
+        entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
+
         EventTrigger.Entry entry_onDrag = new EventTrigger.Entry();
         entry_onDrag.eventID = EventTriggerType.Drag;
         entry_onDrag.callback.AddListener((data) => { OnDrag((PointerEventData)data); });
@@ -55,6 +64,8 @@ public class Ship_Formation : Ship_UIBase
 
         eventTrigger.triggers.Add(entry_pointerUp);
         eventTrigger.triggers.Add(entry_pointerDown);
+        eventTrigger.triggers.Add(entry_pointerEnter);
+        eventTrigger.triggers.Add(entry_pointerExit);
         eventTrigger.triggers.Add(entry_beginDrag);
         eventTrigger.triggers.Add(entry_onDrag);
         eventTrigger.triggers.Add(entry_endDrag);
@@ -63,9 +74,28 @@ public class Ship_Formation : Ship_UIBase
     public override void Init(Ship ship)
     {
         base.Init(ship);
+
+        float scale_x = 200f / ui_rect.sizeDelta.x;
+        float scale_y = 200f / ui_rect.sizeDelta.y;
+        forign_scale = ui_rect.localScale = Vector3.one * Mathf.Min(1,scale_x, scale_y);
+
+        ShowUI(true);
+
         original_parent = transform.parent;
         direction = 0;
         pre_rotation = trans.eulerAngles;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if(place==Formation.Place.Map)return;
+        UIFocus(true);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if(place==Formation.Place.Map||isDragging)return;
+        UIFocus(false);
     }
     
     public void OnPointerDown(PointerEventData eventData)
@@ -79,6 +109,7 @@ public class Ship_Formation : Ship_UIBase
         {
             Debug.Log("click");
         }
+        isDragging = false;
     }
 
     private void OnDragBegin(PointerEventData eventData)
@@ -109,6 +140,7 @@ public class Ship_Formation : Ship_UIBase
     {
         isDragging = true;
         MoveToMouse(eventData);
+        ShowUI(false);
 
         if (DetectGridCell(eventData, out GridCell_Formation gridCell))
         {
@@ -129,6 +161,7 @@ public class Ship_Formation : Ship_UIBase
     {
         canvasGroup.blocksRaycasts = true;
         Formation.Place new_place = place;
+
         // 检测当前鼠标下是否有格子
         if (DetectGridCell(eventData, out GridCell_Formation gridCell) && FormationController.instance.CanPlaced(gridCell.GetVector2Int(), ship.Layout))
         {
@@ -162,18 +195,33 @@ public class Ship_Formation : Ship_UIBase
             ship.Rotate(-direction);
             MoveAnimation(Vector2.zero, pre_rotation,original_parent);
         }
+
+        //Shiphouse Update
         if(place==Formation.Place.Shiphouse&&new_place!=Formation.Place.Shiphouse&&UIManager.instance.TryGetUIView(_ID,out ShipContainer ship_container))
         {
             UIManager.instance.GetUIView<Shiphouse>().DecreaseShipUi(ship_container);
         }
-        if(new_place==Formation.Place.Map)
+
+        //Save
+        if(place==Formation.Place.Map||new_place==Formation.Place.Map)
         {
-            FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,_ID);
+            if(new_place==Formation.Place.Map)
+                FormationController.instance.SetPlacedLayout(inMap_coord, ship.Layout,_ID);
+            FormationController.instance.SavePlacedLayout();
         }
+
+        //Count
         if(place==Formation.Place.SafeArea^new_place==Formation.Place.SafeArea)
         {
             UIManager.instance.GetUIView<SafeArea>().UpdateCount();
         }
+
+        //UI
+        if(new_place!=Formation.Place.Map)
+        {
+            ShowUI(true);
+        }
+
         FormationController.instance.ShipOnDrag = null;
         FormationController.instance.DragEnd();
         place = new_place;
@@ -230,5 +278,17 @@ public class Ship_Formation : Ship_UIBase
         loopTween.Join(trans.DORotate(targetRot, 0.1f).SetEase(Ease.OutQuad));
         loopTween.OnComplete(() => trans.SetParent(parent, true));
         loopTween.Play();
+    }
+
+    void ShowUI(bool show)
+    {
+        img_rect.gameObject.SetActive(!show);
+        core.gameObject.SetActive(!show);
+        ui_rect.gameObject.SetActive(show);
+    }
+
+    void UIFocus(bool show)
+    {
+        ui_rect.localScale = show ? forign_scale * 1.1f : forign_scale;
     }
 }

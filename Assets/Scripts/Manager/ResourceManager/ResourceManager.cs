@@ -71,6 +71,20 @@ public class ResourceManager : MonoBehaviour
         return null;
     }
 
+    public Sprite CreateSprite(Sprite original)
+    {
+        return !original?null:
+        Sprite.Create(
+            original.texture,
+            original.rect,
+            new Vector2(0.5f, 0.5f),
+            original.pixelsPerUnit,
+            0,
+            SpriteMeshType.FullRect,
+            original.border
+        );
+    }
+
     // 初始化 DataManager
     IEnumerator InitDataManager()
     {

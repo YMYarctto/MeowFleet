@@ -110,7 +110,6 @@ public class FormationController : MonoBehaviour
         placed_layout.Add(center, layout);
         formation_dict.Add(center, id);
         RefreshPlacedMap();
-        DataManager.instance.SaveData.SetFormationData(MapSize,formation_dict);
     }
 
     public void RemovePlaced(Vector2Int center)
@@ -152,6 +151,12 @@ public class FormationController : MonoBehaviour
         }
         return true;
     }
+
+    public void SavePlacedLayout()
+    {
+        DataManager.instance.SaveData.SetFormationData(MapSize,formation_dict);
+    }
+
 
     bool CheckLayoutInMap(Vector2Int center, LayoutDATA layout)
     {

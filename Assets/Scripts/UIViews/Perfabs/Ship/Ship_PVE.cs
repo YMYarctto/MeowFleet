@@ -12,6 +12,7 @@ public class Ship_PVE : Ship_UIBase
     public override void Init(Ship ship)
     {
         base.Init(ship);
+        ui.gameObject.SetActive(false);
         trans.eulerAngles += new Vector3(0, 0, -ship.Direction * 90);
     }
     

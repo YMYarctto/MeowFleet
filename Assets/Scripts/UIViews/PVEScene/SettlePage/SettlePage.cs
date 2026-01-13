@@ -15,8 +15,9 @@ public class SettlePage : UIView
 
     public override void Init()
     {
-        bg_victory = transform.Find("bg_victory");
-        Transform info = transform.Find("info");
+        Transform BG = transform.Find("BG");
+        bg_victory = BG.Find("bg_victory");
+        Transform info = BG.Find("info");
         info_victory = info.Find("victory");
         info_defeat = info.Find("defeat");
         transform.localScale = new(0,1,1);
