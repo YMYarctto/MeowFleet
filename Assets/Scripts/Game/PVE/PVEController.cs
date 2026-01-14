@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -301,9 +302,40 @@ public class PVEController : MonoBehaviour
         }
         
         // 分类合并
-        messages = messages.Where(v=>!v.Contains(ActionMessage.ActionResult.Miss))
-            .GroupBy(v=>(v.ShipID,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.core,v.Contains(ActionMessage.ActionResult.Hit)&&v.Locate==ActionMessage.ActionLocate.body))
-            .Select(v=>v.FirstOrDefault(v=>v.Contains(ActionMessage.ActionResult.Destroyed)&&v.Locate==ActionMessage.ActionLocate.core)??v.First()).ToList();
+        Dictionary<int, List<ActionMessage>> bestMap = new();
+        List<ActionMessage> result = new();
+        for (int i = 0; i < messages.Count; i++)
+        {
+            var msg = messages[i];
+
+            // 丢弃 Miss
+            if (msg.Contains(ActionMessage.ActionResult.Miss))
+                continue;
+            
+            int shipID = msg.ShipID;
+
+            if (!bestMap.TryGetValue(shipID, out var best))
+            {
+                bestMap.Add(shipID, new List<ActionMessage> { msg });
+                continue;
+            }
+
+            if (GetPriority(msg) > GetPriority(best.First()))
+            {
+                bestMap[shipID].Clear();
+                bestMap[shipID].Add(msg);
+            }
+            else if (GetPriority(msg) == GetPriority(best.First()) && msg.Locate!= best.First().Locate)
+            {
+                bestMap[shipID].Add(msg);
+            }
+        }
+        foreach (var kv in bestMap)
+        {
+            result.AddRange(kv.Value);
+        }
+        messages = result;
+        
         // 处理结果
         foreach (var message in messages)
         {
@@ -457,6 +489,20 @@ public class PVEController : MonoBehaviour
     public Vector3 GetPositionInScene(Vector2Int coord)
     {
         return gridCellGroup_Player.GetGridCellPosition(coord);
+    }
+
+    int GetPriority(ActionMessage m)
+    {
+        if (m.Contains(ActionMessage.ActionResult.Destroyed)&&m.Locate== ActionMessage.ActionLocate.core)
+            return 4;
+
+        if (m.Contains(ActionMessage.ActionResult.Destroyed)&&m.Locate== ActionMessage.ActionLocate.body)
+            return 3;
+
+        if (m.Contains(ActionMessage.ActionResult.Hit))
+            return 2;
+
+        return 1;
     }
 
     // UI

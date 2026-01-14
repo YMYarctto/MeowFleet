@@ -30,6 +30,12 @@ public class InfoCounter : UIView
         hitRate = transform.Find("hitRate").GetComponent<TMP_Text>();
         defenseRate = transform.Find("defenseRate").GetComponent<TMP_Text>();
         effectiveSkill = transform.Find("effectiveSkill").GetComponent<TMP_Text>();
+
+        ship_destroy.text = "0";
+        ship_capture.text = "0";
+        hitRate.text = "0%";
+        defenseRate.text = "0%";
+        effectiveSkill.text = "0";
     }
 
     void Start()
@@ -40,15 +46,6 @@ public class InfoCounter : UIView
         PVEController.instance.OnEnemyHit+=EnemyHit;
         PVEController.instance.OnSkillEffective+=EffectiveSkillCount;
     }
-
-    // void OnDisable()
-    // {
-    //     PVEController.instance.OnEnemyShipCaptured-=EnemyShipCapturedCount;
-    //     PVEController.instance.OnEnemyShipDestroyed-=EnemyShipDestoryCount;
-    //     PVEController.instance.OnPlayerHit-=PlayerHit;
-    //     PVEController.instance.OnEnemyHit-=EnemyHit;
-    //     PVEController.instance.OnSkillEffective-=EffectiveSkillCount;
-    // }
 
     public void EnemyShipCapturedCount()
     {
