@@ -20,6 +20,8 @@ public class PVEController : MonoBehaviour
     readonly string DESTROY = "击沉";
     readonly string CAPTURE = "俘获";
 
+    public Camera UICamera;
+
     Dictionary<Vector2Int,int> player_ships_id;
     Dictionary<Vector2Int,Ship> player_ships;
     List<Vector2Int> hitted_coords;
@@ -28,6 +30,7 @@ public class PVEController : MonoBehaviour
     GridCellGroup_Player gridCellGroup_Player;
     GridCellGroup_Enemy gridCellGroup_Enemy;
     List<Vector2Int> current_skill_range;
+    Dictionary<int,List<Vector3>> info_dict;
     Vector2Int select = default;
     Vector3 hit_position = Vector3.zero;
     PVEMap pve_map=PVEMap.Null;
@@ -84,6 +87,7 @@ public class PVEController : MonoBehaviour
         Global.PPU = 1f;
         DataManager.instance.SaveData.GetFormationData(out player_ships_id);
 
+        UICamera = GameObject.Find("UICamera").GetComponent<Camera>();
         UI_Notice = GameObject.Find("UI_Notice").transform;
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
@@ -92,11 +96,12 @@ public class PVEController : MonoBehaviour
         player_layout_map = new();
         hitted_coords = new();
         enemy_hitted_coords = new();
+        info_dict = new();
 
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
-            player_layout_map.AddShip(kv.Key, ship);
+            player_layout_map.AddShip(ship.ShipId,kv.Key, ship);
         }
 
         currentState = PVEState.PlayerSkill;
@@ -138,11 +143,15 @@ public class PVEController : MonoBehaviour
     void OnEnable()
     {
         InputController.InputAction.PVEMap.Rotate.started += Rotate;
+        InputController.InputAction.PVEMap.NextState.started += NextState;
+        InputController.InputAction.System.ESC.started += PVEMenu;
     }
 
     void OnDisable()
     {
         InputController.InputAction.PVEMap.Rotate.started -= Rotate;
+        InputController.InputAction.PVEMap.NextState.started -= NextState;
+        InputController.InputAction.System.ESC.started -= PVEMenu;
     }
 
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
@@ -285,6 +294,14 @@ public class PVEController : MonoBehaviour
             if(!message.Contains(ActionMessage.ActionResult.Miss))
             {
                 isHit = true;
+                if(info_dict.TryGetValue(message.ShipID,out var list))
+                {
+                    list.Add(gridCellGroup_Enemy.GetGridCellPosition(v2));
+                }
+                else
+                {
+                    info_dict.Add(message.ShipID,new List<Vector3>{gridCellGroup_Enemy.GetGridCellPosition(v2)});
+                }
             }
         }
         EnemyController.instance.DisposeMessage(messages);
@@ -301,6 +318,117 @@ public class PVEController : MonoBehaviour
             OnSkillEffective?.Invoke();
         }
         
+        messages = DealMessage(messages);
+        
+        // 处理结果
+        foreach (var message in messages)
+        {
+            if (message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                PVE_Notice.Create().ShowNotice_Hit(message.ShipName, LOCATE);
+                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Hit(message.ShipName, LOCATE).Enable();
+            }
+            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+            {
+                string ACTION;
+                if(message.Locate == ActionMessage.ActionLocate.core)
+                {
+                    ACTION = DESTROY;
+                    OnEnemyShipDestroyed?.Invoke();
+                }
+                else
+                {
+                    ACTION = CAPTURE;
+                    OnEnemyShipCaptured?.Invoke();
+                }
+                PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
+                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Destroy(message.ShipName, ACTION).Enable();
+                List<Vector3> _coords = EnemyController.instance.CheckWholeShip(message.ShipID);
+                info_dict[message.ShipID].Union(_coords);
+            }
+        }
+        if(GameOver)
+        {
+            UIManager.instance.EnableUIView<Interaction>();
+            PVE_Notice.Create().ShowNotice_Victory();
+            Sequence sequence=DOTween.Sequence();
+            sequence.AppendInterval(2f);
+            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Victory());
+            return;
+        }
+        // 减少齐射次数
+        if(currentState==PVEState.PlayerAttack)
+        {
+            current_shoot_count--;
+            Debug.Log($"剩余次数: {current_shoot_count}");
+            if(current_shoot_count<=0)
+            {
+                pve_map = PVEMap.Null;
+            }
+            playerAttackCount.SetCount(current_shoot_count);
+        }
+    }
+
+    public void PlayerCheck(Vector2Int coord)
+    {
+        List<Vector2Int> coords =  current_skill_range.ConvertAll(v => v + coord).ToList();
+        List<ActionMessage> messages = new();
+        bool isHit=false;
+        // 合并逻辑初始化
+        foreach (var v2 in new List<Vector2Int>(coords))
+        {
+            if(hitted_coords.Contains(v2))continue;
+            ActionMessage message = EnemyController.instance.PlayerCheck(v2);
+            Debug.Log(message);
+            messages.Add(message);
+            if(!message.Contains(ActionMessage.ActionResult.Miss))
+            {
+                isHit = true;
+                if(info_dict.TryGetValue(message.ShipID,out var list))
+                {
+                    list.Add(gridCellGroup_Enemy.GetGridCellPosition(v2));
+                }
+                else
+                {
+                    info_dict.Add(message.ShipID,new List<Vector3>{gridCellGroup_Enemy.GetGridCellPosition(v2)});
+                }
+            }
+        }
+
+        if(currentState==PVEState.PlayerSkill&&isHit)
+        {
+            OnSkillEffective?.Invoke();
+        }
+
+        messages = DealMessage(messages);
+
+        // 处理结果
+        foreach (var message in messages)
+        {
+            if (message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                PVE_Notice.Create().ShowNotice_Check(message.ShipName, LOCATE);
+                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Check(message.ShipName, LOCATE).Enable();
+            }
+        }
+    }
+    
+    public void SetSkill(Skill skill)
+    {
+        current_skill = skill;
+        current_skill_range = skill.SkillRange;
+        pve_map = skill.TargetMap;
+    }
+
+    public void SetSkillRange(List<Vector2Int> range)
+    {
+        current_skill_range = range;
+    }
+
+    List<ActionMessage> DealMessage(List<ActionMessage> messages)
+    {
         // 分类合并
         Dictionary<int, List<ActionMessage>> bestMap = new();
         List<ActionMessage> result = new();
@@ -334,66 +462,7 @@ public class PVEController : MonoBehaviour
         {
             result.AddRange(kv.Value);
         }
-        messages = result;
-        
-        // 处理结果
-        foreach (var message in messages)
-        {
-            if (message.Contains(ActionMessage.ActionResult.Hit))
-            {
-                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
-                PVE_Notice.Create().ShowNotice_Hit(message.ShipName, LOCATE);
-                information_board.NewInformation().Hit(message.ShipName, LOCATE).Enable();
-            }
-            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
-            {
-                string ACTION;
-                if(message.Locate == ActionMessage.ActionLocate.core)
-                {
-                    ACTION = DESTROY;
-                    OnEnemyShipDestroyed?.Invoke();
-                }
-                else
-                {
-                    ACTION = CAPTURE;
-                    OnEnemyShipCaptured?.Invoke();
-                }
-                PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
-                information_board.NewInformation().Destroy(message.ShipName, ACTION).Enable();
-            }
-        }
-        if(GameOver)
-        {
-            UIManager.instance.EnableUIView<Interaction>();
-            PVE_Notice.Create().ShowNotice_Victory();
-            Sequence sequence=DOTween.Sequence();
-            sequence.AppendInterval(2f);
-            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Victory());
-            return;
-        }
-        // 减少齐射次数
-        if(currentState==PVEState.PlayerAttack)
-        {
-            current_shoot_count--;
-            Debug.Log($"剩余次数: {current_shoot_count}");
-            if(current_shoot_count<=0)
-            {
-                pve_map = PVEMap.Null;
-            }
-            playerAttackCount.SetCount(current_shoot_count);
-        }
-    }
-    
-    public void SetSkill(Skill skill)
-    {
-        current_skill = skill;
-        current_skill_range = skill.SkillRange;
-        pve_map = skill.TargetMap;
-    }
-
-    public void SetSkillRange(List<Vector2Int> range)
-    {
-        current_skill_range = range;
+        return result;
     }
 
     // Clear
@@ -431,7 +500,7 @@ public class PVEController : MonoBehaviour
 
     public void NextState(int n)
     {
-        int next = ((int)currentState + n) % System.Enum.GetValues(typeof(PVEState)).Length;
+        int next = ((int)currentState + n) % Enum.GetValues(typeof(PVEState)).Length;
         currentState = (PVEState)next;
         Debug.Log(currentState.ToString());
         information_board.SetStage(currentState);
@@ -532,6 +601,10 @@ public class PVEController : MonoBehaviour
 
     public void Rotate(InputAction.CallbackContext ctx)
     {
+        if (current_skill is torpedo)
+        {
+            return;
+        }
         int direction = (int)ctx.ReadValue<float>();
         LayoutDATA skill_rotated_layout = new(current_skill_range,0);
         current_skill_range = skill_rotated_layout.Rotate(direction).ToList;
@@ -542,6 +615,17 @@ public class PVEController : MonoBehaviour
         {
             PlayerSelect(current_select,pve_map);
         }
+    }
+
+    public void NextState(InputAction.CallbackContext ctx)
+    {
+        NextState();
+    }
+
+    public void PVEMenu(InputAction.CallbackContext ctx)
+    {
+        UIManager.instance.GetUIView<BGAnimator_PVEScene>().SettingEnable();
+        InputController.instance.LoadBindings();
     }
 
     public enum PVEState

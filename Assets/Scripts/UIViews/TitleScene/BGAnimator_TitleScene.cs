@@ -88,7 +88,7 @@ public class BGAnimator_TitleScene : UIView
 
         bg_2.localPosition = new Vector3(60, 278, 0);
         bg_3.localPosition = new Vector3(4332, 553, 0);
-        bg_4.localPosition = new Vector3(3665, 1596, 0);
+        bg_4.localPosition = new Vector3(3800, 1900, 0);
 
         bg_1_targetPos = new Vector3(-342, 334, 0);
         bg_1_targetRot = new Vector3(0, 0, 5);

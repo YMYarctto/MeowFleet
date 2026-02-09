@@ -9,7 +9,7 @@ public abstract class FX : MonoBehaviour
     Sequence sequence;
     UnityAction onComplete;
 
-    public void DestroySelf_Delay(float delay)
+    public void Callback_Delay(float delay)
     {
         sequence = DOTween.Sequence();
         sequence.AppendInterval(delay);

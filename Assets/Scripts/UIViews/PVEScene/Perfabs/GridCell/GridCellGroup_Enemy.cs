@@ -52,6 +52,15 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
         }
     }
 
+    public void Check(Vector2Int coord)
+    {
+        if (IsInMap(coord))
+        {
+            GridCell_Enemy cell = (GridCell_Enemy)girdCell_dict[GetIndex(coord)];
+            cell.Check();
+        }
+    }
+
     public void ClearSelect()
     {
         foreach (var cell in select_cells)

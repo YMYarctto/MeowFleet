@@ -6,6 +6,6 @@ public class FX_bomb : FX
 {
     void OnEnable()
     {
-        DestroySelf_Delay(0.5f);
+        Callback_Delay(0.5f);
     }
 }

@@ -13,9 +13,10 @@ public class EnemyController : MonoBehaviour
     List<int> target_ships_id;
 
     EventGroup _event;
+    GridCellGroup_Enemy gridCellGroup_Enemy;
 
     List<LayoutDATA> target_ship;
-    List<Ship> enemy_ship;
+    Dictionary<int,Ship> enemy_ship;
     List<Skill> enemy_skill;
 
     List<Vector2Int> available_map;
@@ -25,6 +26,7 @@ public class EnemyController : MonoBehaviour
 
     EnemyBehavior AI;
 
+    public static int InformationWindowID;
     public int EnemyShootCount => layout_map.AttackCount;
 
     private static EnemyController _instance;
@@ -49,6 +51,7 @@ public class EnemyController : MonoBehaviour
     {
         _event = EventManager.GroupBy("EnemyController");
         enemy_skill = new();
+        gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
 
         int ShipID = 20000;
         enemy_ship = enemy_ships_id.ConvertAll(id =>
@@ -60,8 +63,18 @@ public class EnemyController : MonoBehaviour
             {
                 enemy_skill.Add(skill);
             }
-            return ship;
-        });
+            return new KeyValuePair<int,Ship>(ShipID,ship);
+        }).ToDictionary(kv=>kv.Key,kv=>kv.Value);
+
+        GameObject info_window_perfab = ResourceManager.instance.GetPerfabByType<InformationWindow_UI>();
+        Transform info_window_parent = GameObject.Find("InformationWindowGroup").transform;
+        foreach(var kv in enemy_ship)
+        {
+            InformationWindowID = kv.Key;
+            LayoutDATA layout = kv.Value.Layout;
+            GameObject obj = Instantiate(info_window_perfab,info_window_parent);
+            obj.GetComponent<InformationWindow_UI>().Init(layout.ToList,layout.CoreNumber,kv.Value.Name);
+        }
 
         MapInit();
 
@@ -106,7 +119,7 @@ public class EnemyController : MonoBehaviour
                 }
             }
 
-            foreach (var ship in enemy_ship)
+            foreach (var ship in enemy_ship.Values)
             {
                 LayoutDATA layout = new(ship.Layout);
                 for (int i = 0; i < 400; i++)
@@ -117,7 +130,7 @@ public class EnemyController : MonoBehaviour
                     if (CheckLayoutValid(pos, layout_ran))
                     {
                         ship.ForceSetLayout(layout_ran);
-                        layout_map.AddShip(pos, ship);
+                        layout_map.AddShip(ship.ShipId,pos, ship);
                         foreach (var coord in layout_ran.ToList)
                         {
                             available_map.Remove(pos + coord);
@@ -161,11 +174,13 @@ public class EnemyController : MonoBehaviour
 
     public ActionMessage PlayerCheck(Vector2Int coord)
     {
+        gridCellGroup_Enemy.Check(coord);
         return layout_map.Checkout(coord);
     }
 
     public ActionMessage PlayerHit(Vector2Int coord)
     {
+        gridCellGroup_Enemy.Check(coord);
         return layout_map.GetMessage(coord);
     }
 
@@ -253,6 +268,22 @@ End:
                 return false;
         }
         return true;
+    }
+
+    public List<Vector3> CheckWholeShip(int ShipID)
+    {
+        List<Vector3> result = new();
+        LayoutDATA layout = layout_map.Checkout(ShipID);
+        if (layout == null)
+        {
+            return result;
+        }
+        foreach(var coord in layout.ToList)
+        {
+            gridCellGroup_Enemy.Check(coord);
+            result.Add(gridCellGroup_Enemy.GetGridCellPosition(coord));
+        }
+        return result;
     }
 
     public List<Vector2Int> GetWholeLine(Vector2Int center,Vector2Int direction)

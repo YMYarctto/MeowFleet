@@ -48,6 +48,12 @@ public class PVE_Notice : UIView
         Enable();
     }
 
+    public void ShowNotice_Check(string ship_str,string locate)
+    {
+        text.text = $"你侦查到了【 {ship_str} 】的{locate}";
+        Enable();
+    }
+
     public void ShowNotice_Victory()
     {
         text.text = $"你击溃了敌方舰队";

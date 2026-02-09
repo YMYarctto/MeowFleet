@@ -6,11 +6,10 @@ using UnityEngine;
 
 public class LayoutMap
 {
-    Dictionary<int, LayoutDATA> _absolute_layout_map;// map_id ->
-    Dictionary<Vector2Int, ShipStatus> _ship_map;// -> map_id
+    Dictionary<int, LayoutDATA> _absolute_layout_map;// ship_id ->
+    Dictionary<Vector2Int, ShipStatus> _ship_map;// -> ship_id
     Dictionary<Vector2Int, int> _status_map;// -> count
-    Dictionary<int, int> _data_id;// map_id -> dataId
-    int id = 0;
+    Dictionary<int, int> _data_id;// ship_id -> dataId
 
     public int AttackCount => _absolute_layout_map.Count(kv => kv.Value.BodyList.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
 
@@ -29,9 +28,9 @@ public class LayoutMap
         _data_id = new();
     }
 
-    public void AddShip(Vector2Int center, Ship ship)
+    public void AddShip(int ShipID,Vector2Int center, Ship ship)
     {
-        id++;
+        int id = ShipID;
         LayoutDATA _layout = ship.Layout;
         ShipStatus ship_status = new ShipStatus { ID = id, Ship = ship };
         _data_id.Add(id, ship.DataId);
@@ -46,6 +45,15 @@ public class LayoutMap
         Debug.Log($"已添加舰船 ID: {ship.ShipId}");
     }
 
+    public LayoutDATA Checkout(int ShipID)
+    {
+        if(!_absolute_layout_map.TryGetValue(ShipID,out LayoutDATA layout))
+        {
+            return null;
+        }
+        return layout;
+    }
+
     public ActionMessage Checkout(Vector2Int target)
     {
         if (!_ship_map.ContainsKey(target))
@@ -53,8 +61,9 @@ public class LayoutMap
             return new ActionMessage(target,ActionMessage.ActionResult.Miss);
         }
         int _id = _ship_map[target].ID;
-        int ship_id = _data_id[_id];
-        ActionMessage message = new ActionMessage(ship_id,target,ActionMessage.ActionResult.Hit);
+        int ship_id = _ship_map[target].Ship.ShipId;
+        int data_id = _data_id[_id];
+        ActionMessage message = new ActionMessage(data_id,ship_id,target,ActionMessage.ActionResult.Hit);
         if(!_absolute_layout_map[_id].BodyList.Contains(target))
         {
             message.SetLocate(ActionMessage.ActionLocate.core);
@@ -81,13 +90,14 @@ public class LayoutMap
         ActionMessage message;
         _status_map[target]--;
         int _id = _ship_map[target].ID;
+        int ship_id = _ship_map[target].Ship.ShipId;
         int data_id = _data_id[_id];
         Vector2Int layout_coord = _ship_map[target].layout.ToList[_absolute_layout_map[_id].ToList.IndexOf(target)];
         _ship_map[target].Ship.Hit(layout_coord);
         if(!_absolute_layout_map[_id].BodyList.All(v=>_status_map[v]==0))
         {
             // Hit
-            message = new ActionMessage(data_id,target,ActionMessage.ActionResult.Hit);
+            message = new ActionMessage(data_id,ship_id,target,ActionMessage.ActionResult.Hit);
             message.AddHitShip(_id, _ship_map[target].layout);
 
             if (_absolute_layout_map[_id].CoreList.Contains(target))
@@ -103,7 +113,7 @@ public class LayoutMap
         }
 
         // Destroyed
-        message = new ActionMessage(data_id, target, ActionMessage.ActionResult.Destroyed);
+        message = new ActionMessage(data_id,ship_id, target, ActionMessage.ActionResult.Destroyed);
         message.AddDestroyedShip(_id, _ship_map[target].layout);
         if (_absolute_layout_map[_id].CoreList.All(v => _status_map[v] != 0))
         {

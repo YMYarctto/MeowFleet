@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ActionMessage
 {
+    int data_id;
     int ship_id;
     Vector2Int _target;
     List<ActionResult> _result;
@@ -15,7 +16,7 @@ public class ActionMessage
     public Vector2Int Target => _target;
     public ActionResult ResultFirst => _result[0];
 
-    public string ShipName => DataManager.instance.GetShipName(ship_id);
+    public string ShipName => DataManager.instance.GetShipName(data_id);
 
     public KeyValuePair<int, LayoutDATA> HitShips
     {
@@ -27,8 +28,9 @@ public class ActionMessage
     }
     public ActionLocate Locate => _locate;
 
-    public ActionMessage(int ship, Vector2Int target, ActionResult result)
+    public ActionMessage(int data,int ship, Vector2Int target, ActionResult result)
     {
+        data_id = data;
         ship_id = ship;
         _target = target;
         _result = new() { result };
@@ -38,7 +40,7 @@ public class ActionMessage
     
     public ActionMessage(Vector2Int target,ActionResult result)
     {
-        ship_id = 0;
+        data_id = 0;
         _target = target;
         _result = new() { result };
         _hit_ships = new(-1,null);

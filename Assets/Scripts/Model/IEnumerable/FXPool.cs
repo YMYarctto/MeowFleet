@@ -5,13 +5,16 @@ using UnityEngine;
 public class FXPool<T> where T:FX
 {
     private readonly Stack<T> pool = new();
+    private readonly List<T> active = new();
     private readonly T prefab;
     private readonly Transform parent;
+    private readonly FXKind kind;
 
-    public FXPool(int prewarm, Transform parent)
+    public FXPool(int prewarm, Transform parent, FXKind kind= FXKind.AutoRelease)
     {
         prefab = ResourceManager.instance.GetPerfabByType<T>().GetComponent<T>();
         this.parent = parent;
+        this.kind = kind;
 
         for (int i = 0; i < prewarm; i++)
         {
@@ -29,14 +32,18 @@ public class FXPool<T> where T:FX
             obj = pool.Pop();
             obj.transform.position = pos;
             obj.gameObject.SetActive(true);
-            obj.OnComplete(()=>Release(obj));
+            if (kind == FXKind.AutoRelease)
+                obj.OnComplete(()=>Release(obj));
+            active.Add(obj);
             return obj;
         }
 
         obj = Object.Instantiate(prefab, parent);
         obj.transform.position = pos;
-        obj.OnComplete(()=>Release(obj));
-
+        if (kind == FXKind.AutoRelease)
+            obj.OnComplete(()=>Release(obj));
+        active.Add(obj);
+        
         return obj;
     }
 
@@ -44,5 +51,18 @@ public class FXPool<T> where T:FX
     {
         obj.gameObject.SetActive(false);
         pool.Push(obj);
+    }
+
+    public void ReleaseAll()
+    {
+        Debug.Log("ReleaseFX");
+        foreach (var obj in active)
+        {
+            if (obj != null)
+            {
+                Release(obj);
+            }
+        }
+        active.Clear();
     }
 }

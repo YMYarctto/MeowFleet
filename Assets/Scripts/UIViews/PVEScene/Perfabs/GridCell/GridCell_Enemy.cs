@@ -15,6 +15,7 @@ public class GridCell_Enemy : GridCell_PVE
     public override void Init()
     {
         base.Init();
+
         eventTrigger = gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry entry_pointerClick = new EventTrigger.Entry();
         entry_pointerClick.eventID = EventTriggerType.PointerClick;

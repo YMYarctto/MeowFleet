@@ -7,12 +7,14 @@ public abstract class GridCell_PVE : UIView
     protected GameObject hit_on;
     protected GameObject hit_null;
     protected GameObject select;
+    protected GameObject fog;
 
     public override void Init()
     {
         hit_on = transform.Find("hit_on").gameObject;
         hit_null = transform.Find("hit_null").gameObject;
         select = transform.Find("select").gameObject;
+        fog = transform.Find("fog").gameObject;
         Disable();
     }
 
@@ -27,6 +29,11 @@ public abstract class GridCell_PVE : UIView
         hit_on.SetActive(false);
         hit_null.SetActive(false);
         select.SetActive(false);
+    }
+
+    public void Check()
+    {
+        fog.SetActive(false);
     }
 
     public void Select(bool is_select)

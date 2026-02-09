@@ -15,6 +15,9 @@ public class GridCell_Player : GridCell_PVE
     public override void Init()
     {
         base.Init();
+
+        fog.SetActive(false);
+
         eventTrigger = gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry entry_pointerClick = new EventTrigger.Entry();
         entry_pointerClick.eventID = EventTriggerType.PointerClick;

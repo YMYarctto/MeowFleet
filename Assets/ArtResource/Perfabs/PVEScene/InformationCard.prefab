@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u4F60\u547D\u4E2D\u4E86 [ \u6728\u74DC\u9999\u8549\u8239 ] \u7684\u8239\u4F53"
+  m_text: "\u4F60\u4FA6\u67E5\u5230\u4E86\u3010 \u6728\u74DC\u9999\u8549\u8239 \u3011\u7684\u8239\u4F53"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
   m_sharedMaterial: {fileID: 6809811635698538494, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: -5
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -355,6 +355,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4245977622702455971}
   - component: {fileID: 3963911904958221321}
+  - component: {fileID: 8635033352232837172}
   m_Layer: 5
   m_Name: InformationCard
   m_TagString: Untagged
@@ -394,3 +395,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 752ca4efca91246d0afcd65788f438f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &8635033352232837172
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8116143641162858191}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

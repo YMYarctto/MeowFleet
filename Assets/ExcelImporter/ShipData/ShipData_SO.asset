@@ -17,7 +17,7 @@ MonoBehaviour:
     pre_id: 0
     brench: AB
     level: 0
-    skill_name_string: bomb_focus
+    skill_name_string: radar
     ship_name_string: "\u4FE1\u53F7\u6728\u7B4F"
     shape_coord_string: '[{"x":0,"y":0},{"x":0,"y":-1},{"x":0,"y":1}]'
     core_number: 1

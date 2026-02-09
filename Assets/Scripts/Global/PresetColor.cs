@@ -23,4 +23,14 @@ public static class PresetColor
             return color;
         }
     }
+
+    public static Color Text_Hower
+    {
+        get
+        {
+            Color color;
+            ColorUtility.TryParseHtmlString("#872A1B", out color);
+            return color;
+        }
+    }
 }

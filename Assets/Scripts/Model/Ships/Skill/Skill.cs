@@ -47,7 +47,7 @@ public abstract class Skill
         Skill_Enum skill = ship.Skill;
         Skill _this = skill switch
         {
-            Skill_Enum.radar => null,
+            Skill_Enum.radar => new radar(),
             Skill_Enum.interference => null,
             Skill_Enum.bomb_focus => new bomb_focus(),
             Skill_Enum.bomb_wide => new bomb_wide(),

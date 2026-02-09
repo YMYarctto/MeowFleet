@@ -29,4 +29,12 @@ public class BG_PVE : UIView
             NextPage();
         }
     }
+
+    public void EnemyPage()
+    {
+        if (!page_on_enemy)
+        {
+            NextPage();
+        }
+    }
 }
