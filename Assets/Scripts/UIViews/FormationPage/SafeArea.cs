@@ -6,7 +6,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.Utilities;
 
 public class SafeArea : UIView
 {
@@ -33,36 +32,36 @@ public class SafeArea : UIView
             {
                 containers.Add(trans);
 
-                EventTrigger eventTrigger = trans.AddComponent<EventTrigger>();
+                // EventTrigger eventTrigger = trans.AddComponent<EventTrigger>();
 
-                EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
-                entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
-                entry_pointerEnter.callback.AddListener((data) => { OnPointerEnter((PointerEventData)data,trans.transform); });
+                // EventTrigger.Entry entry_pointerEnter = new EventTrigger.Entry();
+                // entry_pointerEnter.eventID = EventTriggerType.PointerEnter;
+                // entry_pointerEnter.callback.AddListener((data) => { OnPointerEnter((PointerEventData)data,trans.transform); });
 
-                EventTrigger.Entry entry_pointerExit = new EventTrigger.Entry();
-                entry_pointerExit.eventID = EventTriggerType.PointerExit;
-                entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
+                // EventTrigger.Entry entry_pointerExit = new EventTrigger.Entry();
+                // entry_pointerExit.eventID = EventTriggerType.PointerExit;
+                // entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
 
-                eventTrigger.triggers.Add(entry_pointerExit);
-                eventTrigger.triggers.Add(entry_pointerEnter);
+                // eventTrigger.triggers.Add(entry_pointerExit);
+                // eventTrigger.triggers.Add(entry_pointerEnter);
             }
         }
     }
 
-    private void OnPointerExit(PointerEventData data)
-    {
-        focus.gameObject.SetActive(false);
-    }
+    // private void OnPointerExit(PointerEventData data)
+    // {
+    //     focus.gameObject.SetActive(false);
+    // }
 
-    private void OnPointerEnter(PointerEventData data,Transform target)
-    {
-        if(target.childCount!=0^isDrag)
-        {
-            return;
-        }
-        focus.position = target.transform.position;
-        focus.gameObject.SetActive(true);
-    }
+    // private void OnPointerEnter(PointerEventData data,Transform target)
+    // {
+    //     if(target.childCount!=0^isDrag)
+    //     {
+    //         return;
+    //     }
+    //     focus.position = target.transform.position;
+    //     focus.gameObject.SetActive(true);
+    // }
 
     public void UpdateCount()
     {

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -35,14 +34,14 @@ public class SceneLoader : UIView
 
     void Open()
     {
-        DOTween.To(() => color.a, x => color.a=x, 0f, 1).SetEase(Ease.OutQuad).OnUpdate(()=>{
+        DOTween.To(() => color.a, x => color.a=x, 0f, 0.5f).SetEase(Ease.OutQuad).OnUpdate(()=>{
             image.color = color;
         }).OnComplete(OnOpenFinished);
     }
 
     void Close()
     {
-        DOTween.To(() => color.a, x => color.a=x, 1f, 1).SetEase(Ease.InQuad).OnUpdate(()=>{
+        DOTween.To(() => color.a, x => color.a=x, 1f, 0.5f).SetEase(Ease.InQuad).OnUpdate(()=>{
             image.color = color;
         }).OnComplete(OnCloseFinished);
     }

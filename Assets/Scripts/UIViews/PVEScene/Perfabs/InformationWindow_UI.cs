@@ -7,7 +7,9 @@ using UnityEngine;
 public class InformationWindow_UI : UIView
 {
     public override UIView currentView => this;
-    public override int ID => EnemyController.InformationWindowID;
+    public override int ID => _id;
+
+    readonly int _id = EnemyController.InformationWindowID;
 
     static readonly Vector2 sizeDelta = new Vector2(285,357);
 
