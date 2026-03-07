@@ -72,19 +72,31 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
 
     public InformationCard_UI Hit(string ship_str, string locate)
     {
-        content.text = $"你命中了<link=\"{info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
+        content.text = $"你命中了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
         return this;
     }
     
     public InformationCard_UI Destroy(string ship_str,string action)
     {
-        content.text = $"你{action}了<link=\"{info_id}\"><color=#b51d04>【 {ship_str} 】</color></link>";
+        content.text = $"你{action}了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>";
         return this;
     }
 
     public InformationCard_UI Check(string ship_str, string locate)
     {
-        content.text = $"你侦查到了<link=\"{info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
+        content.text = $"你侦查到了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
+        return this;
+    }
+
+    public InformationCard_UI BeHit(string ship_str, string locate)
+    {
+        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>{locate}被命中了";
+        return this;
+    }
+
+    public InformationCard_UI BeAction(string ship_str, string action)
+    {
+        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>被{action}了";
         return this;
     }
 
@@ -92,7 +104,7 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
     {
         info_id = id.ToString();
         hole_v3 = hole_positions;
-        bind_window = UIManager.instance.GetUIView<InformationWindow_UI>(id);
+        UIManager.instance.TryGetUIView(id,out bind_window);
         return this;
     }
     
@@ -128,7 +140,7 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
     }
 
     void CheckHover(PointerEventData eventData)
-    {
+    {        
         int linkIndex = TMP_TextUtilities.FindIntersectingLink(
             content,
             eventData.position,
@@ -151,6 +163,7 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
 
     void ApplyHoverColor(int linkIndex)
     {
+        if (!PVEController.instance.PlayerAction)return;
         TMP_LinkInfo linkInfo = content.textInfo.linkInfo[linkIndex];
         string id = linkInfo.GetLinkID();
         if (id != info_id && currentHoverId != info_id) return;
@@ -174,8 +187,15 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         }
 
         content.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-        bind_window.Enable(PVEController.instance.UICamera.WorldToScreenPoint(transform.position)+window_delta);
-        UIManager.instance.GetUIView<BG_PVE>().EnemyPage();
+        bind_window?.Enable(PVEController.instance.UICamera.WorldToScreenPoint(transform.position)+window_delta);
+        if(bind_window!=null)
+        {
+            UIManager.instance.GetUIView<BG_PVE>().EnemyPage();
+        }
+        else
+        {
+            UIManager.instance.GetUIView<BG_PVE>().PlayerPage();
+        }
     }
 
     void ResetColor()
@@ -184,6 +204,6 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         UIManager.instance.GetUIView<HoleOverlay>().ClearOverlay();
         content.ForceMeshUpdate();
         lastLinkIndex = -1;
-        bind_window.Disable();
+        bind_window?.Disable();
     }
 }

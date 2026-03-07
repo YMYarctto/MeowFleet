@@ -54,6 +54,18 @@ public class PVE_Notice : UIView
         Enable();
     }
 
+    public void ShowNotice_BeHit(string ship_str, string locate)
+    {
+        text.text = $"你的【 {ship_str} 】{locate}被命中了";
+        Enable();
+    }
+
+    public void ShowNotice_BeAction(string ship_str, string action)
+    {
+        text.text = $"你的【 {ship_str} 】被{action}了";
+        Enable();
+    }
+
     public void ShowNotice_Victory()
     {
         text.text = $"你击溃了敌方舰队";
@@ -90,6 +102,12 @@ public class PVE_Notice : UIView
     {
         base.OnDestroy();
         notice_dict.Remove(_id);
+    }
+
+    public static void NoticeInit()
+    {
+        NoticeID = 0;
+        notice_dict.Clear();
     }
 
     public static PVE_Notice Create()

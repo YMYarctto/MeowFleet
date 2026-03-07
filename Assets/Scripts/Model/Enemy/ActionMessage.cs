@@ -11,10 +11,12 @@ public class ActionMessage
     KeyValuePair<int, LayoutDATA> _hit_ships;
     KeyValuePair<int, LayoutDATA> _destroyed_ships;
     ActionLocate _locate;
+    int _core_damage_count;
 
     public int ShipID => ship_id;
     public Vector2Int Target => _target;
     public ActionResult ResultFirst => _result[0];
+    public bool CoreDamaged => _core_damage_count > 0;
 
     public string ShipName => DataManager.instance.GetShipName(data_id);
 
@@ -36,6 +38,7 @@ public class ActionMessage
         _result = new() { result };
         _hit_ships = new(-1, null);
         _destroyed_ships = new(-1, null);
+        _core_damage_count = 0;
     }
     
     public ActionMessage(Vector2Int target,ActionResult result)
@@ -45,6 +48,7 @@ public class ActionMessage
         _result = new() { result };
         _hit_ships = new(-1,null);
         _destroyed_ships = new(-1,null);
+        _core_damage_count = 0;
     }
 
     public bool Contains(ActionResult result)
@@ -70,6 +74,11 @@ public class ActionMessage
     public void AddResult(ActionResult result)
     {
         _result.Add(result);
+    }
+
+    public void SetDamageCore(int count)
+    {
+        _core_damage_count = count;
     }
 
     public override string ToString()

@@ -53,14 +53,14 @@ public class EnemyBehavior
         task.Wait();
     }
     
-    public Vector2Int CalculatePossibleMap()
+    public Vector2Int CalculatePossibleMap(float per=0.5f)
     {
         // 选择概率密度图
         ProbabilityMap map = map_dict[current_target_index];
 
         Task<Vector2Int> task = Task.Run(() =>
         {
-            return map.GetHighProbabilityCoord();
+            return map.GetHighProbabilityCoord(per);
         });
         
         return task.Result;

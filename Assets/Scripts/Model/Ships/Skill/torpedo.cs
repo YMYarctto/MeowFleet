@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class torpedo : Skill
 {
+    public override int Order => 10;
+
     public override void OnSkillInvoke(Vector2Int target)
     {
-        Vector2Int coord = PVEController.instance.GetEdgeCoord(target, _direction);
+        Vector2Int coord = PVEController.instance.GetEdgeCoord(target, _direction, EnemyController.instance.size);
         List<Vector2Int> range = PVEController.instance.CurrentSkillRange;
         PVEController.instance.SetSkillRange(new List<Vector2Int>() { Vector2Int.zero });
         bool vertical = _direction.x == 0;

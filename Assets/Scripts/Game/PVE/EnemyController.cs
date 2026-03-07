@@ -7,10 +7,17 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    readonly string CORE = "核心";
+    readonly string BODY = "船体";
+    readonly string DESTROY = "击沉";
+    readonly string CAPTURE = "俘获";
+    readonly string SPYON = "侦查";
+
     public Vector2Int size;
     public List<int> enemy_ships_id;
 
     List<int> target_ships_id;
+    Queue<Vector2Int> target_list;
 
     EventGroup _event;
     GridCellGroup_Enemy gridCellGroup_Enemy;
@@ -52,6 +59,7 @@ public class EnemyController : MonoBehaviour
         _event = EventManager.GroupBy("EnemyController");
         enemy_skill = new();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
+        target_list = new();
 
         int ShipID = 20000;
         enemy_ship = enemy_ships_id.ConvertAll(id =>
@@ -65,6 +73,8 @@ public class EnemyController : MonoBehaviour
             }
             return new KeyValuePair<int,Ship>(ShipID,ship);
         }).ToDictionary(kv=>kv.Key,kv=>kv.Value);
+
+        enemy_skill.OrderBy(v => v.Order);
 
         GameObject info_window_perfab = ResourceManager.instance.GetPerfabByType<InformationWindow_UI>();
         Transform info_window_parent = GameObject.Find("InformationWindowGroup").transform;
@@ -191,7 +201,7 @@ public class EnemyController : MonoBehaviour
     
     private void Attack()
     {
-        Vector2Int target_coord = AI.CalculatePossibleMap();
+        Vector2Int target_coord = GetTarget();
         FXManager.instance.AttackFX(PVEController.instance.GetPositionInScene(target_coord));
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);
@@ -204,6 +214,7 @@ public class EnemyController : MonoBehaviour
         {
             AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
         }
+        MessageToInfo(message);
 
         AI.Remove(target_coord);
         Debug.Log(AI.GetCurrentProbabilityMap());
@@ -220,18 +231,75 @@ public class EnemyController : MonoBehaviour
 
     private void ShipSkill(Skill skill)
     {
+        Vector2Int target_coord;
+        List<ActionMessage> messages;
         if(skill is bomb)
         {
             goto Bomb;
-        }else
+        }
+        else if(skill is torpedo)
+        {
+            goto Torpedo;
+        }
+        else if(skill is radar)
+        {
+            goto Radar;
+        }
+        else
         {
             goto End;
         }
 Bomb:
-        Vector2Int target_coord = AI.CalculatePossibleMap();
+        target_coord = GetTarget(0.1f);
         List<Vector2Int> skill_range = AI.CalculateSkillRange(target_coord,new LayoutDATA(skill.SkillRange,0));
         
-        List<ActionMessage> messages = PVEController.instance.EnemyAttack(target_coord,skill_range);
+        messages = PVEController.instance.EnemyAttack(target_coord,skill_range);
+        goto Update;
+Torpedo:
+        target_coord = AI.CalculatePossibleMap(0.25f);
+        Vector2Int _direction = Vector2Int.up;
+        Vector2Int size = DataManager.instance.SaveData.MapSize;
+        Vector2Int coord = PVEController.instance.GetEdgeCoord(target_coord, _direction, size);
+        List<Vector2Int> range = PVEController.instance.CurrentSkillRange;
+        bool vertical = _direction.x == 0;
+        for(int i=0;i<(vertical?size.y:size.x);i++)
+        {
+            bool hit = PVEController.instance.EnemyCheck(coord).Contains(ActionMessage.ActionResult.Hit);
+            if(hit)break;
+            PVEController.instance.EnemyAttack(coord);
+            coord += _direction;
+            AI.Remove(coord);
+            AI.UpdatePossibleMapAfterHit(target_coord, new KeyValuePair<int, LayoutDATA>(-1,new LayoutDATA(range,0)));
+        }
+        messages = PVEController.instance.EnemyAttack(coord,skill.SkillRange);
+        goto Update;
+Radar:
+        target_coord = AI.CalculatePossibleMap(0.5f);
+        foreach(var v2 in skill.SkillRange)
+        {
+            Vector2Int target = target_coord + v2;
+            ActionMessage message = PVEController.instance.EnemyCheck(target);
+            if(message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                target_list.Enqueue(target);
+                PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, SPYON);
+                PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, SPYON).Enable();
+            }
+        }
+        goto End;
+Update:
+        foreach(var message in messages)
+        {
+            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+            {
+                AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
+            }
+            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+            {
+                AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
+            }
+            AI.Remove(message.Target);
+        }
         PVEController.instance.DisposeMessage(messages);
         if(messages.Any(v=>v.Contains(ActionMessage.ActionResult.GameOver)))
         {
@@ -243,18 +311,10 @@ Bomb:
         }
         foreach(var message in messages)
         {
-            Debug.Log(message);
-            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
-            {
-                AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
-            }
-            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
-            {
-                AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
-            }
-            AI.Remove(message.Target);
+            MessageToInfo(message);
         }
         Debug.Log(AI.GetCurrentProbabilityMap());
+        goto End;
 End:
         return;
     }
@@ -268,6 +328,15 @@ End:
                 return false;
         }
         return true;
+    }
+
+    private Vector2Int GetTarget(float per=0.5f)
+    {
+        if(target_list.Count > 0)
+        {
+            return target_list.Dequeue();
+        }
+        return AI.CalculatePossibleMap(per);
     }
 
     public List<Vector3> CheckWholeShip(int ShipID)
@@ -296,5 +365,31 @@ End:
             line.Add(coord);
         }
         return line;
+    }
+
+    //
+
+    private void MessageToInfo(ActionMessage message)
+    {
+        if (message.Contains(ActionMessage.ActionResult.Hit))
+        {
+            string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+            PVE_Notice.Create().ShowNotice_BeHit(message.ShipName, LOCATE);
+            PVEController.instance.GetNewInfoCard(message.ShipID).BeHit(message.ShipName, LOCATE).Enable();
+        }
+        else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+        {
+            string ACTION;
+            if(message.CoreDamaged)
+            {
+                ACTION = DESTROY;
+            }
+            else
+            {
+                ACTION = CAPTURE;
+            }
+            PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, ACTION);
+            PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, ACTION).Enable();
+        }
     }
 }

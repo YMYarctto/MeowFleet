@@ -128,12 +128,14 @@ public class PVEController : MonoBehaviour
         aim = UIManager.instance.GetUIView<Aim>();
         information_board = UIManager.instance.GetUIView<InformationBoard>();
         playerAttackCount = UIManager.instance.GetUIView<PlayerAttackCount>();
+        PVE_Notice.NoticeInit();
         foreach (var kv in player_ships_id)
         {
             Ship ship = player_ships[kv.Key];
             skillArea.AddSkillCard(kv.Value,ship);
             GameObject obj = Ship_UIBase.Create<Ship_PVE>(kv.Value, ship, ShipGroupTrans);
             StartCoroutine(SetPosition_WaitForEndOfFrame(kv.Key, obj.GetComponent<Ship_PVE>()));
+            StartCoroutine(SetInfo_WaitForEndOfFrame(ship.ShipId));
         }
 
         information_board.SetRound(Round);
@@ -158,6 +160,12 @@ public class PVEController : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         ship.SetPosition(coord);
+    }
+
+    IEnumerator SetInfo_WaitForEndOfFrame(int ShipId)
+    {
+        yield return new WaitForEndOfFrame();
+        info_dict.Add(ShipId,player_layout_map.GetAbsoluteLayout(ShipId).ToList.ConvertAll(v=>gridCellGroup_Player.GetGridCellPosition(v)));
     }
 
     // Pack
@@ -227,6 +235,11 @@ public class PVEController : MonoBehaviour
         return messages;
     }
 
+    public ActionMessage EnemyCheck(Vector2Int coord)
+    {
+        return player_layout_map.Checkout(coord);
+    }
+
     public void PlayerSelect(Vector2Int coord,PVEMap target)
     {
         if (!PlayerAction||target!=pve_map||!init||onAnim)
@@ -237,7 +250,7 @@ public class PVEController : MonoBehaviour
         
         if(current_skill is torpedo)
         {
-            coord = GetEdgeCoord(coord, current_skill.Direction);
+            coord = GetEdgeCoord(coord, current_skill.Direction, EnemyController.instance.size);
             gridCellGroup_Enemy.Select(current_skill_range.ConvertAll(v => v + coord)
                 .Union(EnemyController.instance.GetWholeLine(coord, current_skill.Direction)).ToList());
             return;
@@ -332,7 +345,7 @@ public class PVEController : MonoBehaviour
             else if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
                 string ACTION;
-                if(message.Locate == ActionMessage.ActionLocate.core)
+                if(message.CoreDamaged)
                 {
                     ACTION = DESTROY;
                     OnEnemyShipDestroyed?.Invoke();
@@ -534,14 +547,19 @@ public class PVEController : MonoBehaviour
 
     // Get
 
+    public InformationCard_UI GetNewInfoCard(int id)
+    {
+        return information_board.NewInformation().SetInfoID(id,info_dict[id]);
+    }
+
     public List<int> GetPlayerShipsID()
     {
         return player_ships.Values.Select(ship => ship.DataId).ToList();
     }
 
-    public Vector2Int GetEdgeCoord(Vector2Int target,Vector2Int direction)
+    public Vector2Int GetEdgeCoord(Vector2Int target,Vector2Int direction,Vector2Int size)
     {
-        Vector2Int mapSize = EnemyController.instance.size;
+        Vector2Int mapSize = size;
         Vector2Int edge = target;
         while (true)
         {

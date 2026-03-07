@@ -17,6 +17,8 @@ public abstract class Skill
 
     public bool CanSkill=>ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage;
 
+    abstract public int Order { get; }
+
     public virtual void OnSelect()
     {
         _direction = new(0, 1);

@@ -123,6 +123,7 @@ public class LayoutMap
         {
             message.SetLocate(ActionMessage.ActionLocate.core);
         }
+        message.SetDamageCore(_absolute_layout_map[_id].CoreList.Count(v => _status_map[v] == 0));
         if(_status_map.All(kv=>kv.Value==0))
         {
             // GameOver
@@ -159,5 +160,14 @@ public class LayoutMap
                 }
             }
         }
+    }
+
+    public LayoutDATA GetAbsoluteLayout(int ShipID)
+    {
+        if(!_absolute_layout_map.TryGetValue(ShipID,out LayoutDATA layout))
+        {
+            return null;
+        }
+        return layout;
     }
 }

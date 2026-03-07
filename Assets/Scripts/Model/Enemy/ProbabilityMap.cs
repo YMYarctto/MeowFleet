@@ -84,11 +84,11 @@ public class ProbabilityMap
         probability_map.RemoveProbability(center);
     }
 
-    public Vector2Int GetHighProbabilityCoord()
+    public Vector2Int GetHighProbabilityCoord(float per=0.5f)
     {
         // 按概率排序
         List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().OrderByDescending(kv => kv.Value).ToList();
-        List<Vector2Int> max_map = probability_map_list.Where(kv => kv.Value >= probability_map_list[0].Value).Select(kv=>kv.Key).ToList();
+        List<Vector2Int> max_map = probability_map_list.Take((int)(probability_map_list.Count * per)+1).Select(kv=>kv.Key).ToList();
 
         // 随机选择一个最大概率点进行攻击
         System.Random rand = new();

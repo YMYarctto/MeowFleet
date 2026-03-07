@@ -16,6 +16,10 @@ public abstract class GridCellGroup_PVE : UIView
 
     public virtual void Hit(Vector2Int v2,bool isHit)
     {
+        if(!IsInMap(v2))
+        {
+            return;
+        }
         int index = GetIndex(v2);
         girdCell_dict[index].Hit(isHit);
     }
