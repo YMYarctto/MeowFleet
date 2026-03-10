@@ -43,7 +43,7 @@ public abstract class GridCellGroup_PVE : UIView
         return girdCell_dict[GetIndex(coord)].transform.position;
     }
 
-    protected bool IsInMap(Vector2Int v2)
+    public bool IsInMap(Vector2Int v2)
     {
         return v2.x >= 0 && v2.x < mapSize.x && v2.y >= 0 && v2.y < mapSize.y;
     }

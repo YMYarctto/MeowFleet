@@ -245,6 +245,10 @@ public class EnemyController : MonoBehaviour
         {
             goto Radar;
         }
+        else if(skill is interference)
+        {
+            goto Interference;
+        }
         else
         {
             goto End;
@@ -275,16 +279,38 @@ Torpedo:
         goto Update;
 Radar:
         target_coord = AI.CalculatePossibleMap(0.5f);
+        goto Checkout;
+Interference:
+        target_coord = GetTarget(0.5f);
+        goto Checkout;
+Checkout:
+        Dictionary<int,ActionMessage> message_dict = new();
         foreach(var v2 in skill.SkillRange)
         {
             Vector2Int target = target_coord + v2;
             ActionMessage message = PVEController.instance.EnemyCheck(target);
             if(message.Contains(ActionMessage.ActionResult.Hit))
             {
-                target_list.Enqueue(target);
-                PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, SPYON);
-                PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, SPYON).Enable();
+                if(!(message_dict.TryGetValue(message.ShipID,out var foreign_message)&&foreign_message.Locate == ActionMessage.ActionLocate.core))
+                {
+                    message_dict[message.ShipID] = message;
+                }
+                if(skill is radar) target_list.Enqueue(target);
+                else if(skill is interference) PVEController.instance.PlayerLayoutMap.GetShip(message.Target).Buff.AddBuff(message.Locate == ActionMessage.ActionLocate.core ? EBuff.Interferenced_core : EBuff.Interferenced_body, 1);
             }
+        }
+        if(skill is radar) foreach(var kv in message_dict)
+        {
+            ActionMessage message = kv.Value;
+            PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, SPYON);
+            PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, SPYON).Enable();
+        }
+        else if(skill is interference) foreach(var kv in message_dict)
+        {
+            ActionMessage message = kv.Value;
+            string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+            PVE_Notice.Create().ShowNotice_BeInterference(message.ShipName, LOCATE);
+            PVEController.instance.GetNewInfoCard(message.ShipID).BeInterference(message.ShipName, LOCATE).Enable();
         }
         goto End;
 Update:
@@ -319,6 +345,14 @@ End:
         return;
     }
 
+    public void BuffNextRound()
+    {
+        foreach(var ship in enemy_ship.Values)
+        {
+            ship.Buff.NextRound();
+        }
+    }
+
     // 检查该点位该布局是否可行
     private bool CheckLayoutValid(Vector2Int center, LayoutDATA layout)
     {
@@ -342,7 +376,7 @@ End:
     public List<Vector3> CheckWholeShip(int ShipID)
     {
         List<Vector3> result = new();
-        LayoutDATA layout = layout_map.Checkout(ShipID);
+        LayoutDATA layout = layout_map.GetAbsoluteLayout(ShipID);
         if (layout == null)
         {
             return result;

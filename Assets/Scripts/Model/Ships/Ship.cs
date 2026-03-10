@@ -11,6 +11,7 @@ public class Ship
     LayoutDATA init_layout;
     int _direction = 0;
     List<int> damage_condition;
+    BuffPool buff;
 
     List<int> core_condition=>damage_condition.GetRange(0,shipData.core_number);
     List<int> body_condition=>damage_condition.GetRange(shipData.core_number,damage_condition.Count-shipData.core_number);
@@ -23,6 +24,7 @@ public class Ship
     public string Name => shipData.ship_name_string;
     public Skill_Enum Skill => shipData.skill_name;
     public List<Vector2Int> SkillRange => new(shipData.skill_coord);
+    public BuffPool Buff => buff;
     public Status ShipStatus
     {
         get
@@ -56,6 +58,7 @@ public class Ship
         this.shipData = shipData;
         init_layout = layout = new(shipData.shape_coord,shipData.core_number);
         damage_condition = init_layout.ToList.ConvertAll(v=>1);
+        buff = new BuffPool();
     }
 
     public int ResetLayout()

@@ -88,6 +88,12 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         return this;
     }
 
+    public InformationCard_UI Interference()
+    {
+        content.text = $"你干扰到了敌方舰船";
+        return this;
+    }
+
     public InformationCard_UI BeHit(string ship_str, string locate)
     {
         content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>{locate}被命中了";
@@ -97,6 +103,12 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
     public InformationCard_UI BeAction(string ship_str, string action)
     {
         content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>被{action}了";
+        return this;
+    }
+
+    public InformationCard_UI BeInterference(string ship_str, string locate)
+    {
+        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>{locate}被干扰了";
         return this;
     }
 

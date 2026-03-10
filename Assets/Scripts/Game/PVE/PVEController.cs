@@ -221,6 +221,7 @@ public class PVEController : MonoBehaviour
         bool isHit = false;
         foreach (var v2 in new List<Vector2Int>(coords))
         {
+            if(!gridCellGroup_Player.IsInMap(v2))continue;
             if(enemy_hitted_coords.Contains(v2))continue;
             enemy_hitted_coords.Add(v2);
             ActionMessage message = player_layout_map.GetMessage(v2);
@@ -383,7 +384,7 @@ public class PVEController : MonoBehaviour
         }
     }
 
-    public void PlayerCheck(Vector2Int coord)
+    public void PlayerSkill<T>(Vector2Int coord) where T:Skill
     {
         List<Vector2Int> coords =  current_skill_range.ConvertAll(v => v + coord).ToList();
         List<ActionMessage> messages = new();
@@ -398,6 +399,7 @@ public class PVEController : MonoBehaviour
             if(!message.Contains(ActionMessage.ActionResult.Miss))
             {
                 isHit = true;
+                if(typeof(T) == typeof(radar))
                 if(info_dict.TryGetValue(message.ShipID,out var list))
                 {
                     list.Add(gridCellGroup_Enemy.GetGridCellPosition(v2));
@@ -419,11 +421,23 @@ public class PVEController : MonoBehaviour
         // 处理结果
         foreach (var message in messages)
         {
-            if (message.Contains(ActionMessage.ActionResult.Hit))
+            if(typeof(T) == typeof(radar))
             {
-                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
-                PVE_Notice.Create().ShowNotice_Check(message.ShipName, LOCATE);
-                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Check(message.ShipName, LOCATE).Enable();
+                if (message.Contains(ActionMessage.ActionResult.Hit))
+                {
+                    string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                    PVE_Notice.Create().ShowNotice_Check(message.ShipName, LOCATE);
+                    information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Check(message.ShipName, LOCATE).Enable();
+                }
+            }
+            else if (typeof(T) == typeof(interference))
+            {
+                if (message.Contains(ActionMessage.ActionResult.Hit))
+                {
+                    EnemyController.instance.EnemyLayoutMap.GetShip(message.Target).Buff.AddBuff(message.Locate == ActionMessage.ActionLocate.core ? EBuff.Interferenced_core : EBuff.Interferenced_body, 1);
+                    PVE_Notice.Create().ShowNotice_Interference();
+                    information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Interference().Enable();
+                }
             }
         }
     }
@@ -519,10 +533,12 @@ public class PVEController : MonoBehaviour
         information_board.SetStage(currentState);
         if (currentState == PVEState.EnemyAttack)
         {
-            EnmeyRound();
+            BuffNextRound_Player();
+            EnemyRound();
         }
         if(currentState==PVEState.PlayerAttack)
         {
+            EnemyController.instance.BuffNextRound();
             PlayerAttackTurn();
         }
         if(currentState==PVEState.PlayerSkill)
@@ -532,7 +548,7 @@ public class PVEController : MonoBehaviour
         }
     }
 
-    void EnmeyRound()
+    void EnemyRound()
     {
         playerAttackCount.Disable();
 
@@ -543,6 +559,14 @@ public class PVEController : MonoBehaviour
         sequence.AppendInterval(1.25f);
         sequence.AppendCallback(()=>EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn));
         sequence.Play();
+    }
+
+    void BuffNextRound_Player()
+    {
+        foreach(var ship in player_ships.Values)
+        {
+            ship.Buff.NextRound();
+        }
     }
 
     // Get

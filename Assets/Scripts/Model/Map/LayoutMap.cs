@@ -15,7 +15,7 @@ public class LayoutMap
 
     struct ShipStatus
     {
-        public int ID;// map_id
+        public int ID;// ship_id
         public Ship Ship;
         public LayoutDATA layout=>Ship.Layout;
     }
@@ -43,15 +43,6 @@ public class LayoutMap
         }
 
         Debug.Log($"已添加舰船 ID: {ship.ShipId}");
-    }
-
-    public LayoutDATA Checkout(int ShipID)
-    {
-        if(!_absolute_layout_map.TryGetValue(ShipID,out LayoutDATA layout))
-        {
-            return null;
-        }
-        return layout;
     }
 
     public ActionMessage Checkout(Vector2Int target)
@@ -169,5 +160,23 @@ public class LayoutMap
             return null;
         }
         return layout;
+    }
+
+    public Ship GetShip(int ShipID)
+    {
+        if(!_absolute_layout_map.ContainsKey(ShipID))
+        {
+            return null;
+        }
+        return _ship_map[_absolute_layout_map[ShipID].ToList[0]].Ship;
+    }
+
+    public Ship GetShip(Vector2Int coord)
+    {
+        if(!_ship_map.ContainsKey(coord))
+        {
+            return null;
+        }
+        return _ship_map[coord].Ship;
     }
 }

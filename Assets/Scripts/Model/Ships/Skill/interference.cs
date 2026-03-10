@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class radar : Skill
+public class interference : Skill
 {
-    public override int Order => 0;
+    public override int Order => 2;
 
     public override void OnSkillInvoke(Vector2Int target)
     {
-        PVEController.instance.PlayerSkill<radar>(target);
+        PVEController.instance.PlayerSkill<interference>(target);
     }
 }

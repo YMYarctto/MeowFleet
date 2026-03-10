@@ -28,6 +28,7 @@ public static class ResourceList
         {typeof(bomb_wide),"bomb_wide"},
         {typeof(torpedo),"torpedo"},
         {typeof(radar),"radar"},
+        {typeof(interference),"interference"},
     };
 
     public static Dictionary<string, Vector2> ships_sprite_pivot = new()

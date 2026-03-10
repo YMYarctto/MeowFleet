@@ -12,6 +12,7 @@ public class SettlePage : UIView
     Transform bg_victory;
     Transform info_victory;
     Transform info_defeat;
+    Transform shadow;
 
     public override void Init()
     {
@@ -20,6 +21,7 @@ public class SettlePage : UIView
         Transform info = BG.Find("info");
         info_victory = info.Find("victory");
         info_defeat = info.Find("defeat");
+        shadow = BG.Find("shadow");
         transform.localScale = new(0,1,1);
     }
 
@@ -34,6 +36,7 @@ public class SettlePage : UIView
         bg_victory.gameObject.SetActive(true);
         info_victory.gameObject.SetActive(true);
         info_defeat.gameObject.SetActive(false);
+        shadow.gameObject.SetActive(false);
         Enable();
     }
 
@@ -42,6 +45,7 @@ public class SettlePage : UIView
         bg_victory.gameObject.SetActive(false);
         info_victory.gameObject.SetActive(false);
         info_defeat.gameObject.SetActive(true);
+        shadow.gameObject.SetActive(true);
         Enable();
     }
 }

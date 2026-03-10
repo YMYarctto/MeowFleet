@@ -54,6 +54,12 @@ public class PVE_Notice : UIView
         Enable();
     }
 
+    public void ShowNotice_Interference()
+    {
+        text.text = $"你干扰到了敌方舰船";
+        Enable();
+    }
+
     public void ShowNotice_BeHit(string ship_str, string locate)
     {
         text.text = $"你的【 {ship_str} 】{locate}被命中了";
@@ -63,6 +69,12 @@ public class PVE_Notice : UIView
     public void ShowNotice_BeAction(string ship_str, string action)
     {
         text.text = $"你的【 {ship_str} 】被{action}了";
+        Enable();
+    }
+
+    public void ShowNotice_BeInterference(string ship_str, string locate)
+    {
+        text.text = $"你的【 {ship_str} 】{locate}被干扰了";
         Enable();
     }
 
