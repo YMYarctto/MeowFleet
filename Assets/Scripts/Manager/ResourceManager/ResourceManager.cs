@@ -126,6 +126,16 @@ public class ResourceManager : MonoBehaviour
     {
         LoadingPackage pkg = new(0);
 
+        pkg.AddCount();
+        Addressables.LoadAssetAsync<Texture2D>("pointer").Completed += (handle) =>
+        {
+            Texture2D pointer = handle.Result;
+            Cursor.SetCursor(pointer,new Vector2(pointer.width / 10, 0),CursorMode.Auto);
+            Cursor.lockState = CursorLockMode.Confined;
+
+            pkg.AddProgress();
+        };
+
         foreach (var kv in ResourceList.gameobjects)
         {
             pkg.AddCount();

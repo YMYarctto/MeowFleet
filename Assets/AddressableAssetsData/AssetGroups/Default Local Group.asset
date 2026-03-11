@@ -97,6 +97,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af972d36d15764f01a7603ee8e9c0b3b
+    m_Address: pointer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ba5afc8d29a4b4499bfdc28c1897fb44
     m_Address: InformationCard
     m_ReadOnly: 0

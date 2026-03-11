@@ -454,7 +454,7 @@ public class PVEController : MonoBehaviour
         current_skill_range = range;
     }
 
-    List<ActionMessage> DealMessage(List<ActionMessage> messages)
+    public List<ActionMessage> DealMessage(List<ActionMessage> messages)
     {
         // 分类合并
         Dictionary<int, List<ActionMessage>> bestMap = new();

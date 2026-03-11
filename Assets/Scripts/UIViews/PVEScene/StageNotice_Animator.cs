@@ -44,17 +44,13 @@ public class StageNotice_Animator : UIView
 
     public void Close()
     {
-        if(!target_trans)
-        {
-            return;
-        }
-
         color.a =1f;
         sequence?.Kill();
         sequence=DOTween.Sequence();
         sequence.Append(left.DOLocalMoveX(-100,animation_time).SetEase(ease));
         sequence.Join(right.DOLocalMoveX(100,animation_time).SetEase(ease));
-        sequence.Join(target_trans.DOScale(Vector3.zero,animation_time).SetEase(ease));
+        sequence.Join(player_skill.DOScale(Vector3.zero,animation_time).SetEase(ease));
+        sequence.Join(player_attack.DOScale(Vector3.zero,animation_time).SetEase(ease));
         sequence.Join(DOTween.To(() => color.a, x => color.a = x, 0f, animation_time).SetEase(ease).OnUpdate(() =>
         {
             target_img.color = color;

@@ -335,6 +335,7 @@ Update:
             sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Defeat());
             return;
         }
+        messages = PVEController.instance.DealMessage(messages);
         foreach(var message in messages)
         {
             MessageToInfo(message);
