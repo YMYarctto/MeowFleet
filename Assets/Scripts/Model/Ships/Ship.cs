@@ -25,6 +25,7 @@ public class Ship
     public Skill_Enum Skill => shipData.skill_name;
     public List<Vector2Int> SkillRange => new(shipData.skill_coord);
     public BuffPool Buff => buff;
+    public bool LossOfMobility => body_condition.All(v=>v==0);
     public Status ShipStatus
     {
         get

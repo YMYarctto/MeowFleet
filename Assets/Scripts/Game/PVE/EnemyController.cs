@@ -21,6 +21,7 @@ public class EnemyController : MonoBehaviour
 
     EventGroup _event;
     GridCellGroup_Enemy gridCellGroup_Enemy;
+    Sequence enemy_turn;
 
     List<LayoutDATA> target_ship;
     Dictionary<int,Ship> enemy_ship;
@@ -113,6 +114,11 @@ public class EnemyController : MonoBehaviour
         _event?.RemoveListener(EventRegistry.PVE.EnemyTurn, EnemyTurn);
     }
 
+    void OnDestroy()
+    {
+        enemy_turn?.Kill();
+    }
+
     private void MapInit()
     {
         available_map = new();
@@ -163,23 +169,24 @@ public class EnemyController : MonoBehaviour
 
     public void EnemyTurn()
     {
-        Sequence sequence = DOTween.Sequence();
+        enemy_turn?.Kill();
+        enemy_turn = DOTween.Sequence();
         for (int i = 0; i < enemy_skill.Count; i++)
         {
             if(!enemy_skill[i].CanSkill)continue;
             Skill skill = enemy_skill[i];
-            sequence.AppendInterval(0.5f);
-            sequence.AppendCallback(()=>ShipSkill(skill));
+            enemy_turn.AppendInterval(0.5f);
+            enemy_turn.AppendCallback(()=>ShipSkill(skill));
         }
-        sequence.AppendInterval(1f);
+        enemy_turn.AppendInterval(1f);
         for (int i = 0; i < EnemyShootCount; i++)
         {
-            sequence.AppendInterval(0.2f);
-            sequence.AppendCallback(()=>Attack());
+            enemy_turn.AppendInterval(0.2f);
+            enemy_turn.AppendCallback(()=>Attack());
         }
-        sequence.AppendInterval(1.5f);
-        sequence.AppendCallback(()=>PVEController.instance.NextRound());
-        sequence.Play();
+        enemy_turn.AppendInterval(1.5f);
+        enemy_turn.AppendCallback(()=>PVEController.instance.NextRound());
+        enemy_turn.Play();
     }
 
     public ActionMessage PlayerCheck(Vector2Int coord)
@@ -271,9 +278,9 @@ Torpedo:
             bool hit = PVEController.instance.EnemyCheck(coord).Contains(ActionMessage.ActionResult.Hit);
             if(hit)break;
             PVEController.instance.EnemyAttack(coord);
-            coord += _direction;
             AI.Remove(coord);
             AI.UpdatePossibleMapAfterHit(target_coord, new KeyValuePair<int, LayoutDATA>(-1,new LayoutDATA(range,0)));
+            coord += _direction;
         }
         messages = PVEController.instance.EnemyAttack(coord,skill.SkillRange);
         goto Update;

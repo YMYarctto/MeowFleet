@@ -99,6 +99,11 @@ public class EnemyBehavior
                         }
                     }
                 }
+                else
+                {
+                    // 更新概率布局
+                    map_dict[current_target_index].DeleteProbabilityWithout(target);
+                }
             }
             foreach (var map_kv in map_dict)
             {

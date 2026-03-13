@@ -88,7 +88,8 @@ public class ProbabilityMap
     {
         // 按概率排序
         List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().OrderByDescending(kv => kv.Value).ToList();
-        List<Vector2Int> max_map = probability_map_list.Take((int)(probability_map_list.Count * per)+1).Select(kv=>kv.Key).ToList();
+        int takeCount = Mathf.Max(1, (int)(probability_map_list.Count * per));
+        List<Vector2Int> max_map = probability_map_list.Take(takeCount).Select(kv=>kv.Key).ToList();
 
         // 随机选择一个最大概率点进行攻击
         System.Random rand = new();
