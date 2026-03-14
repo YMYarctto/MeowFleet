@@ -11,5 +11,6 @@ public class Button_SettingReturn : BaseButton_Setting
     {
         UIManager.instance.GetUIView<BGAnimator_TitleScene>().SettingDisable();
         InputController.instance.SaveBindings();
+        AudioManager.instance.SaveBindings();
     }
 }

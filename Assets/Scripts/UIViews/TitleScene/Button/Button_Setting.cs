@@ -11,5 +11,6 @@ public class Button_Setting : BaseButton_TitleScene
     {
         UIManager.instance.GetUIView<BGAnimator_TitleScene>().SettingEnable();
         InputController.instance.LoadBindings();
+        AudioManager.instance.LoadBindings();
     }
 }

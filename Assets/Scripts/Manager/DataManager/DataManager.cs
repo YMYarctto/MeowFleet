@@ -8,9 +8,12 @@ using UnityEngine;
 // DataManager 核心
 public partial class DataManager : MonoBehaviour
 {
+    public SaveData_SO SaveData => saveData_SO;
+    public AudioData_SO AudioData => audio_data;
+
     private Dictionary<int, ShipData> shipData_dict;
     private SaveData_SO saveData_SO;
-    public SaveData_SO SaveData => saveData_SO;
+    private AudioData_SO audio_data;
     
     private static DataManager _dataManager;
     public static DataManager instance
@@ -75,6 +78,7 @@ public partial class DataManager : MonoBehaviour
     {
         public ShipData_SO ShipData { set => instance.shipData_dict = value.Sheet1.ToDictionary(v => v.uid, v => v); }
         public SaveData_SO SaveData { set => instance.saveData_SO = value; }
+        public AudioData_SO AudioData{set => instance.audio_data = value;}
         
         public void Init()
         {

@@ -16,7 +16,6 @@ public class InputController : MonoBehaviour
     public UnityAction<(InputAction,int)> OnRebindComplete;
     public UnityAction OnLoadComplete;
 
-
     const string SAVE_KEY = "InputBindingOverrides";
 
     private static InputController _instance;

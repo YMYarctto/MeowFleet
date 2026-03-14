@@ -11,5 +11,6 @@ public class Button_PVEMenu : BaseButton_Setting
     {
         UIManager.instance.GetUIView<BGAnimator_PVEScene>().SettingEnable();
         InputController.instance.LoadBindings();
+        AudioManager.instance.LoadBindings();
     }
 }

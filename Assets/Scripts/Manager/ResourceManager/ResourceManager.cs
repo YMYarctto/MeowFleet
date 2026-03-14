@@ -114,6 +114,13 @@ public class ResourceManager : MonoBehaviour
             pkg.AddProgress();
         };
 
+        Addressables.LoadAssetAsync<AudioData_SO>("AudioData_SO").Completed += (handle) =>{
+            var so=handle.Result;
+            dataManager.AudioData = so;
+            pkg.AddProgress();
+        };
+        pkg.AddCount();
+
         // 等待所有资源初始化完成
         yield return new WaitUntil(() => pkg.Finish());
         Debug.Log("游戏初始化成功");
@@ -180,6 +187,7 @@ public class ResourceManager : MonoBehaviour
         SceneController.instance.Init();
         DOTween.Init();
         InputController.instance.Init();
+        AudioManager.instance.Init();
 
         ShipManager.instance.Init();
         ShipManager.instance.Read();
