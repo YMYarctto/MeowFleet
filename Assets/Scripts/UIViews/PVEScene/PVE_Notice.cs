@@ -4,9 +4,8 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class PVE_Notice : UIView
+public class PVE_Notice : UIView<PVE_Notice>
 {
-    public override UIView currentView => this;
     public override int ID => _id;
 
     static int NoticeID=0;

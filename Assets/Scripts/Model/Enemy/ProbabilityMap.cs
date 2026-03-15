@@ -92,8 +92,7 @@ public class ProbabilityMap
         List<Vector2Int> max_map = probability_map_list.Take(takeCount).Select(kv=>kv.Key).ToList();
 
         // 随机选择一个最大概率点进行攻击
-        System.Random rand = new();
-        Vector2Int target = max_map[rand.Next(max_map.Count)];
+        Vector2Int target = max_map[SeedController.instance.Range(0, max_map.Count)];
         return target;
     }
 

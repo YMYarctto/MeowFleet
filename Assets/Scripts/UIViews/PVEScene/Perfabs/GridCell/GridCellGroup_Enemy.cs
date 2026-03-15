@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class GridCellGroup_Enemy : GridCellGroup_PVE
 {
-    public override UIView currentView => this;
-
     public static int GridCellID = 0;
     GameObject grid_cell;
 
@@ -15,12 +13,16 @@ public class GridCellGroup_Enemy : GridCellGroup_PVE
     public override void Init()
     {
         base.Init();
+    }
+
+    public void LateInit()
+    {
         GridCellID = 0;
         select_cells = new();
         mapSize = EnemyController.instance.size;
 
         grid_cell = ResourceManager.instance.GetPerfabByType<GridCell_PVE>();
-        for (int i = 0; i < 100; i++)//TODO 100
+        for (int i = 0; i < mapSize.x * mapSize.y; i++)
         {
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(transform, false);

@@ -4,10 +4,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InformationBoard : UIView
+public class InformationBoard : UIView<InformationBoard>
 {
-    public override UIView currentView => this;
-
     public static int CardID=0;
 
     float rubberPower = 0.2f;
@@ -70,7 +68,7 @@ public class InformationBoard : UIView
 
     void Start()
     {
-        infomationRollBar = UIManager.instance.GetUIView<InfomationRollBar>();
+        infomationRollBar = InfomationRollBar.GetUIView();
         infomationRollBar.Set();
     }
 

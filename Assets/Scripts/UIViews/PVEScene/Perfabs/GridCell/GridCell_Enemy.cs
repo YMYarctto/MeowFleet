@@ -5,10 +5,9 @@ using UnityEngine.EventSystems;
 
 public class GridCell_Enemy : GridCell_PVE
 {
-    public override UIView currentView => this;
-
     int _ID = GridCellGroup_Enemy.GridCellID;
     public override int ID => _ID;
+    public override int MapSizeX => EnemyController.instance.size.x;
 
     EventTrigger eventTrigger;
 
@@ -37,18 +36,18 @@ public class GridCell_Enemy : GridCell_PVE
     private void OnPointerEnter(PointerEventData data)
     {
         PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Enemy);
-        PVEController.instance.Aim(PVEController.PVEMap.Enemy,transform.position);
+        PVEController.instance.AimTo(PVEController.PVEMap.Enemy,transform.position);
     }
 
     private void OnPointerExit(PointerEventData data)
     {
         PVEController.instance.ClearSelect();
-        PVEController.instance.Aim(false);
+        PVEController.instance.AimTo(false);
     }
 
     private void OnPointerClick(PointerEventData data)
     {
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Enemy,PVEController.instance.CurrentState==PVEController.PVEState.PlayerAttack);
-        PVEController.instance.Aim(false);
+        PVEController.instance.AimTo(false);
     }
 }

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class RuntimeErrorBoeard : UIView
+public class RuntimeErrorBoeard : UIView<RuntimeErrorBoeard>
 {
-    public override UIView currentView => this;
-
     TMP_Text text;
 
     public override void Init()

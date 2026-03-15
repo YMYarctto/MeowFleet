@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SkillArea : UIView
+public class SkillArea : UIView<SkillArea>
 {
     RectTransform content;
     RectTransform viewport;
@@ -28,8 +28,6 @@ public class SkillArea : UIView
 
     List<SkillCard_UI> skill_list;
     SkillCard_UI current_select;
-
-    public override UIView currentView => this;
 
     public override void Init()
     {

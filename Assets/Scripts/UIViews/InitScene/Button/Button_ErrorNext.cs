@@ -5,10 +5,8 @@ using UnityEngine.EventSystems;
 
 public class Button_ErrorNext : BaseButton_Default
 {
-    public override UIView currentView => this;
-
     public override void OnPointerClick(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<RuntimeErrorBoeard>().Disable();
+        RuntimeErrorBoeard.GetUIView().Disable();
     }
 }

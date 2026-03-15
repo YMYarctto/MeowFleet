@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InfomationRollBar : UIView
+public class InfomationRollBar : UIView<InfomationRollBar>
 {
-    public override UIView currentView => this;
-
     InformationBoard informationBoard;
 
     float total_length;
@@ -44,7 +42,7 @@ public class InfomationRollBar : UIView
 
     void Start()
     {
-        informationBoard = UIManager.instance.GetUIView<InformationBoard>();
+        informationBoard = InformationBoard.GetUIView();
     }
 
     public void Set()

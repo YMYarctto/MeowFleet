@@ -5,10 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SkillCard_UI : UIView
+public class SkillCard_UI : UIView<SkillCard_UI>
 {
-    public override UIView currentView => this;
-
     public static int CardID;
     int _id = CardID;
     public override int ID => _id;
@@ -182,7 +180,7 @@ public class SkillCard_UI : UIView
 
     private void OnPointerClick(PointerEventData eventData)
     {
-        if(UIManager.instance.GetUIView<SkillArea>().IsDragging)
+        if(SkillArea.GetUIView().IsDragging)
         {
             return;
         }
@@ -191,7 +189,7 @@ public class SkillCard_UI : UIView
         clickTween?.Kill();
         clickTween = card_trans.DOScale(new Vector3(1.1f,1.1f,1.1f),0.1f).SetEase(Ease.OutQuad);
 
-        UIManager.instance.GetUIView<SkillArea>().SelectSkillCard(this);
+        SkillArea.GetUIView().SelectSkillCard(this);
         skill.OnSelect();
     }
 
@@ -210,7 +208,7 @@ public class SkillCard_UI : UIView
 
     public void OnSkillEnd()
     {
-        UIManager.instance.GetUIView<SkillArea>().DisableSkillCard(this);
+        SkillArea.GetUIView().DisableSkillCard(this);
         PVEController.instance.ResetPVEMap();
         OnSelectEnd();
     }
@@ -222,17 +220,17 @@ public class SkillCard_UI : UIView
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<SkillArea>().OnBeginDrag(eventData);
+        SkillArea.GetUIView().OnBeginDrag(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<SkillArea>().OnEndDrag(eventData);
+        SkillArea.GetUIView().OnEndDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<SkillArea>().OnDrag(eventData);
+        SkillArea.GetUIView().OnDrag(eventData);
     }
 
     public static GameObject Create(int id,Transform parent)

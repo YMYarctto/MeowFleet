@@ -41,6 +41,33 @@ public class ResourceManager : MonoBehaviour
         StartCoroutine(InitDataManager());
     }
 
+    public LoadOperation InitLoadDataManager()
+    {
+        LoadOperation op = new LoadOperation();
+        StartCoroutine(EInitLoadDataManager(op));
+        return op;
+    }
+
+    IEnumerator EInitLoadDataManager(LoadOperation op)
+    {
+        LoadingPackage pkg = new(0);
+        LoadDataManager.Changer dataManager = LoadDataManager.GetDataManagerChanger();
+
+        pkg.AddCount();
+        Addressables.LoadAssetAsync<PVELoadData_SO>("PVELoadData_SO").Completed += (handle) =>
+        {
+            var so = handle.Result;
+            dataManager.PVEData_SO = so;
+            pkg.AddProgress();
+        };
+
+        // 等待资源加载完成
+        yield return new WaitUntil(() => pkg.Finish());
+        op.Finish();
+        Debug.Log("加载成功");
+        dataManager.Init();
+    }
+
     public GameObject GetPerfabByType<T>() where T : MonoBehaviour
     {
         Type type = typeof(T);
@@ -89,7 +116,7 @@ public class ResourceManager : MonoBehaviour
     IEnumerator InitDataManager()
     {
         LoadingPackage pkg = new(0);
-        DataManager.DataManagerChanger dataManager = DataManager.GetDataManagerChanger();
+        DataManager.Changer dataManager = DataManager.GetDataManagerChanger();
 
         pkg.AddCount();
         Addressables.LoadAssetAsync<ShipData_SO>("ShipData_SO").Completed += (handle) =>
@@ -102,6 +129,18 @@ public class ResourceManager : MonoBehaviour
                 v.skill_coord = JsonConvert.DeserializeObject<List<Vector2Int>>(v.skill_coord_string);
             });
             dataManager.ShipData = so;
+            pkg.AddProgress();
+        };
+
+        pkg.AddCount();
+        Addressables.LoadAssetAsync<EnemyGroup_SO>("EnemyGroup_SO").Completed += (handle) =>
+        {
+            var so = handle.Result;
+            so.Sheet1.ForEach(v =>
+            {
+                v.enemy_list = JsonConvert.DeserializeObject<List<int>>(v.enemy_list_string);
+            });
+            dataManager.EnemyGroupData = so;
             pkg.AddProgress();
         };
 
@@ -194,7 +233,7 @@ public class ResourceManager : MonoBehaviour
 
         SceneController.instance.AfterSceneLoadAction(() =>
         {
-            UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
+            BGAnimator_TitleScene.GetUIView().Enable();
         });
         SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
     }

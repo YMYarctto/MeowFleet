@@ -4,10 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(GridLayoutGroup))]
-public class GridCellGroup_Formation : UIView
+public class GridCellGroup_Formation : UIView<GridCellGroup_Formation>
 {
-    public override UIView currentView => this;
-
     public static int GridCellID = 0;
 
     Transform trans;

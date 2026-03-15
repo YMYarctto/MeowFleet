@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-public class HoleOverlay : UIView
+public class HoleOverlay : UIView<HoleOverlay>
 {
-    public override UIView currentView => this;
-
     public FXPool<FX_holeWriter> fx_pool;
 
     Transform Reader;

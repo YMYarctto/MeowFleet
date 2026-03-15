@@ -49,6 +49,7 @@ public class PVEController : MonoBehaviour
 
     PVEState currentState;
     public PVEState CurrentState => currentState;
+    public Vector2Int size => DataManager.instance.SaveData.MapSize;
 
     bool onAnim=false;
     public bool PlayerAction => currentState == PVEState.PlayerAttack||currentState==PVEState.PlayerSkill;
@@ -123,11 +124,11 @@ public class PVEController : MonoBehaviour
     {
         gridCellGroup_Player = UIManager.instance.GetUIView<GridCellGroup_Player>();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
-        stage_notice = UIManager.instance.GetUIView<StageNotice_Animator>();
-        skillArea = UIManager.instance.GetUIView<SkillArea>();
-        aim = UIManager.instance.GetUIView<Aim>();
-        information_board = UIManager.instance.GetUIView<InformationBoard>();
-        playerAttackCount = UIManager.instance.GetUIView<PlayerAttackCount>();
+        stage_notice = StageNotice_Animator.GetUIView();
+        skillArea = SkillArea.GetUIView();
+        aim = Aim.GetUIView();
+        information_board = InformationBoard.GetUIView();
+        playerAttackCount = PlayerAttackCount.GetUIView();
         PVE_Notice.NoticeInit();
         foreach (var kv in player_ships_id)
         {
@@ -364,11 +365,11 @@ public class PVEController : MonoBehaviour
         }
         if(GameOver)
         {
-            UIManager.instance.EnableUIView<Interaction>();
+            Interaction.GetUIView().Enable();
             PVE_Notice.Create().ShowNotice_Victory();
             Sequence sequence=DOTween.Sequence();
             sequence.AppendInterval(2f);
-            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Victory());
+            sequence.AppendCallback(()=>SettlePage.GetUIView().Victory());
             return;
         }
         // 减少齐射次数
@@ -520,7 +521,7 @@ public class PVEController : MonoBehaviour
     public void NextRound()
     {
         Round++;
-        UIManager.instance.GetUIView<RoundNotice_Animator>().ChangeRound(Round);
+        RoundNotice_Animator.GetUIView().ChangeRound(Round);
         NextState(1);
         information_board.SetRound(Round);
     }
@@ -555,7 +556,7 @@ public class PVEController : MonoBehaviour
         stage_notice.Close();
         Sequence sequence = DOTween.Sequence();
         sequence.AppendInterval(0.6f);
-        sequence.AppendCallback(()=>UIManager.instance.GetUIView<BG_PVE>().PlayerPage());
+        sequence.AppendCallback(()=>BG_PVE.GetUIView().PlayerPage());
         sequence.AppendInterval(1.25f);
         sequence.AppendCallback(()=>EventManager.instance.Invoke(EventRegistry.PVE.EnemyTurn));
         sequence.Play();
@@ -618,7 +619,7 @@ public class PVEController : MonoBehaviour
 
     // UI
 
-    public void Aim(PVEMap target,Vector2 position)
+    public void AimTo(PVEMap target,Vector2 position)
     {
         if(!init)return;
         if(!PlayerAction||target!=pve_map)
@@ -630,7 +631,7 @@ public class PVEController : MonoBehaviour
         aim.Enable();
     }
 
-    public void Aim(bool enable)
+    public void AimTo(bool enable)
     {
         if(!init)return;
         if(!enable)
@@ -666,7 +667,7 @@ public class PVEController : MonoBehaviour
 
     public void PVEMenu(InputAction.CallbackContext ctx)
     {
-        UIManager.instance.GetUIView<BGAnimator_PVEScene>().SettingEnable();
+        BGAnimator_PVEScene.GetUIView().SettingEnable();
         InputController.instance.LoadBindings();
     }
 

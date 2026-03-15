@@ -5,8 +5,6 @@ using UnityEngine.EventSystems;
 
 public class Button_Exit : BaseButton_TitleScene
 {
-    public override UIView currentView => this;
-
     public override void OnPointerClick(PointerEventData eventData)
     {
 #if UNITY_EDITOR

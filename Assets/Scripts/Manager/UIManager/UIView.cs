@@ -43,3 +43,13 @@ public abstract class UIView : MonoBehaviour
         WaitForAllUIViewAdded?.Invoke();
     }
 }
+
+public abstract class UIView<T> : UIView where T : UIView<T>
+{
+    public override UIView currentView => this;
+
+    public static T GetUIView(int id = 0)
+    {
+        return UIManager.instance.GetUIView<T>(id);
+    }
+}

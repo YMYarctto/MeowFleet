@@ -5,11 +5,9 @@ using UnityEngine.EventSystems;
 
 public class Button_SettingReturn : BaseButton_Setting
 {
-    public override UIView currentView => this;
-
     public override void OnPointerClick(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<BGAnimator_TitleScene>().SettingDisable();
+        BGAnimator_TitleScene.GetUIView().SettingDisable();
         InputController.instance.SaveBindings();
         AudioManager.instance.SaveBindings();
     }

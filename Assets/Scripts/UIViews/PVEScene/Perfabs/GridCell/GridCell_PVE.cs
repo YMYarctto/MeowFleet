@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GridCell_PVE : UIView
+public abstract class GridCell_PVE : UIView<GridCell_PVE>
 {
+    public abstract int MapSizeX { get; }
+
     protected GameObject hit_on;
     protected GameObject hit_null;
     protected GameObject select;
@@ -43,6 +45,6 @@ public abstract class GridCell_PVE : UIView
 
     public Vector2Int GetVector2Int()
     {
-        return new(ID % 10, ID / 10);
+        return new(ID % MapSizeX, ID / MapSizeX);
     }
 }

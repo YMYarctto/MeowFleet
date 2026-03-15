@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShipContainer : UIView
+public class ShipContainer : UIView<ShipContainer>
 {
-    public override UIView currentView => this;
-
     static int ShipID;
     protected int _ID = ShipID;
     public override int ID => _ID;

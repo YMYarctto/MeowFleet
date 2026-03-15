@@ -2,14 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class PlayerAttackCount : UIView
+public class PlayerAttackCount : UIView<PlayerAttackCount>
 {
-    public override UIView currentView => this;
-
     TMP_Text count;
     CanvasGroup image;
 

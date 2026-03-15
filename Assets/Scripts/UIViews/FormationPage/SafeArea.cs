@@ -3,14 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class SafeArea : UIView
+public class SafeArea : UIView<SafeArea>
 {
-    public override UIView currentView => this;
-
     Transform OnDrag;
     bool isDrag => OnDrag.childCount==0;
     List<Transform> containers;

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public abstract class Ship_UIBase : UIView
+public abstract class Ship_UIBase : UIView<Ship_UIBase>
 {
-    public override UIView currentView => this;
-
     static int ShipID;
     protected int _ID = ShipID;
     public override int ID => _ID;

@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Shiphouse : UIView
+public class Shiphouse : UIView<Shiphouse>
 {
     List<ShipContainer> ship_list;
 
@@ -29,8 +29,6 @@ public class Shiphouse : UIView
     Vector2 content_init = new(0,307);
     Vector3 ship_pos = new(50,0,0);
     const float CONTAINER_GAP = 50f;
-
-    public override UIView currentView => this;
 
     public override void Init()
     {

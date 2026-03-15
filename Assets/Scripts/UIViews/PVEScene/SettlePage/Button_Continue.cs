@@ -5,14 +5,12 @@ using UnityEngine.EventSystems;
 
 public class Button_Continue : BaseButton_Setting
 {
-    public override UIView currentView => this;
-
     public override void OnPointerClick(PointerEventData eventData)
     {
         Time.timeScale = 1f;
         SceneController.instance.AfterSceneLoadAction(() =>
         {
-            UIManager.instance.EnableUIView<BGAnimator_TitleScene>();
+            BGAnimator_TitleScene.GetUIView().Enable();
         });
         SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
     }

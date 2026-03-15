@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,8 @@ public class SceneController : MonoBehaviour
     SceneLoader sceneLoader;
     string currentSceneName;
     string targetSceneName;
+
+    Func<bool> waitWhenSceneLoadFinishAction;
 
     private static SceneController _instance;
     public static SceneController instance
@@ -29,7 +32,7 @@ public class SceneController : MonoBehaviour
 
     public void Init()
     {
-        sceneLoader = UIManager.instance.GetUIView<SceneLoader>();
+        sceneLoader = SceneLoader.GetUIView();
         currentSceneName = string.Empty;
     }
 
@@ -46,12 +49,17 @@ public class SceneController : MonoBehaviour
 
     public void AfterSceneLoadAction(UnityAction action)
     {
-        sceneLoader.ActionAfterLoad = action;
+        sceneLoader.ActionAfterLoad += action;
     }
 
     public void AfterSceneUnloadAction(UnityAction action)
     {
-        sceneLoader.ActionAfterUnload = action;
+        sceneLoader.ActionAfterUnload += action;
+    }
+
+    public void WaitWhenSceneLoadFinish(Func<bool> action)
+    {
+        waitWhenSceneLoadFinishAction = action;
     }
 
     IEnumerator EChangeScene()
@@ -81,6 +89,11 @@ public class SceneController : MonoBehaviour
         }
         currentSceneName = targetSceneName;
         yield return new WaitForSeconds(0.5f);
+        if(waitWhenSceneLoadFinishAction != null)
+        {
+            yield return new WaitUntil(waitWhenSceneLoadFinishAction);
+            waitWhenSceneLoadFinishAction = null;
+        }
         sceneLoader.Disable();
     }
 }

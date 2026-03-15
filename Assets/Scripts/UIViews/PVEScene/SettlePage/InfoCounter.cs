@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class InfoCounter : UIView
+public class InfoCounter : UIView<InfoCounter>
 {
     TMP_Text ship_destroy;
     TMP_Text ship_capture;
@@ -20,8 +20,6 @@ public class InfoCounter : UIView
 
     int defense_on=0;
     int defense_total=0;
-
-    public override UIView currentView => this;
 
     public override void Init()
     {

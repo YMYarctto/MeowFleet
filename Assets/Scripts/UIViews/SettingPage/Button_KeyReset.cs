@@ -6,8 +6,6 @@ using UnityEngine.EventSystems;
 
 public class Button_KeyReset : BaseButton_Setting
 {
-    public override UIView currentView => this;
-
     Tween tween;
     Vector3 target = new(1.1f,1.1f,1.1f);
 

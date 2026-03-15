@@ -5,10 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class SceneLoader : UIView
+public class SceneLoader : UIView<SceneLoader>
 {
-    public override UIView currentView => this;
-
     public UnityAction ActionAfterUnload;
     public UnityAction ActionAfterLoad;
 
@@ -49,7 +47,7 @@ public class SceneLoader : UIView
     public void OnOpenFinished()
     {
         base.Disable();
-        UIManager.instance.DisableUIView<InteractionBarrier>();
+        InteractionBarrier.GetUIView().Disable();
         ActionAfterLoad?.Invoke();
         ActionAfterLoad = null;
     }

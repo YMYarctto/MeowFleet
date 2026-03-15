@@ -5,10 +5,9 @@ using UnityEngine.EventSystems;
 
 public class GridCell_Player : GridCell_PVE
 {
-    public override UIView currentView => this;
-
     int _ID = GridCellGroup_Player.GridCellID;
     public override int ID => _ID;
+    public override int MapSizeX => PVEController.instance.size.x;
 
     EventTrigger eventTrigger;
 
@@ -33,24 +32,23 @@ public class GridCell_Player : GridCell_PVE
         entry_pointerExit.eventID = EventTriggerType.PointerExit;
         entry_pointerExit.callback.AddListener((data) => { OnPointerExit((PointerEventData)data); });
         eventTrigger.triggers.Add(entry_pointerExit);
-
     }
 
     private void OnPointerEnter(PointerEventData data)
     {
         PVEController.instance.PlayerSelect(GetVector2Int(),PVEController.PVEMap.Player);
-        PVEController.instance.Aim(PVEController.PVEMap.Player,transform.position);
+        PVEController.instance.AimTo(PVEController.PVEMap.Player,transform.position);
     }
 
     private void OnPointerExit(PointerEventData data)
     {
         PVEController.instance.ClearSelect();
-        PVEController.instance.Aim(false);
+        PVEController.instance.AimTo(false);
     }
 
     private void OnPointerClick(PointerEventData data)
     {
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Player);
-        PVEController.instance.Aim(false);
+        PVEController.instance.AimTo(false);
     }
 }

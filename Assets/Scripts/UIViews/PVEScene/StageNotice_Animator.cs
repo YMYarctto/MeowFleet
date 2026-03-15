@@ -4,10 +4,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StageNotice_Animator : UIView
+public class StageNotice_Animator : UIView<StageNotice_Animator>
 {
-    public override UIView currentView => this;
-
     Transform left;
     Transform right;
     Transform player_skill;

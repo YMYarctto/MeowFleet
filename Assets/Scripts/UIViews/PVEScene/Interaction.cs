@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Interaction : UIView
+public class Interaction : UIView<Interaction>
 {
-    public override UIView currentView => this;
-
     public override void Init()
     {
         base.Disable();

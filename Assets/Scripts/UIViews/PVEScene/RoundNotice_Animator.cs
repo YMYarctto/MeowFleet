@@ -4,10 +4,8 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class RoundNotice_Animator : UIView
+public class RoundNotice_Animator : UIView<RoundNotice_Animator>
 {
-    public override UIView currentView => this;
-
     TMP_Text round;
 
     Sequence sequence;

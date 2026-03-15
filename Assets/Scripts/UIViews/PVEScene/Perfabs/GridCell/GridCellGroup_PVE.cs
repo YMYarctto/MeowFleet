@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GridCellGroup_PVE : UIView
+public abstract class GridCellGroup_PVE : UIView<GridCellGroup_PVE>
 {
     protected Dictionary<int, GridCell_PVE> girdCell_dict;
 

@@ -4,9 +4,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SettlePage : UIView
+public class SettlePage : UIView<SettlePage>
 {
-    public override UIView currentView => this;
     protected override UnityAction WaitForAllUIViewAdded => base.Disable;
 
     Transform bg_victory;

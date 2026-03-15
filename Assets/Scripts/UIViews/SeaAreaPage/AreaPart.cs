@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AreaPart : UIView
+public class AreaPart : UIView<AreaPart>
 {
-    public override UIView currentView => this;
     public override int ID => id;
 
     int id = AreaSelectController.AreaID;

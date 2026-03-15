@@ -6,9 +6,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InformationCard_UI : UIView,IPointerMoveHandler
+public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
 {
-    public override UIView currentView => this;
     public override int ID => _id;
 
     int _id = InformationBoard.CardID;
@@ -31,7 +30,7 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         Transform inner = transform.Find("inner");
         title = inner.Find("title").GetComponent<TMP_Text>();
         content = inner.Find("content").GetComponent<TMP_Text>();
-        title.text = UIManager.instance.GetUIView<InformationBoard>().GetTitle();
+        title.text = InformationBoard.GetUIView().GetTitle();
         var canvas = content.canvas;
         uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
             ? null
@@ -122,17 +121,17 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
     
     public void OnBeginDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<InformationBoard>().OnBeginDrag(eventData);
+        InformationBoard.GetUIView().OnBeginDrag(eventData);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<InformationBoard>().OnEndDrag(eventData);
+        InformationBoard.GetUIView().OnEndDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<InformationBoard>().OnDrag(eventData);
+        InformationBoard.GetUIView().OnDrag(eventData);
     }
 
     public void OnPointerMove(PointerEventData eventData)
@@ -179,7 +178,7 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         TMP_LinkInfo linkInfo = content.textInfo.linkInfo[linkIndex];
         string id = linkInfo.GetLinkID();
         if (id != info_id && currentHoverId != info_id) return;
-        UIManager.instance.GetUIView<HoleOverlay>().ShowOverlay(hole_v3.ToArray());
+        HoleOverlay.GetUIView().ShowOverlay(hole_v3.ToArray());
         Debug.Log($"Hover id = {id}, info_id = {info_id}, {hole_v3.Count}");
 
         for (int i = 0; i < linkInfo.linkTextLength; i++)
@@ -202,18 +201,18 @@ public class InformationCard_UI : UIView,IPointerMoveHandler
         bind_window?.Enable(PVEController.instance.UICamera.WorldToScreenPoint(transform.position)+window_delta);
         if(bind_window!=null)
         {
-            UIManager.instance.GetUIView<BG_PVE>().EnemyPage();
+            BG_PVE.GetUIView().EnemyPage();
         }
         else
         {
-            UIManager.instance.GetUIView<BG_PVE>().PlayerPage();
+            BG_PVE.GetUIView().PlayerPage();
         }
     }
 
     void ResetColor()
     {
         if (lastLinkIndex == -1) return;
-        UIManager.instance.GetUIView<HoleOverlay>().ClearOverlay();
+        HoleOverlay.GetUIView().ClearOverlay();
         content.ForceMeshUpdate();
         lastLinkIndex = -1;
         bind_window?.Disable();

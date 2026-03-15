@@ -137,6 +137,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f33bede4278504a1992eda9bb8ac5252
+    m_Address: EnemyGroup_SO
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fad632f64664042869a1c45dc67f24d1
     m_Address: GridCell_PVE
     m_ReadOnly: 0

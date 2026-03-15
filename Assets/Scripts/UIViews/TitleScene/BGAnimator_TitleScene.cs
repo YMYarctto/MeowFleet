@@ -4,10 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 
-public class BGAnimator_TitleScene : UIView
+public class BGAnimator_TitleScene : UIView<BGAnimator_TitleScene>
 {
-    public override UIView currentView => this;
-
     float bg_1_duration=1f;
     float bg_2_interval=0;
     float bg_2_duration=0.5f;

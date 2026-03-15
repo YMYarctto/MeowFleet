@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public abstract class BaseButton_Default : UIView
+public abstract class BaseButton_Default : UIView<BaseButton_Default>
 {
     protected EventTrigger eventTrigger;
 

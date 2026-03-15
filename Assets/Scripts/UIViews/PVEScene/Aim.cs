@@ -4,10 +4,8 @@ using DG.Tweening;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class Aim : UIView
+public class Aim : UIView<Aim>
 {
-    public override UIView currentView => this;
-
     Image image;
 
     Tween active_tween;

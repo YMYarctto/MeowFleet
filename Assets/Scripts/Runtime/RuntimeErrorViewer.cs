@@ -22,7 +22,7 @@ public class RuntimeErrorViewer : MonoBehaviour
             return;
         }
 
-        UIManager.instance.GetUIView<RuntimeErrorBoeard>().ShowError($"<color={color}>{logString}\n{stackTrace}\n</color>\n");
+        RuntimeErrorBoeard.GetUIView().ShowError($"<color={color}>{logString}\n{stackTrace}\n</color>\n");
     }
 
 }

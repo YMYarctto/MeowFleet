@@ -13,8 +13,8 @@ public class EnemyController : MonoBehaviour
     readonly string CAPTURE = "俘获";
     readonly string SPYON = "侦查";
 
-    public Vector2Int size;
-    public List<int> enemy_ships_id;
+    public Vector2Int size => Vector2Int.one * LoadDataManager.instance.PVELoadData.EnemyMapSize;
+    List<int> enemy_ships_id;
 
     List<int> target_ships_id;
     Queue<Vector2Int> target_list;
@@ -63,6 +63,7 @@ public class EnemyController : MonoBehaviour
         target_list = new();
 
         int ShipID = 20000;
+        enemy_ships_id = LoadDataManager.instance.PVELoadData.EnemyGroupList;
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
             ShipID++;
@@ -90,6 +91,7 @@ public class EnemyController : MonoBehaviour
         MapInit();
 
         AI = new EnemyBehavior();
+        gridCellGroup_Enemy.LateInit();
     }
 
     void Start()
@@ -101,7 +103,7 @@ public class EnemyController : MonoBehaviour
             return new LayoutDATA(ship_data.shape_coord,ship_data.core_number);
         });
 
-        AI.Init(DataManager.instance.SaveData.MapSize, target_ship);
+        AI.Init(PVEController.instance.size, target_ship);
     }
 
     void OnEnable()
@@ -140,9 +142,8 @@ public class EnemyController : MonoBehaviour
                 LayoutDATA layout = new(ship.Layout);
                 for (int i = 0; i < 400; i++)
                 {
-                    System.Random rand = new();
-                    LayoutDATA layout_ran = rand.Next(2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)),layout.CoreNumber);
-                    Vector2Int pos = available_map[rand.Next(available_map.Count)];
+                    LayoutDATA layout_ran = SeedController.instance.Range(0, 2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)),layout.CoreNumber);
+                    Vector2Int pos = available_map[SeedController.instance.Range(0, available_map.Count)];
                     if (CheckLayoutValid(pos, layout_ran))
                     {
                         ship.ForceSetLayout(layout_ran);
@@ -231,7 +232,7 @@ public class EnemyController : MonoBehaviour
             PVE_Notice.Create().ShowNotice_Defeat();
             Sequence sequence=DOTween.Sequence();
             sequence.AppendInterval(2f);
-            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Defeat());
+            sequence.AppendCallback(()=>SettlePage.GetUIView().Defeat());
             return;
         }
     }
@@ -269,7 +270,7 @@ Bomb:
 Torpedo:
         target_coord = AI.CalculatePossibleMap(0.25f);
         Vector2Int _direction = Vector2Int.up;
-        Vector2Int size = DataManager.instance.SaveData.MapSize;
+        Vector2Int size = PVEController.instance.size;
         Vector2Int coord = PVEController.instance.GetEdgeCoord(target_coord, _direction, size);
         List<Vector2Int> range = PVEController.instance.CurrentSkillRange;
         bool vertical = _direction.x == 0;
@@ -339,7 +340,7 @@ Update:
             PVE_Notice.Create().ShowNotice_Defeat();
             Sequence sequence=DOTween.Sequence();
             sequence.AppendInterval(2f);
-            sequence.AppendCallback(()=>UIManager.instance.GetUIView<SettlePage>().Defeat());
+            sequence.AppendCallback(()=>SettlePage.GetUIView().Defeat());
             return;
         }
         messages = PVEController.instance.DealMessage(messages);

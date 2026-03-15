@@ -4,9 +4,8 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class InformationWindow_UI : UIView
+public class InformationWindow_UI : UIView<InformationWindow_UI>
 {
-    public override UIView currentView => this;
     public override int ID => _id;
 
     readonly int _id = EnemyController.InformationWindowID;

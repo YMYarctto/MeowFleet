@@ -4,10 +4,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BGAnimator_PVEScene : UIView
+public class BGAnimator_PVEScene : UIView<BGAnimator_PVEScene>
 {
-    public override UIView currentView => this;
-
     public float bg_setting_duration;
     public float button_duration;
     public float button_interval;

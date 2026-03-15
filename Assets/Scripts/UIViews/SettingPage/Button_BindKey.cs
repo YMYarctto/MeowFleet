@@ -7,8 +7,6 @@ using UnityEngine.InputSystem;
 
 public class Button_BindKey : BaseButton_Setting
 {
-    public override UIView currentView => this;
-
     public override int ID => _id;
 
     public BindKey bindKey;

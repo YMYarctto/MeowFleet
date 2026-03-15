@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillRange_UI : UIView
+public class SkillRange_UI : UIView<SkillRange_UI>
 {
-    public override UIView currentView => this;
-
     int _id = SkillCard_UI.CardID;
     public override int ID => _id;
 

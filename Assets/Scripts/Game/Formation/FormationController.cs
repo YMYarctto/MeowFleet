@@ -50,7 +50,12 @@ public class FormationController : MonoBehaviour
         InputController.instance.SelectActionMap(InputController.InputAction.PVEMap);
         placed_layout = new();
         formation_dict = new();
+        placed_map = new();
         RefreshPlacedMap();
+
+        //Temp
+        EnemyGroup data = DataManager.instance.RandomGetEnemyGroup(1);
+        LoadDataManager.instance.PVELoadData.SetLoadData(data.enemy_list,data.size);
     }
 
     void Start()
@@ -70,7 +75,7 @@ public class FormationController : MonoBehaviour
 
     public void RefreshPlacedMap()
     {
-        placed_map = new();
+        placed_map.Clear();
         foreach (var kv in placed_layout)
         {
             placed_map.AddRange(kv.Value.LayoutInMap(kv.Key));

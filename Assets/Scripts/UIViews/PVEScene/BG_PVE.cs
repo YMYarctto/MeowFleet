@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-public class BG_PVE : UIView
+public class BG_PVE : UIView<BG_PVE>
 {
-    public override UIView currentView => this;
-
     Tween tween;
     bool page_on_enemy;
 

@@ -2,10 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridCell_Formation : UIView
+public class GridCell_Formation : UIView<GridCell_Formation>
 {
-    public override UIView currentView => this;
-
     GameObject allow;
     GameObject forbid;
     Transform raycast;

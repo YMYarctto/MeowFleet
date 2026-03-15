@@ -5,11 +5,9 @@ using UnityEngine.EventSystems;
 
 public class Button_PVEMenu : BaseButton_Setting
 {
-    public override UIView currentView => this;
-
     public override void OnPointerClick(PointerEventData eventData)
     {
-        UIManager.instance.GetUIView<BGAnimator_PVEScene>().SettingEnable();
+        BGAnimator_PVEScene.GetUIView().SettingEnable();
         InputController.instance.LoadBindings();
         AudioManager.instance.LoadBindings();
     }

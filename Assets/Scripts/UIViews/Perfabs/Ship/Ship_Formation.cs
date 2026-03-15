@@ -10,8 +10,6 @@ public class Ship_Formation : Ship_UIBase
     Transform ship_parent=> FormationController.instance.ShipGroupTrans;
     Transform original_parent;
 
-    public override UIView currentView => this;
-
     public Vector2 SizeDelta=>img_rect.sizeDelta;
     
     EventTrigger eventTrigger;
@@ -176,8 +174,8 @@ public class Ship_Formation : Ship_UIBase
         else if(place!=Formation.Place.Shiphouse&&RaycastCompareTag(eventData,"Shiphouse",out GameObject _)) //船舱
         {
             new_place=Formation.Place.Shiphouse;
-            UIManager.instance.GetUIView<Shiphouse>().AddShipUI(this);
-            original_parent = UIManager.instance.GetUIView<ShipContainer>(_ID).transform;
+            Shiphouse.GetUIView().AddShipUI(this);
+            original_parent = ShipContainer.GetUIView(_ID).transform;
             ship.ResetLayout();
             MoveAnimation(Vector2.zero, Vector3.zero,original_parent);
         }
@@ -199,7 +197,7 @@ public class Ship_Formation : Ship_UIBase
         //Shiphouse Update
         if(place==Formation.Place.Shiphouse&&new_place!=Formation.Place.Shiphouse&&UIManager.instance.TryGetUIView(_ID,out ShipContainer ship_container))
         {
-            UIManager.instance.GetUIView<Shiphouse>().DecreaseShipUi(ship_container);
+            Shiphouse.GetUIView().DecreaseShipUi(ship_container);
         }
 
         //Save
@@ -213,7 +211,7 @@ public class Ship_Formation : Ship_UIBase
         //Count
         if(place==Formation.Place.SafeArea^new_place==Formation.Place.SafeArea)
         {
-            UIManager.instance.GetUIView<SafeArea>().UpdateCount();
+            SafeArea.GetUIView().UpdateCount();
         }
 
         //UI
