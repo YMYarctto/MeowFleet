@@ -21,6 +21,7 @@ public class PVEController : MonoBehaviour
     readonly string CAPTURE = "俘获";
 
     public Camera UICamera;
+    public Canvas UICanvas;
 
     Dictionary<Vector2Int,int> player_ships_id;
     Dictionary<Vector2Int,Ship> player_ships;
@@ -90,6 +91,7 @@ public class PVEController : MonoBehaviour
 
         UICamera = GameObject.Find("UICamera").GetComponent<Camera>();
         UI_Notice = GameObject.Find("UI_Notice").transform;
+        UICanvas = GameObject.Find("PVEPage").GetComponent<Canvas>();
 
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         player_ships = player_ships_id.ToDictionary(kv => kv.Key, kv => ShipManager.instance.GetShip(kv.Value));

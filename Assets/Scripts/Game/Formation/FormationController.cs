@@ -19,6 +19,7 @@ public class FormationController : MonoBehaviour
     public Transform DragGroupTrans{ get; private set; }
     public Transform ShipGroupTrans{ get; private set; }
     public Transform RaycastGroup{ get; private set; }
+    public bool EmptyMap => placed_layout.Count == 0;
 
     private static FormationController _instance;
     public static FormationController instance

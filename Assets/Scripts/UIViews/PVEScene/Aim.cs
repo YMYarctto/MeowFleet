@@ -12,14 +12,9 @@ public class Aim : UIView<Aim>
     Tween move_tween;
     bool active;
 
-    RectTransform rect;
-    Canvas canvas;
-
     public override void Init()
     {
-        rect = GetComponent<RectTransform>();
         image = GetComponent<Image>();
-        canvas = GameObject.Find("PVEPage").GetComponent<Canvas>();
         image.color = new Color(1, 1, 1, 0);
         active = false;
     }

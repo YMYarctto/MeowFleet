@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class SkillCard_UI : UIView<SkillCard_UI>
@@ -14,10 +15,8 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     Skill skill;
     public List<Vector2Int> SkillRange => skill.SkillRange;
 
-    private float intensity = 6f;
-    private Vector2 duration_range = new(0.1f, 0.25f);
+    private float intensity = 5f;
 
-    bool waveLock = false;
     bool pointerLock = false;
 
     bool is_select = false;
@@ -34,11 +33,13 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     EventTrigger eventTrigger;
 
     Vector3 this_initPos;
+    RectTransform rect;
 
     public override void Init()
     {
         card_trans = transform.Find("bg");
         shadow = card_trans.Find("mask").Find("shadow_2");
+        rect = GetComponent<RectTransform>();
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
 
@@ -73,8 +74,6 @@ public class SkillCard_UI : UIView<SkillCard_UI>
         eventTrigger.triggers.Add(entry_pointerEnter);
         eventTrigger.triggers.Add(entry_pointerExit);
         eventTrigger.triggers.Add(entry_pointerClick);
-
-        Wave();
     }
 
     public void Init(Ship ship)
@@ -99,18 +98,9 @@ public class SkillCard_UI : UIView<SkillCard_UI>
             return;
         }
         shadow.rotation = Quaternion.Euler(Vector3.zero);
-        if(MouseListener.Distance(transform.position+new Vector3(200,0,0))<400)
+        if(pointerLock)
         {
-            if(!waveLock&&!pointerLock)
-            {
-                waveLock = true;
-                float value = Mathf.Clamp(MouseListener.DistanceY(transform.position), -1, 1);
-                Wave(value*MouseListener.MouseSpeed);
-            }
-        }
-        else
-        {
-            waveLock = false;
+            Wave();
         }
     }
 
@@ -128,24 +118,31 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     private void Wave()
     {
-        float targetAngle = Random.Range(-intensity, intensity);
-        float duration = Random.Range(duration_range.x, duration_range.y);
+        Vector2 mousePos = MouseListener.MousePosition;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        PVEController.instance.UICanvas.transform as RectTransform,
+        mousePos,
+        PVEController.instance.UICanvas.worldCamera,
+        out mousePos
+        );
+
+        Vector2 dir = mousePos - rect.anchoredPosition;
+
+        float angle = 128f-Vector2.SignedAngle(Vector2.right, dir);
+        Debug.Log(angle);
+
+        // 限制旋转角度
+        angle = Mathf.Clamp(angle, -intensity, intensity);
 
         waveTween?.Kill();
-
-        waveTween = card_trans.DOLocalRotate(new Vector3(0, 0, targetAngle), duration).SetEase(Ease.OutQuad);
+        waveTween = card_trans.DOLocalRotateQuaternion(Quaternion.Euler(0, 0, angle), 0.15f).SetEase(Ease.OutQuad);
     }
-    
-    private void Wave(float range)
+
+    private void ReWave()
     {
-        float new_internsity = Mathf.Clamp(range,-intensity,intensity);
-        Vector2 v2 = new_internsity > 0 ? new Vector2(0, new_internsity) : new Vector2(new_internsity, 0);
-        float targetAngle = Random.Range(v2.x, v2.y);
-        float duration = Random.Range(duration_range.x, duration_range.y);
-
         waveTween?.Kill();
-
-        waveTween = card_trans.DOLocalRotate(new Vector3(0, 0, targetAngle), duration).SetEase(Ease.OutQuad);
+        waveTween = card_trans.DOLocalRotate(Vector2.zero, 0.15f).SetEase(Ease.OutQuad);
     }
 
     public void MoveUp_Animation(float value,float delay=0)
@@ -161,10 +158,13 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     private void OnPointerEnter(PointerEventData eventData)
     {
+        if(is_select)
+        {
+            return;
+        }
         pointerLock=true;
 
-        waveTween?.Kill();
-        waveTween = card_trans.DOLocalRotate(Vector3.zero, 0.15f).SetEase(Ease.OutQuad);
+        Wave();
     }
 
     private void OnPointerExit(PointerEventData eventData)
@@ -185,9 +185,11 @@ public class SkillCard_UI : UIView<SkillCard_UI>
             return;
         }
         is_select = true;
+        pointerLock = false;
 
         clickTween?.Kill();
         clickTween = card_trans.DOScale(new Vector3(1.1f,1.1f,1.1f),0.1f).SetEase(Ease.OutQuad);
+        ReWave();
 
         SkillArea.GetUIView().SelectSkillCard(this);
         skill.OnSelect();
@@ -216,6 +218,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     private void DoPointerExit()
     {
         pointerLock=false;
+        ReWave();
     }
 
     public void OnBeginDrag(PointerEventData eventData)

@@ -7,7 +7,11 @@ public class Button_ToPVEScene : BaseButton_Setting
 {
     public override void OnPointerClick(PointerEventData eventData)
     {
-        SceneController.instance.AfterSceneLoadAction(()=>PVEController.instance.Init());
-        SceneController.instance.ChangeScene(SceneRegistry.PVEScene);
+        if(FormationController.instance.EmptyMap)
+        {
+            Pop_up.GetUIView().Show("未放置舰船");
+            return;
+        }
+        Game.ToPVE();
     }
 }
