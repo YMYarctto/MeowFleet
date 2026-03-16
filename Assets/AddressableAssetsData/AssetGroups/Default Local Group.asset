@@ -122,6 +122,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d6ce976f8a4c345c3ba0308a2b0b985b
+    m_Address: PVELoadData_SO
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: df1a258633ba24979879e3a5765aa383
     m_Address: torpedo#4_A0
     m_ReadOnly: 0

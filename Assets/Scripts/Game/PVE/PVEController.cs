@@ -619,7 +619,7 @@ public class PVEController : MonoBehaviour
 
     // UI
 
-    public void AimTo(PVEMap target,Vector2 position)
+    public void AimTo(PVEMap target,Vector3 position)
     {
         if(!init)return;
         if(!PlayerAction||target!=pve_map)

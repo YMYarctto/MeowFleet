@@ -15,7 +15,7 @@ public abstract class Skill
     public PVEController.PVEMap TargetMap =>on_enemy_map?PVEController.PVEMap.Enemy:PVEController.PVEMap.Player;
     public Vector2Int Direction => _direction;
 
-    public bool CanSkill=>ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage||!ship.Buff.Interferenced_core;
+    public bool CanSkill=>(ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage)&&!ship.Buff.Interferenced_core;
 
     abstract public int Order { get; }
 

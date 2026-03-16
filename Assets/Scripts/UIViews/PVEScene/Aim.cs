@@ -12,11 +12,30 @@ public class Aim : UIView<Aim>
     Tween move_tween;
     bool active;
 
+    RectTransform rect;
+    Canvas canvas;
+
     public override void Init()
     {
+        rect = GetComponent<RectTransform>();
         image = GetComponent<Image>();
+        canvas = GameObject.Find("PVEPage").GetComponent<Canvas>();
         image.color = new Color(1, 1, 1, 0);
         active = false;
+    }
+
+    public void MoveTo(Vector3 position)
+    {
+        move_tween?.Kill();
+
+        if (!active)
+        {
+            transform.position = position;
+        }
+        else
+        {
+            move_tween = transform.DOMove(position,0.15f).SetEase(Ease.OutQuad);
+        }
     }
 
     public override void Enable()
@@ -33,16 +52,4 @@ public class Aim : UIView<Aim>
         active_tween = image.DOFade(0,0.2f).SetEase(Ease.OutQuad).OnComplete(()=> active = false);
     }
 
-    public void MoveTo(Vector2 position)
-    {
-        move_tween?.Kill();
-        if(!active)
-        {
-            transform.position = position;
-        }
-        else
-        {
-            move_tween = transform.DOMove(position,0.15f).SetEase(Ease.OutQuad);
-        }
-    }
 }

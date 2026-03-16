@@ -20,12 +20,14 @@ public class EnemyMap : UIView<EnemyMap>
 
     public void SetMap(int size)
     {
-        GridCellGroup.GetComponent<RectTransform>().sizeDelta = Vector2.one * CELLPX * size;
+        RectTransform GridRect = GridCellGroup.GetComponent<RectTransform>();
         RectTransform SVGRect = SVGImage.GetComponent<RectTransform>();
+        GridRect.sizeDelta = Vector2.one * CELLPX * size;
         SVGRect.sizeDelta = Vector2.one * CELLPX * size + SVGOFFSET;
         if (size % 2 != 0)
         {
             SVGRect.anchoredPosition += Vector2.one * CELLPX / 2;
+            GridRect.anchoredPosition += Vector2.one * CELLPX / 2;
         }
     }
 }

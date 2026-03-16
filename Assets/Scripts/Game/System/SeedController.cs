@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class SeedController : MonoBehaviour
 {
-    public int Seed => seed;
-    private int seed;
+    public long Seed => seed;
+    private long seed;
 
     private System.Random random;
 
@@ -30,16 +30,17 @@ public class SeedController : MonoBehaviour
 
     public void InitSeed()
     {
-        long ticks = DateTime.Now.Ticks;
+        seed = DateTime.Now.Ticks;
 
-        seed = (int)(ticks ^ (ticks >> 32));
-        ApplySeed(seed);
+        int ran = (int)(seed ^ (seed >> 32));
+        ApplySeed(ran);
     }
 
-    public void SetSeed(int newSeed)
+    public void SetSeed(long newSeed)
     {
         seed = newSeed;
-        ApplySeed(seed);
+        int ran = (int)(seed ^ (seed >> 32));
+        ApplySeed(ran);
     }
 
     void ApplySeed(int s)
