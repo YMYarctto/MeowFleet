@@ -1,0 +1,61 @@
+name: Feishu Notify
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Feishu
+        env:
+          WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMITS: ${{ toJson(github.event.commits) }}
+        run: |
+
+          TIME=$(date '+%Y-%m-%d %H:%M:%S')
+
+          COMMIT_LIST=$(echo "$COMMITS" | jq -r '
+            .[0:5][] |
+            "- [" + (.message | split("\n")[0]) + "](" + .url + ")"
+          ')
+
+          CONTENT="**仓库:** $REPO
+            **分支:** $BRANCH
+            **作者:** $ACTOR
+            **时间:** $TIME
+
+            **Commits:**
+            $COMMIT_LIST"
+
+            jq -n \
+              --arg text "$CONTENT" \
+              '{
+                msg_type: "interactive",
+                card: {
+                  header: {
+                    title: {
+                      tag: "plain_text",
+                      content: "🚀 github Push"
+                    }
+                  },
+                  elements: [
+                    {
+                      tag: "div",
+                      text: {
+                        tag: "lark_md",
+                        content: $text
+                      }
+                    }
+                  ]
+                }
+              }' > body.json
+
+          curl -X POST "$WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d @body.json
