@@ -30,7 +30,7 @@ Shader "UI/FX_holeRead"
 
         Stencil
         {
-            Ref 1
+            Ref 16
             Comp NotEqual
             Pass Keep
         }

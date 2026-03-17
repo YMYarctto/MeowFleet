@@ -28,7 +28,7 @@ Shader "UI/FX_holeWrite"
         }
         Stencil
         {
-            Ref 1
+            Ref 16
             Comp Always
             Pass Replace
         }

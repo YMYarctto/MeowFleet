@@ -129,7 +129,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
         Vector2 dir = mousePos - rect.anchoredPosition;
 
-        float angle = 128f-Vector2.SignedAngle(Vector2.right, dir);
+        float angle = 129f-Vector2.SignedAngle(Vector2.right, dir);
         Debug.Log(angle);
 
         // 限制旋转角度
