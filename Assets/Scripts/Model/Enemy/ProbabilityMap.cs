@@ -87,13 +87,27 @@ public class ProbabilityMap
     public Vector2Int GetHighProbabilityCoord(float per=0.5f)
     {
         // 按概率排序
-        List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().OrderByDescending(kv => kv.Value).ToList();
+        List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().Where(kv=>kv.Value>0).OrderByDescending(kv => kv.Value).ToList();
         int takeCount = Mathf.Max(1, (int)(probability_map_list.Count * per));
         List<Vector2Int> max_map = probability_map_list.Take(takeCount).Select(kv=>kv.Key).ToList();
 
         // 随机选择一个最大概率点进行攻击
         Vector2Int target = max_map[SeedController.instance.Range(0, max_map.Count)];
         return target;
+    }
+
+    public int GetHighProbabilityRowWithout(List<int> without_row)
+    {
+        // 按概率排序
+        List<KeyValuePair<int, int>> probability_map_list = probability_map.ToList().GroupBy(kv => kv.Key.x).Select(g => new KeyValuePair<int,int>(g.Key,g.Sum(kv => kv.Value))).OrderByDescending(kv => kv.Value).ToList();
+        foreach(var kv in probability_map_list)
+        {
+            if(!without_row.Contains(kv.Key))
+            {
+                return kv.Key;
+            }
+        }
+        return 0;
     }
 
     public LayoutDATA GetHighProbabilityRange(Vector2Int target,LayoutDATA layout)

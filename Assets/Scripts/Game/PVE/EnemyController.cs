@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -37,6 +36,8 @@ public class EnemyController : MonoBehaviour
     public static int InformationWindowID;
     public int EnemyShootCount => layout_map.AttackCount;
 
+    List<int> torpedo_hit;
+
     private static EnemyController _instance;
     public static EnemyController instance
     {
@@ -61,6 +62,7 @@ public class EnemyController : MonoBehaviour
         enemy_skill = new();
         gridCellGroup_Enemy = UIManager.instance.GetUIView<GridCellGroup_Enemy>();
         target_list = new();
+        torpedo_hit = new();
 
         int ShipID = 20000;
         enemy_ships_id = LoadDataManager.instance.PVELoadData.EnemyGroupList;
@@ -127,45 +129,49 @@ public class EnemyController : MonoBehaviour
         layout_map = new();
 
         // 随机放置舰船
-        Task task = Task.Run(() =>
+        for (int x = 0; x < size.x; x++)
         {
-            for (int x = 0; x < size.x; x++)
+            for (int y = 0; y < size.y; y++)
             {
-                for (int y = 0; y < size.y; y++)
-                {
-                    available_map.Add(new Vector2Int(x, y));
-                }
+                available_map.Add(new Vector2Int(x, y));
             }
+        }
 
-            foreach (var ship in enemy_ship.Values)
+        Tools.Shuffle(available_map,SeedController.instance.Random);
+        for (int i=0,j=0;i<enemy_ship.Values.Count;i++)
+        {
+            Ship ship = enemy_ship.Values.ElementAt(i);
+            LayoutDATA layout = new(ship.Layout);
+            for (int e=0; j < available_map.Count; j++,e++)
             {
-                LayoutDATA layout = new(ship.Layout);
-                for (int i = 0; i < 400; i++)
+                List<LayoutDATA> layouts = layout.AllLayout();
+                LayoutDATA layout_ran = layouts[SeedController.instance.Range(0, layouts.Count)];
+                Vector2Int pos = available_map[j];
+                if (i == enemy_ship.Values.Count - 1)
                 {
-                    LayoutDATA layout_ran = SeedController.instance.Range(0, 2) == 0 ? layout : new(layout.ToList.ConvertAll(coord => new Vector2Int(coord.y, coord.x)),layout.CoreNumber);
-                    Vector2Int pos = available_map[SeedController.instance.Range(0, available_map.Count)];
-                    if (CheckLayoutValid(pos, layout_ran))
+                    available_map.Add(pos);
+                }
+                if (CheckLayoutValid(pos, layout_ran))
+                {
+                    ship.ForceSetLayout(layout_ran);
+                    layout_map.AddShip(ship.ShipId,pos, ship);
+                    foreach (var coord in layout_ran.ToList)
                     {
-                        ship.ForceSetLayout(layout_ran);
-                        layout_map.AddShip(ship.ShipId,pos, ship);
-                        foreach (var coord in layout_ran.ToList)
-                        {
-                            available_map.Remove(pos + coord);
-                        }
-                        foreach(var coord in layout_ran.GetAdjacentCellsInMap(pos))
-                        {
-                            available_map.Remove(coord);
-                        }
-                        break;
+                        available_map.Remove(pos + coord);
                     }
-                    if (i == 399)
+                    foreach(var coord in layout_ran.GetAdjacentCellsInMap(pos))
                     {
-                        Debug.LogError("无法在地图中放置所有目标舰船");
+                        available_map.Remove(coord);
                     }
+                    break;
+                }
+                if (e > 1000)
+                {
+                    Debug.LogError("无法在地图中放置所有目标舰船");
+                    break;
                 }
             }
-        });
-        task.Wait();
+        }
     }
 
     public void EnemyTurn()
@@ -214,13 +220,13 @@ public class EnemyController : MonoBehaviour
         ActionMessage message = PVEController.instance.EnemyAttack(target_coord);
         PVEController.instance.DisposeMessage(message);
         Debug.Log(message);
-        if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
+        if (message.Contains(ActionMessage.ActionResult.Destroyed))
         {
-            AI.UpdatePossibleMapAfterHit(target_coord, message.HitShips);
+            AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
         }
-        else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+        else
         {
-            AI.UpdatePossibleMapAfterDestroy(target_coord, message.DestroyedShips);
+            AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
         }
         MessageToInfo(message);
 
@@ -268,7 +274,7 @@ Bomb:
         messages = PVEController.instance.EnemyAttack(target_coord,skill_range);
         goto Update;
 Torpedo:
-        target_coord = AI.CalculatePossibleMap(0.25f);
+        target_coord = new(AI.CalculatePossibleMapWithoutRow(torpedo_hit),0);
         Vector2Int _direction = Vector2Int.up;
         Vector2Int size = PVEController.instance.size;
         Vector2Int coord = PVEController.instance.GetEdgeCoord(target_coord, _direction, size);
@@ -280,13 +286,13 @@ Torpedo:
             if(hit)break;
             PVEController.instance.EnemyAttack(coord);
             AI.Remove(coord);
-            AI.UpdatePossibleMapAfterHit(target_coord, new KeyValuePair<int, LayoutDATA>(-1,new LayoutDATA(range,0)));
+            AI.UpdatePossibleMapAfterHit(coord, new KeyValuePair<int, LayoutDATA>(-1,new LayoutDATA(range,0)));
             coord += _direction;
         }
         messages = PVEController.instance.EnemyAttack(coord,skill.SkillRange);
         goto Update;
 Radar:
-        target_coord = AI.CalculatePossibleMap(0.5f);
+        target_coord = AI.CalculateHuntMap(0.5f);
         goto Checkout;
 Interference:
         target_coord = GetTarget(0.5f);
@@ -324,13 +330,13 @@ Checkout:
 Update:
         foreach(var message in messages)
         {
-            if (message.Contains(ActionMessage.ActionResult.Miss) || message.Contains(ActionMessage.ActionResult.Hit))
-            {
-                AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
-            }
-            else if (message.Contains(ActionMessage.ActionResult.Destroyed))
+            if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
                 AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
+            }
+            else
+            {
+                AI.UpdatePossibleMapAfterHit(message.Target, message.HitShips);
             }
             AI.Remove(message.Target);
         }

@@ -6,6 +6,7 @@ public class SeedController : MonoBehaviour
     public long Seed => seed;
     private long seed;
 
+    public System.Random Random => random;
     private System.Random random;
 
     private static SeedController _instance;

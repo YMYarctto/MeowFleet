@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 // 敌人行为算法
 public class EnemyBehavior
 {
-    int current_target_index = -1;
+    int current_target_index=-1;
 
     // 攻击地图
     List<Vector2Int> hit_map;
@@ -14,7 +12,7 @@ public class EnemyBehavior
     // 概率密度图
     // -1 => hunt
     Dictionary<int, ProbabilityMap> map_dict;
-    ProbabilityMap hunt_map{get => map_dict[-1];}
+    ProbabilityMap hunt_map => map_dict[-1];
 
     // 初始化
     public void Init(Vector2Int size, List<LayoutDATA> target_ship)
@@ -22,158 +20,140 @@ public class EnemyBehavior
         hit_map = new();
         map_dict = new();
         map_dict[-1] = new ProbabilityMap();
-        Task task = Task.Run(() =>
+        // 初始化攻击地图
+        for (int x = 0; x < size.x; x++)
         {
-            // 初始化攻击地图
-            for (int x = 0; x < size.x; x++)
+            for (int y = 0; y < size.y; y++)
             {
-                for (int y = 0; y < size.y; y++)
-                {
-                    hit_map.Add(new Vector2Int(x, y));
-                }
+                hit_map.Add(new Vector2Int(x, y));
             }
+        }
 
-            // 初始化概率密度图和有效布局
-            List<LayoutDATA> target_ship_total = new();
-            foreach(var target in target_ship)
+        // 初始化概率密度图和有效布局
+        List<LayoutDATA> target_ship_total = new();
+        foreach(var target in target_ship)
+        {
+            foreach(var layout in target.AllLayout())
             {
-                foreach(var layout in target.AllLayout())
+                target_ship_total.Add(layout);
+                foreach (Vector2Int coord in hit_map)
                 {
-                    target_ship_total.Add(layout);
-                    foreach (Vector2Int coord in hit_map)
+                    if (CheckLayoutValid(coord, layout))
                     {
-                        if (CheckLayoutValid(coord, layout))
-                        {
-                            hunt_map.AddProbability(coord, layout);
-                        }
+                        hunt_map.AddProbability(coord, layout);
                     }
                 }
             }
-        });
-        task.Wait();
+        }
+    }
+
+    public Vector2Int CalculateHuntMap(float per=0.5f)
+    {
+        return hunt_map.GetHighProbabilityCoord(per);
     }
     
     public Vector2Int CalculatePossibleMap(float per=0.5f)
     {
         // 选择概率密度图
         ProbabilityMap map = map_dict[current_target_index];
+        return map.GetHighProbabilityCoord(per);
+    }
 
-        Task<Vector2Int> task = Task.Run(() =>
-        {
-            return map.GetHighProbabilityCoord(per);
-        });
-        
-        return task.Result;
+    public int CalculatePossibleMapWithoutRow(List<int> without_row)
+    {
+        // 选择概率密度图
+        ProbabilityMap map = map_dict[current_target_index];
+        return map.GetHighProbabilityRowWithout(without_row);
     }
 
     public List<Vector2Int> CalculateSkillRange(Vector2Int target,LayoutDATA range)
     {
         ProbabilityMap map = map_dict[current_target_index];
-
-        Task<LayoutDATA> task = Task.Run(() =>
-        {
-            return map.GetHighProbabilityRange(target,range);
-        });
-
-        return task.Result.ToList;
+        return map.GetHighProbabilityRange(target,range).ToList;
     }
 
     public void UpdatePossibleMapAfterHit(Vector2Int target, KeyValuePair<int, LayoutDATA> hit_ship)
     {
-        Task task = Task.Run(() =>
+        var layout = hit_ship.Value;
+        if(hit_ship.Key>=0)
         {
-            var layout = hit_ship.Value;
-            if(hit_ship.Key>=0)
+            current_target_index = hit_ship.Key;
+            if (map_dict.TryAdd(current_target_index, new ProbabilityMap(layout)))
             {
+                // 新建概率布局
                 current_target_index = hit_ship.Key;
-                if (map_dict.TryAdd(current_target_index, new ProbabilityMap(layout)))
+                foreach (var coord in hit_map)
                 {
-                    // 新建概率布局
-                    current_target_index = hit_ship.Key;
-                    foreach (var coord in hit_map)
+                    foreach(var _layout in layout.AllLayout())
+                    if (CheckLayoutPassBy(coord, _layout, target) && CheckLayoutValid(coord, _layout))
                     {
-                        foreach(var _layout in layout.AllLayout())
-                        if (CheckLayoutPassBy(coord, _layout, target) && CheckLayoutValid(coord, _layout))
-                        {
-                            map_dict[current_target_index].AddProbability(coord, _layout);
-                        }
+                        map_dict[current_target_index].AddProbability(coord, _layout);
                     }
                 }
-                else
-                {
-                    // 更新概率布局
-                    map_dict[current_target_index].DeleteProbabilityWithout(target);
-                }
             }
-            foreach (var map_kv in map_dict)
+        }
+        foreach (var map_kv in map_dict)
+        {
+            if(map_kv.Value == null)
             {
-                if (map_kv.Key != hit_ship.Key || map_kv.Key < 0)
-                {
-                    // 未击中部分
-                    // 删除该点位的概率布局
-                    map_dict[map_kv.Key].DeleteProbability(target);
-                }
-                else
-                {
-                    // 击中部分
-                    map_dict[current_target_index].DeleteProbabilityWithout(target);
-                }
-                map_dict[map_kv.Key].RemoveProbability(target);
+                continue;
             }
-        });
-
-        task.Wait();
+            if (map_kv.Key != hit_ship.Key || map_kv.Key < 0)
+            {
+                // 未击中部分
+                // 删除该点位的概率布局
+                map_dict[map_kv.Key].DeleteProbability(target);
+            }
+            else
+            {
+                // 击中部分
+                map_dict[current_target_index].DeleteProbabilityWithout(target);
+            }
+            map_dict[map_kv.Key].RemoveProbability(target);
+        }
     }
 
     public void UpdatePossibleMapAfterDestroy(Vector2Int target,KeyValuePair<int, LayoutDATA> destroy_ship)
     {
-        Task task = Task.Run(() =>
+        if (destroy_ship.Key>=0)
         {
-            if (destroy_ship.Key>=0)
+            var kv = destroy_ship;
+            if (map_dict.TryGetValue(kv.Key, out var map) && map != null)
             {
-                var kv = destroy_ship;
-                if (map_dict.TryGetValue(kv.Key, out var map) && map != null)
+                map_dict[kv.Key] = null;
+
+                var layout = kv.Value;
+                foreach (var center in hit_map)
                 {
-                    map = null;
-
-                    var layout = kv.Value;
-                    foreach (var center in hit_map)
+                    if (CheckLayoutValid(center, layout))
                     {
-                        if (CheckLayoutValid(center, layout))
-                        {
-                            hunt_map.DeleteProbabilityEach(center, layout);
-                        }
+                        hunt_map.DeleteProbabilityEach(center, layout);
                     }
-                    foreach(var _map in map_dict.Values)
+                }
+                foreach(var _map in map_dict.Values)
+                {
+                    if (_map == null)
                     {
-                        if (_map == null)
-                        {
-                            continue;
-                        }
-                        foreach(var coord in layout.GetAdjacentCellsInMap(target))
-                        {
-                            _map.DeleteProbability(coord);
-                        }
+                        continue;
                     }
-
-                    // 更新目标
-                    if (!map_dict.All(kv =>
+                    foreach(var coord in layout.GetAdjacentCellsInMap(target))
                     {
-                        bool exist = kv.Key >= 0 && kv.Value != null;
-                        if (exist)
-                        {
-                            current_target_index = kv.Key;
-                        }
-                        return exist;
-                    }))
-                    {
-                        current_target_index = -1;
+                        _map.DeleteProbability(coord);
                     }
                 }
             }
-        });
-
-        task.Wait();
+            // 更新目标
+            current_target_index = -1;
+            foreach (var target_kv in map_dict)
+            {
+                if (target_kv.Key>=0 && target_kv.Value != null)
+                {
+                    current_target_index = target_kv.Key;
+                    break;
+                }
+            }
+            Debug.Log("New Target Index: " + current_target_index);
+        }
     }
 
     public void Remove(Vector2Int target)

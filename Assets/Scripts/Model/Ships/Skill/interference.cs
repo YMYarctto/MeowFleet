@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class interference : Skill
 {
-    public override int Order => 2;
+    public override int Order => 999;
 
     public override void OnSkillInvoke(Vector2Int target)
     {

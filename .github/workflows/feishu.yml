@@ -27,7 +27,7 @@ jobs:
 
           CONTENT="**仓库:** $REPO
             **分支:** $BRANCH
-            **作者:** $ACTOR
+            **创建者:** $ACTOR
             **时间:** $TIME
 
             **Commits:**
