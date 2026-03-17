@@ -143,13 +143,13 @@ public class PVEController : MonoBehaviour
 
         information_board.SetRound(Round);
         information_board.SetStage(currentState);
+        InputController.InputAction.System.ESC.started += PVEMenu;
     }
 
     void OnEnable()
     {
         InputController.InputAction.PVEMap.Rotate.started += Rotate;
         InputController.InputAction.PVEMap.NextState.started += NextState;
-        InputController.InputAction.System.ESC.started += PVEMenu;
     }
 
     void OnDisable()

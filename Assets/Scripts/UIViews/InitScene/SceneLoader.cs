@@ -34,14 +34,14 @@ public class SceneLoader : UIView<SceneLoader>
     {
         DOTween.To(() => color.a, x => color.a=x, 0f, 0.5f).SetEase(Ease.OutQuad).OnUpdate(()=>{
             image.color = color;
-        }).OnComplete(OnOpenFinished);
+        }).OnComplete(OnOpenFinished).SetUpdate(true);
     }
 
     void Close()
     {
         DOTween.To(() => color.a, x => color.a=x, 1f, 0.5f).SetEase(Ease.InQuad).OnUpdate(()=>{
             image.color = color;
-        }).OnComplete(OnCloseFinished);
+        }).OnComplete(OnCloseFinished).SetUpdate(true);
     }
 
     public void OnOpenFinished()

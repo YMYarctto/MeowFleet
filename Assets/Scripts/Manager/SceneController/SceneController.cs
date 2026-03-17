@@ -88,7 +88,7 @@ public class SceneController : MonoBehaviour
             yield return null;
         }
         currentSceneName = targetSceneName;
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
         if(waitWhenSceneLoadFinishAction != null)
         {
             yield return new WaitUntil(waitWhenSceneLoadFinishAction);

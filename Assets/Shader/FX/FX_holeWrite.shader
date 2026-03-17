@@ -31,6 +31,7 @@ Shader "UI/FX_holeWrite"
             Ref 16
             Comp Always
             Pass Replace
+            WriteMask 16
         }
         ColorMask 0
 

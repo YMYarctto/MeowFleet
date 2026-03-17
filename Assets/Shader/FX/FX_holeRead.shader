@@ -33,6 +33,7 @@ Shader "UI/FX_holeRead"
             Ref 16
             Comp NotEqual
             Pass Keep
+            ReadMask 16
         }
 
         Pass
