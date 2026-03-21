@@ -8,8 +8,8 @@ using UnityEngine.UI;
 
 public class SkillCard_UI : UIView<SkillCard_UI>
 {
-    public static int CardID;
-    int _id = CardID;
+    static int pendingID;
+    int _id = pendingID;
     public override int ID => _id;
 
     Skill skill;
@@ -34,6 +34,11 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     Vector3 this_initPos;
     RectTransform rect;
+
+    public static void PrepareNextID(int id)
+    {
+        pendingID = id;
+    }
 
     public override void Init()
     {
@@ -238,7 +243,8 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     public static GameObject Create(int id,Transform parent)
     {
-        CardID = id;
+        PrepareNextID(id);
+        SkillRange_UI.PrepareNextID(id);
         var obj = Instantiate(ResourceManager.instance.GetPerfabByType<SkillCard_UI>(),parent,false);
         obj.AddComponent<SkillCard_UI>();
         return obj;

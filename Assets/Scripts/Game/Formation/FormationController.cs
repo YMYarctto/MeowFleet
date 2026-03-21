@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class FormationController : MonoBehaviour
+public class FormationController : Manager<FormationController>
 {
     public Vector2Int MapSize;
 
@@ -20,24 +20,6 @@ public class FormationController : MonoBehaviour
     public Transform ShipGroupTrans{ get; private set; }
     public Transform RaycastGroup{ get; private set; }
     public bool EmptyMap => placed_layout.Count == 0;
-
-    private static FormationController _instance;
-    public static FormationController instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                _instance = FindObjectOfType(typeof(FormationController)) as FormationController;
-                if (!_instance)
-                {
-                    Debug.LogError("场景中未找到 FormationController");
-                    return null;
-                }
-            }
-            return _instance;
-        }
-    }
 
     void Awake()
     {

@@ -7,11 +7,21 @@ using UnityEngine.UI;
 public class AreaPart : UIView<AreaPart>
 {
     public override int ID => id;
-
-    int id = AreaSelectController.AreaID;
+    static int nextID;
+    int id = GetNextID();
     GameObject pointer;
     Pointer_Animation pointer_Animation;
     EventTrigger eventTrigger;
+
+    public static void ResetID()
+    {
+        nextID = 0;
+    }
+
+    static int GetNextID()
+    {
+        return nextID++;
+    }
 
     public override void Init()
     {

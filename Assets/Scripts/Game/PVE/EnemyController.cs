@@ -33,7 +33,6 @@ public class EnemyController : MonoBehaviour
 
     EnemyBehavior AI;
 
-    public static int InformationWindowID;
     public int EnemyShootCount => layout_map.AttackCount;
 
     List<int> torpedo_hit;
@@ -84,7 +83,7 @@ public class EnemyController : MonoBehaviour
         Transform info_window_parent = GameObject.Find("InformationWindowGroup").transform;
         foreach(var kv in enemy_ship)
         {
-            InformationWindowID = kv.Key;
+            InformationWindow_UI.PrepareNextID(kv.Key);
             LayoutDATA layout = kv.Value.Layout;
             GameObject obj = Instantiate(info_window_perfab,info_window_parent);
             obj.GetComponent<InformationWindow_UI>().Init(layout.ToList,layout.CoreNumber,kv.Value.Name);

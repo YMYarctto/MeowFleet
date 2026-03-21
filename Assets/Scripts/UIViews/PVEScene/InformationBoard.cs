@@ -6,8 +6,6 @@ using UnityEngine.EventSystems;
 
 public class InformationBoard : UIView<InformationBoard>
 {
-    public static int CardID=0;
-
     float rubberPower = 0.2f;
     float inertia = 0.90f;
     float reboundDuration = 0.35f;
@@ -41,6 +39,7 @@ public class InformationBoard : UIView<InformationBoard>
 
     public override void Init()
     {
+        InformationCard_UI.ResetID();
         card_list??=new();
         viewport = transform.Find("viewport").GetComponent<RectTransform>();
         content = viewport.Find("content").GetComponent<RectTransform>();
@@ -206,9 +205,9 @@ public class InformationBoard : UIView<InformationBoard>
 
     public InformationCard_UI NewInformation()
     {
+        InformationCard_UI.PrepareNextID();
         GameObject card = Instantiate(ResourceManager.instance.GetPerfabByType<InformationCard_UI>(), content);
         InformationCard_UI card_ui = card.GetComponent<InformationCard_UI>();
-        CardID++;
         card.transform.localPosition=card_pos;
         card_pos.y-=CARD_GAP;
         card_list.Add(card_ui);

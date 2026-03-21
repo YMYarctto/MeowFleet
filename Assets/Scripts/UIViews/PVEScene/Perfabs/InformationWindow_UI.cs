@@ -7,8 +7,8 @@ using UnityEngine;
 public class InformationWindow_UI : UIView<InformationWindow_UI>
 {
     public override int ID => _id;
-
-    readonly int _id = EnemyController.InformationWindowID;
+    static int pendingID;
+    readonly int _id = pendingID;
 
     static readonly Vector2 sizeDelta = new Vector2(285,357);
 
@@ -18,6 +18,11 @@ public class InformationWindow_UI : UIView<InformationWindow_UI>
     RectTransform rectTransform;
 
     Sequence sequence;
+
+    public static void PrepareNextID(int id)
+    {
+        pendingID = id;
+    }
 
     public override void Init()
     {

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AreaSelectController : MonoBehaviour
 {
-    public static int AreaID = 0;
     public Transform UI_trans { get; private set; }
     public GameObject PointerPrefab { get; private set; }
 
@@ -33,10 +32,10 @@ public class AreaSelectController : MonoBehaviour
         bg_trans = GameObject.Find("sea_bg").transform;
         UI_trans = GameObject.Find("UI").transform;
         PointerPrefab = ResourceManager.instance.GetPerfabByType<Pointer_Animation>();
+        AreaPart.ResetID();
         for (int i = 0; i < bg_trans.childCount; i++)
         {
             AreaPart areaPage = bg_trans.GetChild(i).gameObject.AddComponent<AreaPart>();
-            AreaID++;
         }
     }
 }

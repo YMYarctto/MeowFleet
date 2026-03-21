@@ -5,9 +5,15 @@ using UnityEngine.EventSystems;
 
 public class GridCell_Enemy : GridCell_PVE
 {
-    int _ID = GridCellGroup_Enemy.GridCellID;
+    static int pendingID;
+    int _ID = pendingID;
     public override int ID => _ID;
     public override int MapSizeX => EnemyController.instance.size.x;
+
+    public static void PrepareNextID(int id)
+    {
+        pendingID = id;
+    }
 
     EventTrigger eventTrigger;
 

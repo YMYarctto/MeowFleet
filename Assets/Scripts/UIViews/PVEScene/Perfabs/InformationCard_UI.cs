@@ -9,8 +9,9 @@ using UnityEngine.UI;
 public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
 {
     public override int ID => _id;
-
-    int _id = InformationBoard.CardID;
+    static int nextID;
+    static int pendingID;
+    int _id = pendingID;
     static readonly Vector3 window_delta = new Vector3(240,-120,0);
 
     int lastLinkIndex = -1;
@@ -24,6 +25,18 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
     TMP_Text content;
 
     EventTrigger eventTrigger;
+
+    public static void ResetID()
+    {
+        nextID = 0;
+        pendingID = 0;
+    }
+
+    public static int PrepareNextID()
+    {
+        pendingID = nextID;
+        return nextID++;
+    }
 
     public override void Init()
     {
