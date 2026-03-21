@@ -72,6 +72,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 656ca9b9bf76b49b796b29e476970cd0
+    m_Address: Task_UI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 71ec45ce997304172803e5efea45e206
     m_Address: AudioData_SO
     m_ReadOnly: 0
