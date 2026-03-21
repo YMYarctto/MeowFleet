@@ -55,7 +55,7 @@ public class FXPool<T> where T:FX
 
     public void ReleaseAll()
     {
-        Debug.Log("ReleaseFX");
+        //Debug.Log("ReleaseFX");
         foreach (var obj in active)
         {
             if (obj != null)

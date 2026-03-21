@@ -26,6 +26,7 @@ public class GridCellGroup_Formation : UIView<GridCellGroup_Formation>
         grid_cell = ResourceManager.instance.GetPerfabByType<GridCell_Formation>();
         for (int i = 0; i < 100; i++)//TODO 100
         {
+            GridCell_Formation.PrepareNextID(GridCellID);
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(trans);
             obj.name = $"GridCell_{GridCellID}";

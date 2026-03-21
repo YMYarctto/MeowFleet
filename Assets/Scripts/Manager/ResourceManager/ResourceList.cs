@@ -20,6 +20,7 @@ public static class ResourceList
         {typeof(Block),"block"},
         {typeof(ShipContainer),"ShipContainer"},
         {typeof(FX_holeWriter),"FX_holeWriter"},
+        {typeof(Task_UI),"Task_UI"},
     };
 
     public static Dictionary<Type,string> skill_card_sprite = new()

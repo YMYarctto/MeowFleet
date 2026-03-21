@@ -181,6 +181,9 @@ public class PVEController : MonoBehaviour
 
     public void PlayerAttackTurn()
     {
+        ClearSelect();
+        skillArea.ClearSelectedCard();
+        current_skill = null;
         skillArea.ShowSkill(false);
         current_shoot_count = PlayerShootCount;
         playerAttackCount.SetCount(current_shoot_count);

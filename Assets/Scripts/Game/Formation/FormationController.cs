@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,6 +22,9 @@ public class FormationController : Manager<FormationController>
     public Transform RaycastGroup{ get; private set; }
     public bool EmptyMap => placed_layout.Count == 0;
 
+    CanvasGroup canvasGroup;
+    Tween tween;
+
     void Awake()
     {
         Global.PPU = 1f;
@@ -29,12 +33,16 @@ public class FormationController : Manager<FormationController>
         DragGroupTrans = GameObject.Find("OnDrag").transform;
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         RaycastGroup = GameObject.Find("RaycastGroup").transform;
+        canvasGroup = GameObject.Find("FormationPage").GetComponent<CanvasGroup>();
 
         InputController.instance.SelectActionMap(InputController.InputAction.PVEMap);
         placed_layout = new();
         formation_dict = new();
         placed_map = new();
         RefreshPlacedMap();
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.alpha = 0;
 
         //Temp
         EnemyGroup data = DataManager.instance.RandomGetEnemyGroup(1);
@@ -145,6 +153,11 @@ public class FormationController : Manager<FormationController>
         DataManager.instance.SaveData.SetFormationData(MapSize,formation_dict);
     }
 
+    public void Show()
+    {
+        tween?.Kill();
+        tween = canvasGroup.DOFade(1,0.1f).SetEase(Ease.OutQuad).OnComplete(()=>canvasGroup.interactable =canvasGroup.blocksRaycasts= true);
+    }
 
     bool CheckLayoutInMap(Vector2Int center, LayoutDATA layout)
     {

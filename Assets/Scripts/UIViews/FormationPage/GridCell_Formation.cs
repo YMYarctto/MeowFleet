@@ -4,14 +4,20 @@ using UnityEngine;
 
 public class GridCell_Formation : UIView<GridCell_Formation>
 {
+    static int pendingID;
     GameObject allow;
     GameObject forbid;
     Transform raycast;
 
     Transform raycast_group=>FormationController.instance.RaycastGroup;
 
-    int _ID = GridCellGroup_Formation.GridCellID;
+    int _ID = pendingID;
     public override int ID => _ID;
+
+    public static void PrepareNextID(int id)
+    {
+        pendingID = id;
+    }
 
     public override void Init()
     {

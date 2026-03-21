@@ -96,7 +96,14 @@ public partial class DataManager : MonoBehaviour
             return null;
         }
 
-        List<EnemyGroup> result = new(enemyGroup_dict[layer]);
+        List<EnemyGroup> result=new();
+        foreach(var enemyGroup in enemyGroup_dict[layer])
+        {
+            for(int i = 0; i < enemyGroup.weight; i++)
+            {
+                result.Add(enemyGroup);
+            }
+        }
         Tools.Shuffle(result,SeedController.instance.Random);
         return result;
     }

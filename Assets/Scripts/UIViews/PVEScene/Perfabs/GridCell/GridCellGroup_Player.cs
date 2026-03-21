@@ -21,6 +21,7 @@ public class GridCellGroup_Player : GridCellGroup_PVE
             GameObject obj = Instantiate(grid_cell);
             obj.transform.SetParent(transform, false);
             obj.name = $"GridCell_{GridCellID}";
+            GridCell_Player.PrepareNextID(GridCellID);
             girdCell_dict.Add(GridCellID, obj.AddComponent<GridCell_Player>());
             GridCellID++;
         }

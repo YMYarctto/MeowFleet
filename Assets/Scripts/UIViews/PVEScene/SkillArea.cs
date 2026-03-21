@@ -111,6 +111,12 @@ public class SkillArea : UIView<SkillArea>
         }
     }
 
+    public void ClearSelectedCard()
+    {
+        current_select?.OnSelectEnd();
+        current_select = null;
+    }
+
     public void ShowSkill()
     {
         content.sizeDelta = content_init;
