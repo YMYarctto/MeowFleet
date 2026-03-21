@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : Manager<AudioManager>
 {
     public float AudioVolume
     {
@@ -35,22 +35,6 @@ public class AudioManager : MonoBehaviour
     private Dictionary<string,AudioSource> _AudioSources;
     private AudioSource _MusicSource;
 
-    private static AudioManager _AudioManager;
-    public static AudioManager instance
-    {
-        get
-        {
-            if (!_AudioManager)
-            {
-                _AudioManager = FindObjectOfType(typeof(AudioManager)) as AudioManager;
-                if (!_AudioManager)
-                {
-                    return null;
-                }
-            }
-            return _AudioManager;
-        }
-    }
     public void Init()
     {
         _Audios = DataManager.instance.AudioData.AudioClipDict;

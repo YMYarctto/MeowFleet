@@ -82,6 +82,26 @@ public partial class DataManager : MonoBehaviour
         return group_list[group_list.Count - 1];
     }
 
+    public List<EnemyGroup> RandomGetEnemyGroupList(int layer)
+    {
+        if (enemyGroup_dict == null)
+        {
+            Debug.LogError("未初始化的数据库 EnemyGroup_data");
+            return null;
+        }
+
+        if (!enemyGroup_dict.ContainsKey(layer))
+        {
+            Debug.LogError($"未知的 EnemyGroupData 层数 : {layer} ");
+            return null;
+        }
+
+        List<EnemyGroup> result = new(enemyGroup_dict[layer]);
+        Tools.Shuffle(result,SeedController.instance.Random);
+        return result;
+    }
+
+
     public Dictionary<int, string> GetShipUrlList()
     {
         return shipData_dict.ToDictionary(kv => kv.Key, kv => kv.Value.Url);

@@ -222,7 +222,7 @@ public class EnemyController : MonoBehaviour
         Debug.Log(message);
         if (message.Contains(ActionMessage.ActionResult.Destroyed))
         {
-            AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
+            AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips, message.DestroyedShipAbsoluteLayout);
         }
         else
         {
@@ -332,7 +332,7 @@ Update:
         {
             if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
-                AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips);
+                AI.UpdatePossibleMapAfterDestroy(message.Target, message.DestroyedShips, message.DestroyedShipAbsoluteLayout);
             }
             else
             {

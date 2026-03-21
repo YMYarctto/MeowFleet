@@ -35,9 +35,17 @@ public class ProbabilityMapDATA
     {
         foreach (var coord in coords)
         {
-            if (_map.ContainsKey(coord))
+            if (_map.TryGetValue(coord, out int value) && value > 0)
             {
-                _map[coord]--;
+                value--;
+                if (value == 0)
+                {
+                    _map.Remove(coord);
+                }
+                else
+                {
+                    _map[coord] = value;
+                }
             }
         }
     }

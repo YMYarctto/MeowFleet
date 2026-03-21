@@ -5,30 +5,13 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-public class SceneController : MonoBehaviour
+public class SceneController : Manager<SceneController>
 {
     SceneLoader sceneLoader;
     string currentSceneName;
     string targetSceneName;
 
     Func<bool> waitWhenSceneLoadFinishAction;
-
-    private static SceneController _instance;
-    public static SceneController instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                _instance = FindObjectOfType<SceneController>();
-                if (!_instance)
-                {
-                    return null;
-                }
-            }
-            return _instance;
-        }
-    }
 
     public void Init()
     {

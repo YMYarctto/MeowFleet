@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BGAnimator_PVEScene : UIView<BGAnimator_PVEScene>
+public class BGAnimator_GameSetting : UIView<BGAnimator_GameSetting>
 {
     public float bg_setting_duration;
     public float button_duration;

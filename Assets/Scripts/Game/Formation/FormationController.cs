@@ -43,7 +43,7 @@ public class FormationController : MonoBehaviour
     {
         Global.PPU = 1f;
 
-        canvas = GameObject.Find("FormationPage").GetComponent<Canvas>();
+        canvas = GameObject.Find("FrontScene").GetComponent<Canvas>();
         DragGroupTrans = GameObject.Find("OnDrag").transform;
         ShipGroupTrans = GameObject.Find("ShipGroup").transform;
         RaycastGroup = GameObject.Find("RaycastGroup").transform;
@@ -56,7 +56,7 @@ public class FormationController : MonoBehaviour
 
         //Temp
         EnemyGroup data = DataManager.instance.RandomGetEnemyGroup(1);
-        LoadDataManager.instance.PVELoadData.SetLoadData(data.enemy_list,data.size);
+        LoadDataManager.instance.PVELoadData.SetLoadData(data);
     }
 
     void Start()

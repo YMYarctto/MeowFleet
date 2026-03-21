@@ -10,6 +10,7 @@ public class ActionMessage
     List<ActionResult> _result;
     KeyValuePair<int, LayoutDATA> _hit_ships;
     KeyValuePair<int, LayoutDATA> _destroyed_ships;
+    LayoutDATA _destroyed_ship_absolute_layout;
     ActionLocate _locate;
     int _core_damage_count;
 
@@ -29,6 +30,7 @@ public class ActionMessage
         get => _destroyed_ships;
     }
     public ActionLocate Locate => _locate;
+    public LayoutDATA DestroyedShipAbsoluteLayout => _destroyed_ship_absolute_layout;
 
     public ActionMessage(int data,int ship, Vector2Int target, ActionResult result)
     {
@@ -38,6 +40,7 @@ public class ActionMessage
         _result = new() { result };
         _hit_ships = new(-1, null);
         _destroyed_ships = new(-1, null);
+        _destroyed_ship_absolute_layout = null;
         _core_damage_count = 0;
     }
     
@@ -48,6 +51,7 @@ public class ActionMessage
         _result = new() { result };
         _hit_ships = new(-1,null);
         _destroyed_ships = new(-1,null);
+        _destroyed_ship_absolute_layout = null;
         _core_damage_count = 0;
     }
 
@@ -61,9 +65,10 @@ public class ActionMessage
         _hit_ships = new(id, layout);
     }
 
-    public void AddDestroyedShip(int id, LayoutDATA layout)
+    public void AddDestroyedShip(int id, LayoutDATA layout, LayoutDATA absoluteLayout)
     {
         _destroyed_ships = new(id, layout);
+        _destroyed_ship_absolute_layout = absoluteLayout;
     }
 
     public void SetLocate(ActionLocate locate)

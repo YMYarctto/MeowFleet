@@ -1,28 +1,13 @@
 using System;
 using UnityEngine;
 
-public class SeedController : MonoBehaviour
+public class SeedController : Manager<SeedController>
 {
     public long Seed => seed;
     private long seed;
 
     public System.Random Random => random;
     private System.Random random;
-
-    private static SeedController _instance;
-    public static SeedController instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                _instance = FindObjectOfType(typeof(SeedController)) as SeedController;
-                if (!_instance)
-                    return null;
-            }
-            return _instance;
-        }
-    }
 
     void Awake()
     {

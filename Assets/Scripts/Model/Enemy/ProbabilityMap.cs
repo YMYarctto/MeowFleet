@@ -60,8 +60,13 @@ public class ProbabilityMap
     // 删除该点该布局的概率布局
     public void DeleteProbabilityEach(Vector2Int center, LayoutDATA layout)
     {
-        valid_layouts_inMap.Remove(layout);
-        probability_map.DeleteProbability(layout.LayoutInMap(center));
+        LayoutDATA absoluteLayout = new(layout.LayoutInMap(center), layout.CoreNumber);
+        if (!TryRemoveLayout(absoluteLayout, out var removedLayout))
+        {
+            return;
+        }
+
+        probability_map.DeleteProbability(removedLayout.ToList);
     }
 
     // 删除不包含该点的所有概率布局
@@ -86,28 +91,56 @@ public class ProbabilityMap
 
     public Vector2Int GetHighProbabilityCoord(float per=0.5f)
     {
+        if (!TryGetHighProbabilityCoord(per, out var target))
+        {
+            return Vector2Int.zero;
+        }
+
+        return target;
+    }
+
+    public bool TryGetHighProbabilityCoord(float per, out Vector2Int target)
+    {
         // 按概率排序
         List<KeyValuePair<Vector2Int, int>> probability_map_list = probability_map.ToList().Where(kv=>kv.Value>0).OrderByDescending(kv => kv.Value).ToList();
+        if (probability_map_list.Count == 0)
+        {
+            target = default;
+            return false;
+        }
+
         int takeCount = Mathf.Max(1, (int)(probability_map_list.Count * per));
         List<Vector2Int> max_map = probability_map_list.Take(takeCount).Select(kv=>kv.Key).ToList();
 
         // 随机选择一个最大概率点进行攻击
-        Vector2Int target = max_map[SeedController.instance.Range(0, max_map.Count)];
-        return target;
+        target = max_map[SeedController.instance.Range(0, max_map.Count)];
+        return true;
     }
 
     public int GetHighProbabilityRowWithout(List<int> without_row)
     {
+        if (!TryGetHighProbabilityRowWithout(without_row, out var row))
+        {
+            return 0;
+        }
+
+        return row;
+    }
+
+    public bool TryGetHighProbabilityRowWithout(List<int> without_row, out int row)
+    {
         // 按概率排序
-        List<KeyValuePair<int, int>> probability_map_list = probability_map.ToList().GroupBy(kv => kv.Key.x).Select(g => new KeyValuePair<int,int>(g.Key,g.Sum(kv => kv.Value))).OrderByDescending(kv => kv.Value).ToList();
+        List<KeyValuePair<int, int>> probability_map_list = probability_map.ToList().Where(kv => kv.Value > 0).GroupBy(kv => kv.Key.x).Select(g => new KeyValuePair<int,int>(g.Key,g.Sum(kv => kv.Value))).OrderByDescending(kv => kv.Value).ToList();
         foreach(var kv in probability_map_list)
         {
             if(!without_row.Contains(kv.Key))
             {
-                return kv.Key;
+                row = kv.Key;
+                return true;
             }
         }
-        return 0;
+        row = 0;
+        return false;
     }
 
     public LayoutDATA GetHighProbabilityRange(Vector2Int target,LayoutDATA layout)
@@ -122,5 +155,47 @@ public class ProbabilityMap
     public string GetProbabilityMap()
     {
         return probability_map.ToString();
+    }
+
+    bool TryRemoveLayout(LayoutDATA target, out LayoutDATA removedLayout)
+    {
+        for (int i = 0; i < valid_layouts_inMap.Count; i++)
+        {
+            var layout = valid_layouts_inMap[i];
+            if (!IsSameLayout(layout, target))
+            {
+                continue;
+            }
+
+            removedLayout = layout;
+            valid_layouts_inMap.RemoveAt(i);
+            return true;
+        }
+
+        removedLayout = null;
+        return false;
+    }
+
+    bool IsSameLayout(LayoutDATA a, LayoutDATA b)
+    {
+        if (a == null || b == null || a.CoreNumber != b.CoreNumber)
+        {
+            return false;
+        }
+
+        if (a.ToList.Count != b.ToList.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < a.ToList.Count; i++)
+        {
+            if (a.ToList[i] != b.ToList[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

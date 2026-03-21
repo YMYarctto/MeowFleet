@@ -7,8 +7,6 @@ public class Button_ReturnGame : BaseButton_Setting
 {
     public override void OnPointerClick(PointerEventData eventData)
     {
-        BGAnimator_PVEScene.GetUIView().SettingDisable();
-        InputController.instance.SaveBindings();
-        AudioManager.instance.SaveBindings();
+        Game.SettingReturn();
     }
 }

@@ -106,7 +106,7 @@ public class LayoutMap
 
         // Destroyed
         message = new ActionMessage(data_id,ship_id, target, ActionMessage.ActionResult.Destroyed);
-        message.AddDestroyedShip(_id, _ship_map[target].layout);
+        message.AddDestroyedShip(_id, _ship_map[target].layout, _absolute_layout_map[_id]);
         if (target_ship.ShipStatus == Ship.Status.Capture)
         {
             message.SetLocate(ActionMessage.ActionLocate.body);

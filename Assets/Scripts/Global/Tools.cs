@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Tools
+public static class Tools
 {
     public static void Shuffle<T>(List<T> list,System.Random ran)
     {

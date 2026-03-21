@@ -49,26 +49,41 @@ public class EnemyBehavior
 
     public Vector2Int CalculateHuntMap(float per=0.5f)
     {
-        return hunt_map.GetHighProbabilityCoord(per);
+        if (hunt_map.TryGetHighProbabilityCoord(per, out var target))
+        {
+            return target;
+        }
+
+        return GetRandomTarget();
     }
     
     public Vector2Int CalculatePossibleMap(float per=0.5f)
     {
         // 选择概率密度图
-        ProbabilityMap map = map_dict[current_target_index];
-        return map.GetHighProbabilityCoord(per);
+        ProbabilityMap map = GetCurrentMap();
+        if (map != null && map.TryGetHighProbabilityCoord(per, out var target))
+        {
+            return target;
+        }
+
+        return GetRandomTarget();
     }
 
     public int CalculatePossibleMapWithoutRow(List<int> without_row)
     {
         // 选择概率密度图
-        ProbabilityMap map = map_dict[current_target_index];
-        return map.GetHighProbabilityRowWithout(without_row);
+        ProbabilityMap map = GetCurrentMap();
+        if (map != null && map.TryGetHighProbabilityRowWithout(without_row, out var row))
+        {
+            return row;
+        }
+
+        return GetRandomAvailableRow(without_row);
     }
 
     public List<Vector2Int> CalculateSkillRange(Vector2Int target,LayoutDATA range)
     {
-        ProbabilityMap map = map_dict[current_target_index];
+        ProbabilityMap map = GetCurrentMap();
         return map.GetHighProbabilityRange(target,range).ToList;
     }
 
@@ -113,33 +128,57 @@ public class EnemyBehavior
         }
     }
 
-    public void UpdatePossibleMapAfterDestroy(Vector2Int target,KeyValuePair<int, LayoutDATA> destroy_ship)
+    public void UpdatePossibleMapAfterDestroy(Vector2Int target, KeyValuePair<int, LayoutDATA> destroy_ship, LayoutDATA absolute_layout)
     {
         if (destroy_ship.Key>=0)
         {
             var kv = destroy_ship;
+            var layout = kv.Value;
+
+            foreach (var possibleLayout in layout.AllLayout())
+            {
+                foreach (var center in hit_map)
+                {
+                    if (CheckLayoutValid(center, possibleLayout))
+                    {
+                        hunt_map.DeleteProbabilityEach(center, possibleLayout);
+                    }
+                }
+            }
+
+            List<Vector2Int> invalidCoords = new();
+            if (absolute_layout != null)
+            {
+                invalidCoords.AddRange(absolute_layout.ToList);
+                foreach (var coord in absolute_layout.GetAdjacentCellsInMap(Vector2Int.zero))
+                {
+                    if (!invalidCoords.Contains(coord))
+                    {
+                        invalidCoords.Add(coord);
+                    }
+                }
+            }
+
+            foreach (var coord in invalidCoords)
+            {
+                hit_map.Remove(coord);
+            }
+
             if (map_dict.TryGetValue(kv.Key, out var map) && map != null)
             {
                 map_dict[kv.Key] = null;
+            }
 
-                var layout = kv.Value;
-                foreach (var center in hit_map)
+            foreach(var _map in map_dict.Values)
+            {
+                if (_map == null)
                 {
-                    if (CheckLayoutValid(center, layout))
-                    {
-                        hunt_map.DeleteProbabilityEach(center, layout);
-                    }
+                    continue;
                 }
-                foreach(var _map in map_dict.Values)
+                foreach(var coord in invalidCoords)
                 {
-                    if (_map == null)
-                    {
-                        continue;
-                    }
-                    foreach(var coord in layout.GetAdjacentCellsInMap(target))
-                    {
-                        _map.DeleteProbability(coord);
-                    }
+                    _map.DeleteProbability(coord);
+                    _map.RemoveProbability(coord);
                 }
             }
             // 更新目标
@@ -163,7 +202,50 @@ public class EnemyBehavior
     
     public string GetCurrentProbabilityMap()
     {
-        return map_dict[current_target_index].GetProbabilityMap();
+        return GetCurrentMap()?.GetProbabilityMap() ?? "ProbabilityMapDATA:[\n]\n";
+    }
+
+    ProbabilityMap GetCurrentMap()
+    {
+        if (map_dict.TryGetValue(current_target_index, out var map) && map != null)
+        {
+            return map;
+        }
+
+        return hunt_map;
+    }
+
+    Vector2Int GetRandomTarget()
+    {
+        if (hit_map.Count == 0)
+        {
+            Debug.LogWarning("EnemyBehavior: no available target in hit_map");
+            return Vector2Int.zero;
+        }
+
+        return hit_map[SeedController.instance.Range(0, hit_map.Count)];
+    }
+
+    int GetRandomAvailableRow(List<int> without_row)
+    {
+        List<int> rows = new();
+        foreach (var coord in hit_map)
+        {
+            if (without_row.Contains(coord.x) || rows.Contains(coord.x))
+            {
+                continue;
+            }
+
+            rows.Add(coord.x);
+        }
+
+        if (rows.Count == 0)
+        {
+            Debug.LogWarning("EnemyBehavior: no available row outside excluded rows");
+            return 0;
+        }
+
+        return rows[SeedController.instance.Range(0, rows.Count)];
     }
 
     // 检查该点位该布局是否可行

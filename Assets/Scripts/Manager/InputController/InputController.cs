@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class InputController : MonoBehaviour
+public class InputController : Manager<InputController>
 {
     static GameAction _inputAction;
     public static GameAction InputAction { get => _inputAction; }
@@ -17,23 +17,6 @@ public class InputController : MonoBehaviour
     public UnityAction OnLoadComplete;
 
     const string SAVE_KEY = "InputBindingOverrides";
-
-    private static InputController _instance;
-    public static InputController instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                _instance = FindObjectOfType<InputController>();
-                if (!_instance)
-                {
-                    return null;
-                }
-            }
-            return _instance;
-        }
-    }
 
     public void Init()
     {
@@ -176,14 +159,14 @@ public class InputController : MonoBehaviour
             Debug.Log("Load Binding");
         }
 
-        OnLoadComplete.Invoke();
+        OnLoadComplete?.Invoke();
     }
 
     public void ResetToDefault()
     {
         inputAsset.RemoveAllBindingOverrides();
         PlayerPrefs.DeleteKey(SAVE_KEY);
-        OnLoadComplete.Invoke();
+        OnLoadComplete?.Invoke();
     }
 
     public string GetBindingDisplay(InputAction action, int bindingIndex = 0)

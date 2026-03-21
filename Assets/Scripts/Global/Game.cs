@@ -17,4 +17,30 @@ public static class Game
         SceneController.instance.AfterSceneLoadAction(()=>PVEController.instance.Init());
         SceneController.instance.ChangeScene(SceneRegistry.PVEScene);
     }
+
+    public static void Setting()
+    {
+        BGAnimator_GameSetting.GetUIView().SettingEnable();
+        InputController.instance.LoadBindings();
+        AudioManager.instance.LoadBindings();
+    }
+
+    public static void SettingReturn()
+    {
+        BGAnimator_GameSetting.GetUIView().SettingDisable();
+        InputController.instance.SaveBindings();
+        AudioManager.instance.SaveBindings();
+    }
+
+    public static void ToTitle()
+    {
+        Time.timeScale = 1f;
+        SceneController.instance.AfterSceneLoadAction(() =>
+        {
+            BGAnimator_TitleScene.GetUIView().Enable();
+        });
+        SceneController.instance.ChangeScene(SceneRegistry.TitleScene);
+        InputController.instance.SaveBindings();
+        AudioManager.instance.SaveBindings();
+    }
 }

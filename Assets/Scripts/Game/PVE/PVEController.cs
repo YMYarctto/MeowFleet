@@ -669,7 +669,7 @@ public class PVEController : MonoBehaviour
 
     public void PVEMenu(InputAction.CallbackContext ctx)
     {
-        BGAnimator_PVEScene.GetUIView().SettingEnable();
+        BGAnimator_GameSetting.GetUIView().SettingEnable();
         InputController.instance.LoadBindings();
     }
 
