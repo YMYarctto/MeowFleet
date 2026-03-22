@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class FormationController : Manager<FormationController>
+public class FormationController : Manager<FormationController>,IScenePage
 {
     public Vector2Int MapSize;
 
@@ -40,8 +40,7 @@ public class FormationController : Manager<FormationController>
         formation_dict = new();
         placed_map = new();
         RefreshPlacedMap();
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0;
 
         //Temp
@@ -156,7 +155,14 @@ public class FormationController : Manager<FormationController>
     public void Show()
     {
         tween?.Kill();
-        tween = canvasGroup.DOFade(1,0.1f).SetEase(Ease.OutQuad).OnComplete(()=>canvasGroup.interactable =canvasGroup.blocksRaycasts= true);
+        tween = canvasGroup.DOFade(1,0.2f).SetEase(Ease.OutQuad).OnComplete(()=>canvasGroup.interactable =canvasGroup.blocksRaycasts= true);
+    }
+
+    public void Hide()
+    {
+        canvasGroup.interactable =canvasGroup.blocksRaycasts= false;
+        tween?.Kill();
+        tween = canvasGroup.DOFade(0,0.2f).SetEase(Ease.OutQuad);
     }
 
     bool CheckLayoutInMap(Vector2Int center, LayoutDATA layout)

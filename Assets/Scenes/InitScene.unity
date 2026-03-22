@@ -945,7 +945,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &637187236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2197,8 +2197,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u6D4B\u8BD5\u6587\u672C\u6D4B\u8BD5\u6587\u672C\u6D4B\u8BD5\u6587\u672C\u6D4B\u8BD5\u6587\u672C\u6D4B\u8BD5\u6587\u672C"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
-  m_sharedMaterial: {fileID: 6809811635698538494, guid: 178ca9051c75b49f1b9c5c39a18ce5ae, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f95263ebb08304939b1e226fee233633, type: 2}
+  m_sharedMaterial: {fileID: -5166324849824741512, guid: f95263ebb08304939b1e226fee233633, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
