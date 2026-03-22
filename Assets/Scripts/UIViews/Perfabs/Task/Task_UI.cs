@@ -103,6 +103,8 @@ public class Task_UI : UIView<Task_UI>
     private void OnPointerClick_Accept(PointerEventData eventData)
     {
         LoadDataManager.instance.PVELoadData.SetLoadData(enemyGroup);
+        FormationController.instance.Show();
+        TaskSelectController.instance.Hide();
     }
 
     private void OnPointerClick_Refuse(PointerEventData eventData)

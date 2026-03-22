@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class EnemyMap : UIView<EnemyMap>
 {
-    Transform SVGImage;
+    Transform Block;
     Transform GridCellGroup;
 
     readonly int CELLPX = 80;
-    readonly Vector2 SVGOFFSET = new(40, 40);
+    readonly float STANDARDPX = 960f;
 
     public override void Init()
     {
-        SVGImage = transform.Find("SVGImage");
+        Block = transform.Find("Block");
         GridCellGroup = transform.Find("GridCellGroup");
         SetMap(LoadDataManager.instance.PVELoadData.EnemyMapSize);
     }
@@ -21,12 +21,12 @@ public class EnemyMap : UIView<EnemyMap>
     public void SetMap(int size)
     {
         RectTransform GridRect = GridCellGroup.GetComponent<RectTransform>();
-        RectTransform SVGRect = SVGImage.GetComponent<RectTransform>();
+        RectTransform BlockRect = Block.GetComponent<RectTransform>();
         GridRect.sizeDelta = Vector2.one * CELLPX * size;
-        SVGRect.sizeDelta = Vector2.one * CELLPX * size + SVGOFFSET;
+        Block.localScale = Vector2.one * (CELLPX * size / STANDARDPX);
         if (size % 2 != 0)
         {
-            SVGRect.anchoredPosition += Vector2.one * CELLPX / 2;
+            BlockRect.anchoredPosition += Vector2.one * CELLPX / 2;
             GridRect.anchoredPosition += Vector2.one * CELLPX / 2;
         }
     }
