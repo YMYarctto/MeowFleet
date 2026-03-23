@@ -43,7 +43,7 @@ public class Slider_Volumn : MonoBehaviour
         {
             slider.value = AudioManager.instance.AudioVolume;
         }
-        Debug.Log($"LoadSliderValue: {slider.value}");
+        //Debug.Log($"LoadSliderValue: {slider.value}");
     }
 
     public enum SliderType

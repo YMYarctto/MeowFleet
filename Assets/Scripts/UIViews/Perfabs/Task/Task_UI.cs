@@ -15,6 +15,7 @@ public class Task_UI : UIView<Task_UI>
     Transform button_accept;
     Transform button_refuse;
     CanvasGroup canvasGroup;
+    CanvasGroup button_canvasGroup;
     EnemyGroup enemyGroup;
     RectTransform rectTransform;
 
@@ -36,10 +37,12 @@ public class Task_UI : UIView<Task_UI>
 
     public override void Init()
     {
+        Transform button = transform.Find("Button");
         canvasGroup = transform.GetComponent<CanvasGroup>();
         context = transform.Find("context").GetComponent<TMP_Text>();
-        button_accept = transform.Find("Button_TaskAccept");
-        button_refuse = transform.Find("Button_TaskRefuse");
+        button_accept = button.Find("Button_TaskAccept");
+        button_refuse = button.Find("Button_TaskRefuse");
+        button_canvasGroup = button.GetComponent<CanvasGroup>();
         rectTransform = transform.GetComponent<RectTransform>();
 
         EventTrigger eventTrigger_accept = InitButton(button_accept);
@@ -103,8 +106,9 @@ public class Task_UI : UIView<Task_UI>
     private void OnPointerClick_Accept(PointerEventData eventData)
     {
         LoadDataManager.instance.PVELoadData.SetLoadData(enemyGroup);
-        FormationController.instance.Show();
-        TaskSelectController.instance.Hide();
+        button_canvasGroup.blocksRaycasts = button_canvasGroup.interactable = false;
+        button_canvasGroup.DOFade(0,0.2f).SetEase(Ease.OutQuad);
+        TaskPageButtonGroup.GetUIView().ShowButton();
     }
 
     private void OnPointerClick_Refuse(PointerEventData eventData)

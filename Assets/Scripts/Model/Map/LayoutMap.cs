@@ -52,9 +52,7 @@ public class LayoutMap
             return new ActionMessage(target,ActionMessage.ActionResult.Miss);
         }
         int _id = _ship_map[target].ID;
-        int ship_id = _ship_map[target].Ship.ShipId;
-        int data_id = _data_id[_id];
-        ActionMessage message = new ActionMessage(data_id,ship_id,target,ActionMessage.ActionResult.Hit);
+        ActionMessage message = new ActionMessage(_ship_map[target].Ship,target,ActionMessage.ActionResult.Hit);
         if(!_absolute_layout_map[_id].BodyList.Contains(target))
         {
             message.SetLocate(ActionMessage.ActionLocate.core);
@@ -89,7 +87,7 @@ public class LayoutMap
         if(!target_ship.LossOfMobility)
         {
             // Hit
-            message = new ActionMessage(data_id,ship_id,target,ActionMessage.ActionResult.Hit);
+            message = new ActionMessage(target_ship,target,ActionMessage.ActionResult.Hit);
             message.AddHitShip(_id, _ship_map[target].layout);
 
             if (_absolute_layout_map[_id].CoreList.Contains(target))
@@ -105,7 +103,7 @@ public class LayoutMap
         }
 
         // Destroyed
-        message = new ActionMessage(data_id,ship_id, target, ActionMessage.ActionResult.Destroyed);
+        message = new ActionMessage(target_ship, target, ActionMessage.ActionResult.Destroyed);
         message.AddDestroyedShip(_id, _ship_map[target].layout, _absolute_layout_map[_id]);
         if (target_ship.ShipStatus == Ship.Status.Capture)
         {

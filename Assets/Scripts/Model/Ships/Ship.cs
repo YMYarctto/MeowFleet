@@ -12,6 +12,7 @@ public class Ship
     int _direction = 0;
     List<int> damage_condition;
     BuffPool buff;
+    string name_suffix = "";
 
     List<int> core_condition=>damage_condition.GetRange(0,shipData.core_number);
     List<int> body_condition=>damage_condition.GetRange(shipData.core_number,damage_condition.Count-shipData.core_number);
@@ -21,7 +22,7 @@ public class Ship
     public int DataId => shipData.uid;
     public int ShipId => id;
     public int Direction => _direction;
-    public string Name => shipData.ship_name_string;
+    public string Name => $"{shipData.ship_name_string}{name_suffix}";
     public Skill_Enum Skill => shipData.skill_name;
     public List<Vector2Int> SkillRange => new(shipData.skill_coord);
     public BuffPool Buff => buff;
@@ -90,6 +91,16 @@ public class Ship
     public void ForceSetLayout(LayoutDATA layout)
     {
         this.layout = layout;
+    }
+
+    public void SetNameSuffix(int suffix)
+    {
+        name_suffix = Tools.IntToRoman(suffix);
+    }
+
+    public void ReSetNameSuffix()
+    {
+        name_suffix = "";
     }
 
     public enum Status
