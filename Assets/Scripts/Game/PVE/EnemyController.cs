@@ -65,6 +65,7 @@ public class EnemyController : MonoBehaviour
 
         int ShipID = 20000;
         enemy_ships_id = LoadDataManager.instance.PVELoadData.EnemyGroupList;
+        Dictionary<int,int> dataId_count = new();
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
             ShipID++;
@@ -73,6 +74,16 @@ public class EnemyController : MonoBehaviour
             if (skill != null)
             {
                 enemy_skill.Add(skill);
+            }
+            if(dataId_count.TryGetValue(id,out int count))
+            {
+                count++;
+                ship.SetNameSuffix(count);
+            }
+            else
+            {
+                dataId_count.Add(id,1);
+                ship.SetNameSuffix(1);
             }
             return new KeyValuePair<int,Ship>(ShipID,ship);
         }).ToDictionary(kv=>kv.Key,kv=>kv.Value);
@@ -274,6 +285,14 @@ Bomb:
         goto Update;
 Torpedo:
         target_coord = new(AI.CalculatePossibleMapWithoutRow(torpedo_hit),0);
+        if (target_coord.x < 0)
+        {
+            target_coord = new(AI.CalculatePossibleMapWithoutRow(torpedo_hit,true),0);
+        }
+        if (target_coord.x < 0)
+        {
+            goto End;
+        }
         Vector2Int _direction = Vector2Int.up;
         Vector2Int size = PVEController.instance.size;
         Vector2Int coord = PVEController.instance.GetEdgeCoord(target_coord, _direction, size);
@@ -380,9 +399,14 @@ End:
 
     private Vector2Int GetTarget(float per=0.5f)
     {
-        if(target_list.Count > 0)
+        while(target_list.Count > 0)
         {
-            return target_list.Dequeue();
+            Vector2Int coord = target_list.Dequeue();
+            if (!AI.CheckAvailable(coord))
+            {
+                continue;
+            }
+            return coord;
         }
         return AI.CalculatePossibleMap(per);
     }

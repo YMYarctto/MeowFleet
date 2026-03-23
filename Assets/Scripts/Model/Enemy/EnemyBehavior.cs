@@ -69,10 +69,10 @@ public class EnemyBehavior
         return GetRandomTarget();
     }
 
-    public int CalculatePossibleMapWithoutRow(List<int> without_row)
+    public int CalculatePossibleMapWithoutRow(List<int> without_row,bool hunt_mode=false)
     {
         // 选择概率密度图
-        ProbabilityMap map = GetCurrentMap();
+        ProbabilityMap map = hunt_mode?GetCurrentMap():hunt_map;
         if (map != null && map.TryGetHighProbabilityRowWithout(without_row, out var row))
         {
             return row;
@@ -205,6 +205,11 @@ public class EnemyBehavior
         return GetCurrentMap()?.GetProbabilityMap() ?? "ProbabilityMapDATA:[\n]\n";
     }
 
+    public bool CheckAvailable(Vector2Int target)
+    {
+        return GetCurrentMap()?.CheckAvailable(target)??false;
+    }
+
     ProbabilityMap GetCurrentMap()
     {
         if (map_dict.TryGetValue(current_target_index, out var map) && map != null)
@@ -241,8 +246,7 @@ public class EnemyBehavior
 
         if (rows.Count == 0)
         {
-            Debug.LogWarning("EnemyBehavior: no available row outside excluded rows");
-            return 0;
+            return -1;
         }
 
         return rows[SeedController.instance.Range(0, rows.Count)];

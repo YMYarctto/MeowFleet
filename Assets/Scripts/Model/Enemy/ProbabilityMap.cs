@@ -120,7 +120,7 @@ public class ProbabilityMap
     {
         if (!TryGetHighProbabilityRowWithout(without_row, out var row))
         {
-            return 0;
+            return -1;
         }
 
         return row;
@@ -138,7 +138,7 @@ public class ProbabilityMap
                 return true;
             }
         }
-        row = 0;
+        row = -1;
         return false;
     }
 
@@ -154,6 +154,11 @@ public class ProbabilityMap
     public string GetProbabilityMap()
     {
         return probability_map.ToString();
+    }
+
+    public bool CheckAvailable(Vector2Int coord)
+    {
+        return probability_map.Check(coord);
     }
 
     bool TryRemoveLayout(LayoutDATA target, out LayoutDATA removedLayout)

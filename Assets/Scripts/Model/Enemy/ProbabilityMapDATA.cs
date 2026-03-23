@@ -69,6 +69,11 @@ public class ProbabilityMapDATA
         _map.Remove(coord);
     }
 
+    public bool Check(Vector2Int coord)
+    {
+        return _map.ContainsKey(coord);
+    }
+
     public List<KeyValuePair<Vector2Int, int>> ToList()
     {
         return new List<KeyValuePair<Vector2Int, int>>(_map);
