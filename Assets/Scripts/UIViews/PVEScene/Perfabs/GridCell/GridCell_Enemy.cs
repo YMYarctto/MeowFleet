@@ -53,6 +53,7 @@ public class GridCell_Enemy : GridCell_PVE
 
     private void OnPointerClick(PointerEventData data)
     {
+        if(data.button != PointerEventData.InputButton.Left)return;
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Enemy,PVEController.instance.CurrentState==PVEController.PVEState.PlayerAttack);
         PVEController.instance.AimTo(false);
     }

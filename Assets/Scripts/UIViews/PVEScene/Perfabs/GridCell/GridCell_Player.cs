@@ -54,6 +54,7 @@ public class GridCell_Player : GridCell_PVE
 
     private void OnPointerClick(PointerEventData data)
     {
+        if(data.button != PointerEventData.InputButton.Left)return;
         PVEController.instance.PlayerOP(GetVector2Int(),PVEController.PVEMap.Player);
         PVEController.instance.AimTo(false);
     }
