@@ -74,6 +74,7 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
         eventTrigger.triggers.Add(entry_beginDrag);
         eventTrigger.triggers.Add(entry_endDrag);
         eventTrigger.triggers.Add(entry_onDrag);
+        eventTrigger.triggers.Add(entry_onPointerEnter);
         eventTrigger.triggers.Add(entry_onPointerExit);
     }
 
@@ -224,6 +225,10 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
 
     void ResetColor()
     {
+        if (currentHoverId == info_id)
+        {
+            currentHoverId = null;
+        }
         if (lastLinkIndex == -1) return;
         HoleOverlay.GetUIView().ClearOverlay();
         content.ForceMeshUpdate();

@@ -3,79 +3,80 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class SkillArea : UIView<SkillArea>
 {
+    const float CARD_GAP = 271f;
+    const float MIN_INERTIA_VELOCITY = 5f;
+
+    readonly Vector2 content_init = new(600,450);
+    readonly Vector3 card_start_pos = new(-915,-340,0);
+
+    readonly List<SkillCard_UI> skill_list = new();
+
     RectTransform content;
     RectTransform viewport;
+    EventTrigger eventTrigger;
 
     float rubberPower = 0.2f;
     float inertia = 0.90f;
     float reboundDuration = 0.35f;
-    Ease reboundEase = Ease.OutQuad;
-
+    float scrollPower = 1f;
     float lastMouseY;
     float velocityY;
-    bool isDragging;
-    public bool IsDragging=>isDragging;
-
     Tweener reboundTween;
-    EventTrigger eventTrigger;
+    Ease reboundEase = Ease.OutQuad;
 
-    Vector2 content_init = new(600,450);
-    Vector3 card_pos = new(-915,-340,0);
-    const float CARD_GAP = 271f;
+    Camera eventCamera;
+    Vector3 nextCardPos;
+    bool isDragging;
+    bool scrollRegistered;
+    public bool IsDragging => isDragging;
 
-    List<SkillCard_UI> skill_list;
     SkillCard_UI current_select;
+
+    float MaxScrollOffsetY => Mathf.Max(0f, content.rect.height - viewport.rect.height);
+    bool CanScroll => content.rect.height > viewport.rect.height;
 
     public override void Init()
     {
-        skill_list??=new();
         content = transform.Find("content").GetComponent<RectTransform>();
         viewport = GetComponent<RectTransform>();
+        eventCamera = GetEventCamera();
+        nextCardPos = card_start_pos;
 
+        content.anchoredPosition = Vector2.zero;
         content.sizeDelta = content_init;
-
-        eventTrigger = gameObject.AddComponent<EventTrigger>();
-
-        EventTrigger.Entry entry_beginDrag = new EventTrigger.Entry();
-        entry_beginDrag.eventID = EventTriggerType.BeginDrag;
-        entry_beginDrag.callback.AddListener((data) => { OnBeginDrag((PointerEventData)data); });
-
-        EventTrigger.Entry entry_endDrag = new EventTrigger.Entry();
-        entry_endDrag.eventID = EventTriggerType.EndDrag;
-        entry_endDrag.callback.AddListener((data) => { OnEndDrag((PointerEventData)data); });
-
-        EventTrigger.Entry entry_onDrag = new EventTrigger.Entry();
-        entry_onDrag.eventID = EventTriggerType.Drag;
-        entry_onDrag.callback.AddListener((data) => { OnDrag((PointerEventData)data); });
-
-        eventTrigger.triggers.Add(entry_beginDrag);
-        eventTrigger.triggers.Add(entry_endDrag);
-        eventTrigger.triggers.Add(entry_onDrag);
+        ConfigureDragTrigger();
     }
 
     void Update()
     {
-        if (!isDragging)
+        if (isDragging || Mathf.Abs(velocityY) <= MIN_INERTIA_VELOCITY)
         {
-            // 惯性移动
-            if (Mathf.Abs(velocityY) > 5f)
+            if (!isDragging && velocityY != 0f)
             {
-                MoveContent(velocityY * Time.deltaTime);
-                velocityY *= inertia;
+                velocityY = 0f;
+                if (IsOutOfBounds())
+                {
+                    TryRebound();
+                }
             }
+            return;
         }
+
+        MoveContent(velocityY * Time.deltaTime);
+        velocityY *= IsOutOfBounds() ? inertia * rubberPower : inertia;
     }
 
     public void AddSkillCard(int id,Ship ship)
     {
-        skill_list??=new();
         GameObject card = SkillCard_UI.Create(id,content);
         SkillCard_UI card_ui = card.GetComponent<SkillCard_UI>();
-        card.transform.localPosition=card_pos;
-        card_pos.y-=CARD_GAP;
+        card.transform.localPosition = nextCardPos;
+        nextCardPos.y -= CARD_GAP;
         card_ui.Init(ship);
         card.GetComponentInChildren<SkillRange_UI>().Init(card_ui.SkillRange);
         skill_list.Add(card_ui);
@@ -109,6 +110,11 @@ public class SkillArea : UIView<SkillArea>
         {
             skill_list[i].MoveUp_Animation(CARD_GAP,0.2f);
         }
+        content.sizeDelta = new Vector2(content.sizeDelta.x, Mathf.Max(content_init.y, content.sizeDelta.y - CARD_GAP));
+        if (!isDragging)
+        {
+            TryRebound();
+        }
     }
 
     public void ClearSelectedCard()
@@ -119,20 +125,28 @@ public class SkillArea : UIView<SkillArea>
 
     public void ShowSkill()
     {
+        reboundTween?.Kill();
+        velocityY = 0f;
+        content.anchoredPosition = Vector2.zero;
         content.sizeDelta = content_init;
-        skill_list.ForEach(ui =>ui.InitPosition());
+
+        int disabledCount = 0;
         float delay = 0f;
         for(int i=0;i<skill_list.Count;i++)
         {
-            if(!skill_list[i].SetActive(delay))
+            SkillCard_UI skillCard = skill_list[i];
+            skillCard.InitPosition();
+
+            if(!skillCard.SetActive(delay))
             {
-                for(int j=i+1;j<skill_list.Count;j++)
-                {
-                    skill_list[j].MoveUp(CARD_GAP);
-                }
+                disabledCount++;
             }
             else
             {
+                if (disabledCount > 0)
+                {
+                    skillCard.MoveUp(CARD_GAP * disabledCount);
+                }
                 delay+=0.1f;
                 content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
             }
@@ -148,7 +162,6 @@ public class SkillArea : UIView<SkillArea>
     {
         isDragging = true;
 
-        // 停止回弹动画，防止拖动时卡顿
         reboundTween?.Kill();
 
         velocityY = 0;
@@ -160,12 +173,13 @@ public class SkillArea : UIView<SkillArea>
         float delta = eventData.position.y - lastMouseY;
         lastMouseY = eventData.position.y;
 
-        // 内容短时加入阻力
-        if (content.rect.height <viewport.rect.height||content.anchoredPosition.y <= viewport.anchoredPosition.y|| content.anchoredPosition.y - content.rect.height >= viewport.anchoredPosition.y - viewport.rect.height)
+        if (ShouldApplyRubber())
+        {
             delta *= rubberPower;
+        }
 
         MoveContent(delta);
-        velocityY = delta / Time.deltaTime; // 记录速度
+        velocityY = Time.deltaTime > 0f ? delta / Time.deltaTime : 0f;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -184,11 +198,7 @@ public class SkillArea : UIView<SkillArea>
 
     void TryRebound()
     {
-        float contentHeight = content.rect.height;
-        float viewHeight = viewport.rect.height;
-
-        // 内容比可视区域短 → 一定回弹到 x = 0
-        if (contentHeight <= viewHeight)
+        if (!CanScroll)
         {
             PlayRebound(Vector2.zero);
             return;
@@ -200,19 +210,126 @@ public class SkillArea : UIView<SkillArea>
             return;
         }
 
-        float max = contentHeight - viewHeight;
+        float max = MaxScrollOffsetY;
         if (content.anchoredPosition.y > max)
         {
             PlayRebound(new Vector2(content.anchoredPosition.x, max));
-            return;
         }
     }
 
-    // DOTween 回弹
     void PlayRebound(Vector2 target)
     {
         reboundTween?.Kill();
+        if (Vector2.Distance(content.anchoredPosition, target) <= Mathf.Epsilon)
+        {
+            content.anchoredPosition = target;
+            return;
+        }
 
         reboundTween = content.DOAnchorPos(target, reboundDuration).SetEase(reboundEase);
+    }
+
+    void ConfigureDragTrigger()
+    {
+        eventTrigger = gameObject.GetComponent<EventTrigger>() ?? gameObject.AddComponent<EventTrigger>();
+        eventTrigger.triggers ??= new List<EventTrigger.Entry>();
+        eventTrigger.triggers.Clear();
+
+        AddTrigger(EventTriggerType.BeginDrag, data => OnBeginDrag((PointerEventData)data));
+        AddTrigger(EventTriggerType.EndDrag, data => OnEndDrag((PointerEventData)data));
+        AddTrigger(EventTriggerType.Drag, data => OnDrag((PointerEventData)data));
+    }
+
+    void AddTrigger(EventTriggerType eventType, UnityAction<BaseEventData> callback)
+    {
+        EventTrigger.Entry entry = new EventTrigger.Entry
+        {
+            eventID = eventType
+        };
+        entry.callback.AddListener(callback);
+        eventTrigger.triggers.Add(entry);
+    }
+
+    bool ShouldApplyRubber()
+    {
+        return !CanScroll || IsOutOfBounds();
+    }
+
+    bool IsOutOfBounds()
+    {
+        float offsetY = content.anchoredPosition.y;
+        return offsetY < 0f || offsetY > MaxScrollOffsetY;
+    }
+
+    void OnDisable()
+    {
+        UnregisterScrollInput();
+        reboundTween?.Kill();
+        isDragging = false;
+        velocityY = 0f;
+    }
+
+    void OnEnable()
+    {
+        RegisterScrollInput();
+    }
+
+    void RegisterScrollInput()
+    {
+        if (scrollRegistered || InputController.InputAction == null)
+        {
+            return;
+        }
+
+        InputController.InputAction.System.Scroll.performed += OnScroll;
+        scrollRegistered = true;
+    }
+
+    void UnregisterScrollInput()
+    {
+        if (!scrollRegistered || InputController.InputAction == null)
+        {
+            return;
+        }
+
+        InputController.InputAction.System.Scroll.performed -= OnScroll;
+        scrollRegistered = false;
+    }
+
+    void OnScroll(InputAction.CallbackContext context)
+    {
+        if (isDragging || !IsPointerOverViewport())
+        {
+            return;
+        }
+
+        float scrollY = context.ReadValue<Vector2>().y;
+        if (Mathf.Abs(scrollY) <= Mathf.Epsilon)
+        {
+            return;
+        }
+
+        reboundTween?.Kill();
+        velocityY = 0f;
+        MoveContent(-scrollY * scrollPower);
+        TryRebound();
+    }
+
+    bool IsPointerOverViewport()
+    {
+        Vector2 pointerPosition = Mouse.current?.position.ReadValue()
+            ?? new Vector2(MouseListener.MousePosition.x, MouseListener.MousePosition.y);
+        return RectTransformUtility.RectangleContainsScreenPoint(viewport, pointerPosition, eventCamera);
+    }
+
+    Camera GetEventCamera()
+    {
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return canvas.worldCamera;
     }
 }
