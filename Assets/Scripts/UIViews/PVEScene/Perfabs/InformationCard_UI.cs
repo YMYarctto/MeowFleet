@@ -220,7 +220,7 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
             eventData.position,
             uiCamera
         );
-        Debug.Log($"Hover linkIndex = {linkIndex}, last = {lastLinkIndex}");
+        // Debug.Log($"Hover linkIndex = {linkIndex}, last = {lastLinkIndex}");
 
         if (linkIndex == lastLinkIndex)
         return;

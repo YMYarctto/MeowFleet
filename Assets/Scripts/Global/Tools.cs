@@ -16,6 +16,19 @@ public static class Tools
         }
     }
 
+    public static void AddUnique<T>(List<T> a, List<T> b)
+    {
+        var set = new HashSet<T>(a);
+
+        foreach (var item in b)
+        {
+            if (set.Add(item))
+            {
+                a.Add(item);
+            }
+        }
+    }
+
     private static readonly Dictionary<int, string> romanMap = new Dictionary<int, string>
     {
         {1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"},

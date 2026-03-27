@@ -371,10 +371,10 @@ public class PVEController : MonoBehaviour
                     STATUS = InformationCard_UI.Status.Capture;
                     OnEnemyShipCaptured?.Invoke();
                 }
+                List<Vector3> _coords = EnemyController.instance.CheckWholeShip(message.ShipID);
+                Tools.AddUnique(info_dict[message.ShipID],_coords);
                 PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
                 information_board.GetInformation(message.ShipID).SetInfo(info_dict[message.ShipID],message.ShipName).Show(STATUS);
-                List<Vector3> _coords = EnemyController.instance.CheckWholeShip(message.ShipID);
-                info_dict[message.ShipID].Union(_coords);
             }
         }
         if(GameOver)
