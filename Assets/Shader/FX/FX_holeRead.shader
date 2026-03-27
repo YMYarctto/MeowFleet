@@ -64,7 +64,7 @@ Shader "UI/FX_holeRead"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                half alpha = 0.2;
+                half alpha = 0.3;
                 alpha *= i.color.a;
                 return fixed4(_Color.rgb, alpha);
             }
