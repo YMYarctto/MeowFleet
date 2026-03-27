@@ -408,7 +408,7 @@ public class PVEController : MonoBehaviour
         foreach (var v2 in new List<Vector2Int>(coords))
         {
             if(hitted_coords.Contains(v2))continue;
-            ActionMessage message = EnemyController.instance.PlayerCheck(v2);
+            ActionMessage message = EnemyController.instance.PlayerCheck(v2,typeof(T) == typeof(radar));
             Debug.Log(message);
             messages.Add(message);
             if(!message.Contains(ActionMessage.ActionResult.Miss))

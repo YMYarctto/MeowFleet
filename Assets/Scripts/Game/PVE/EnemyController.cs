@@ -207,9 +207,12 @@ public class EnemyController : MonoBehaviour
         enemy_turn.Play();
     }
 
-    public ActionMessage PlayerCheck(Vector2Int coord)
+    public ActionMessage PlayerCheck(Vector2Int coord,bool search = true)
     {
-        gridCellGroup_Enemy.Check(coord);
+        if (search)
+        {
+            gridCellGroup_Enemy.Check(coord);
+        }
         return layout_map.Checkout(coord);
     }
 
