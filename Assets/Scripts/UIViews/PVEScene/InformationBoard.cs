@@ -5,16 +5,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class InformationBoard : UIView<InformationBoard>
 {
-    const float CARD_GAP = 160f;
     const float MIN_INERTIA_VELOCITY = 5f;
 
-    readonly Vector3 card_start_pos = new(300,0,0);
-    readonly Vector2 init_size = new(590,0);
+    readonly Vector2 init_size = new(590,84);
 
-    readonly List<InformationCard_UI> card_list = new();
+    readonly Dictionary<int,InformationCard_UI> card_dict = new();
 
     float rubberPower = 0.2f;
     float inertia = 0.90f;
@@ -27,18 +26,18 @@ public class InformationBoard : UIView<InformationBoard>
     RectTransform content;
     RectTransform viewport;
     InfomationRollBar infomationRollBar;
+    TMP_Text title;
+    int max_enemy_count;
+    int current_enemy_count;
 
     Tweener reboundTween;
     EventTrigger eventTrigger;
     Camera eventCamera;
-    Vector3 nextCardPos;
+    float cardGap;
 
     bool isDragging;
     bool scrollRegistered;
     public bool IsDragging => isDragging;
-
-    int round;
-    string stage;
 
     protected override UnityAction WaitForAllUIViewAdded => SetUpRollBar;
 
@@ -55,8 +54,9 @@ public class InformationBoard : UIView<InformationBoard>
         InformationCard_UI.ResetID();
         viewport = transform.Find("viewport").GetComponent<RectTransform>();
         content = viewport.Find("content").GetComponent<RectTransform>();
+        title = content.Find("InformationTitle").GetComponentInChildren<TMP_Text>();
         eventCamera = GetEventCamera();
-        nextCardPos = card_start_pos;
+        cardGap = GetCardHeight();
 
         content.anchoredPosition = Vector2.zero;
         content.sizeDelta = init_size;
@@ -83,20 +83,16 @@ public class InformationBoard : UIView<InformationBoard>
         RefreshRollBar();
     }
 
-    public void SetRound(int r)
+    public void InitInfoTitle(int count)
     {
-        round = r;
+        max_enemy_count = count;
+        current_enemy_count = 0;
+        SetTitleText(current_enemy_count);
     }
 
-    public void SetStage(PVEController.PVEState s)
+    void SetTitleText(int count)
     {
-        stage = s switch
-        {
-            PVEController.PVEState.PlayerAttack => "齐射阶段",
-            PVEController.PVEState.PlayerSkill => "技能阶段",
-            PVEController.PVEState.EnemyAttack => "敌方回合",
-            _ => "敌方回合",
-        };
+        title.text = $"敌方情报 ( {count} / {max_enemy_count} )";
     }
 
     public void Set(float per)
@@ -106,11 +102,6 @@ public class InformationBoard : UIView<InformationBoard>
         float targetY = Mathf.Clamp01(per) * UnviewLength;
         content.anchoredPosition = new Vector2(content.anchoredPosition.x, targetY);
         RefreshRollBar();
-    }
-
-    public string GetTitle()
-    {
-        return $"第 {round} 回合：{stage}";
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -200,18 +191,36 @@ public class InformationBoard : UIView<InformationBoard>
         PlayRebound(new Vector2(content.anchoredPosition.x, MaxScrollOffsetY));
     }
 
-    public InformationCard_UI NewInformation()
+    InformationCard_UI NewInformation(int id)
     {
+        int cardIndex = content.childCount-1;
+        Vector2 targetPosition = new(0f, -cardIndex * cardGap-86f);
+        float startYOffset = cardGap;
+
         InformationCard_UI.PrepareNextID();
         GameObject card = Instantiate(ResourceManager.instance.GetPerfabByType<InformationCard_UI>(), content, false);
         InformationCard_UI card_ui = card.GetComponent<InformationCard_UI>();
-        card.transform.localPosition = nextCardPos;
-        nextCardPos.y -= CARD_GAP;
-        card_list.Add(card_ui);
-        content.sizeDelta = new Vector2(content.sizeDelta.x,content.sizeDelta.y+CARD_GAP);
+        RectTransform cardRect = card.GetComponent<RectTransform>();
+
+        card_ui.SetID(id);
+        card_ui.SetAnimationPosition(targetPosition, startYOffset);
+        cardRect.SetSiblingIndex(0);
+        SetTitleText(++current_enemy_count);
+
+        card_dict[id] = card_ui;
+        content.sizeDelta = new Vector2(content.sizeDelta.x,(cardIndex + 1) * cardGap);
         MoveToEnd();
 
         return card_ui;
+    }
+
+    public InformationCard_UI GetInformation(int id)
+    {
+        if(!card_dict.TryGetValue(id,out var ui))
+        {
+            return NewInformation(id);
+        }
+        return ui;
     }
 
     void ConfigureDragTrigger()
@@ -328,5 +337,12 @@ public class InformationBoard : UIView<InformationBoard>
         }
 
         return canvas.worldCamera;
+    }
+
+    float GetCardHeight()
+    {
+        GameObject prefab = ResourceManager.instance.GetPerfabByType<InformationCard_UI>();
+        RectTransform rect = prefab.GetComponent<RectTransform>();
+        return rect.rect.height > 0f ? rect.rect.height : rect.sizeDelta.y;
     }
 }

@@ -65,6 +65,7 @@ public class EnemyController : MonoBehaviour
 
         int ShipID = 20000;
         enemy_ships_id = LoadDataManager.instance.PVELoadData.EnemyGroupList;
+        InformationBoard.GetUIView().InitInfoTitle(enemy_ships_id.Count);
         Dictionary<int,int> dataId_count = new();
         enemy_ship = enemy_ships_id.ConvertAll(id =>
         {
@@ -77,8 +78,8 @@ public class EnemyController : MonoBehaviour
             }
             if(dataId_count.TryGetValue(id,out int count))
             {
-                count++;
-                ship.SetNameSuffix(count);
+                dataId_count[id]++;
+                ship.SetNameSuffix(++count);
             }
             else
             {
@@ -335,14 +336,12 @@ Checkout:
         {
             ActionMessage message = kv.Value;
             PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, SPYON);
-            PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, SPYON).Enable();
         }
         else if(skill is interference) foreach(var kv in message_dict)
         {
             ActionMessage message = kv.Value;
             string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
             PVE_Notice.Create().ShowNotice_BeInterference(message.ShipName, LOCATE);
-            PVEController.instance.GetNewInfoCard(message.ShipID).BeInterference(message.ShipName, LOCATE).Enable();
         }
         goto End;
 Update:
@@ -447,7 +446,6 @@ End:
         {
             string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
             PVE_Notice.Create().ShowNotice_BeHit(message.ShipName, LOCATE);
-            PVEController.instance.GetNewInfoCard(message.ShipID).BeHit(message.ShipName, LOCATE).Enable();
         }
         else if (message.Contains(ActionMessage.ActionResult.Destroyed))
         {
@@ -461,7 +459,6 @@ End:
                 ACTION = CAPTURE;
             }
             PVE_Notice.Create().ShowNotice_BeAction(message.ShipName, ACTION);
-            PVEController.instance.GetNewInfoCard(message.ShipID).BeAction(message.ShipName, ACTION).Enable();
         }
     }
 }

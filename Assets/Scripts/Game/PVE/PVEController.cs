@@ -141,8 +141,6 @@ public class PVEController : MonoBehaviour
             StartCoroutine(SetInfo_WaitForEndOfFrame(ship.ShipId));
         }
 
-        information_board.SetRound(Round);
-        information_board.SetStage(currentState);
         InputController.InputAction.System.ESC.started += PVEMenu;
     }
 
@@ -345,25 +343,39 @@ public class PVEController : MonoBehaviour
         {
             if (message.Contains(ActionMessage.ActionResult.Hit))
             {
-                string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
+                string LOCATE;
+                InformationCard_UI.Status STATUS;
+                if(message.Locate == ActionMessage.ActionLocate.core)
+                {
+                    LOCATE = CORE;
+                    STATUS = InformationCard_UI.Status.Hit_Core;
+                }
+                else
+                {
+                    LOCATE = BODY;
+                    STATUS = InformationCard_UI.Status.Hit_Body;
+                }
                 PVE_Notice.Create().ShowNotice_Hit(message.ShipName, LOCATE);
-                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Hit(message.ShipName, LOCATE).Enable();
+                information_board.GetInformation(message.ShipID).SetInfo(info_dict[message.ShipID],message.ShipName).Show(STATUS);
             }
             else if (message.Contains(ActionMessage.ActionResult.Destroyed))
             {
                 string ACTION;
+                InformationCard_UI.Status STATUS;
                 if(message.CoreDamaged)
                 {
                     ACTION = DESTROY;
+                    STATUS = InformationCard_UI.Status.Destroy;
                     OnEnemyShipDestroyed?.Invoke();
                 }
                 else
                 {
                     ACTION = CAPTURE;
+                    STATUS = InformationCard_UI.Status.Capture;
                     OnEnemyShipCaptured?.Invoke();
                 }
                 PVE_Notice.Create().ShowNotice_Destroy(message.ShipName, ACTION);
-                information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Destroy(message.ShipName, ACTION).Enable();
+                information_board.GetInformation(message.ShipID).SetInfo(info_dict[message.ShipID],message.ShipName).Show(STATUS);
                 List<Vector3> _coords = EnemyController.instance.CheckWholeShip(message.ShipID);
                 info_dict[message.ShipID].Union(_coords);
             }
@@ -433,7 +445,7 @@ public class PVEController : MonoBehaviour
                 {
                     string LOCATE = message.Locate == ActionMessage.ActionLocate.core ? CORE : BODY;
                     PVE_Notice.Create().ShowNotice_Check(message.ShipName, LOCATE);
-                    information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Check(message.ShipName, LOCATE).Enable();
+                    information_board.GetInformation(message.ShipID).SetInfo(info_dict[message.ShipID],message.ShipName).Show(InformationCard_UI.Status.Check);
                 }
             }
             else if (typeof(T) == typeof(interference))
@@ -442,7 +454,6 @@ public class PVEController : MonoBehaviour
                 {
                     EnemyController.instance.EnemyLayoutMap.GetShip(message.Target).Buff.AddBuff(message.Locate == ActionMessage.ActionLocate.core ? EBuff.Interferenced_core : EBuff.Interferenced_body, 1);
                     PVE_Notice.Create().ShowNotice_Interference();
-                    information_board.NewInformation().SetInfoID(message.ShipID, info_dict[message.ShipID]).Interference().Enable();
                 }
             }
         }
@@ -528,7 +539,6 @@ public class PVEController : MonoBehaviour
         Round++;
         RoundNotice_Animator.GetUIView().ChangeRound(Round);
         NextState(1);
-        information_board.SetRound(Round);
     }
 
     public void NextState(int n)
@@ -536,7 +546,6 @@ public class PVEController : MonoBehaviour
         int next = ((int)currentState + n) % Enum.GetValues(typeof(PVEState)).Length;
         currentState = (PVEState)next;
         Debug.Log(currentState.ToString());
-        information_board.SetStage(currentState);
         if (currentState == PVEState.EnemyAttack)
         {
             BuffNextRound_Player();
@@ -576,11 +585,6 @@ public class PVEController : MonoBehaviour
     }
 
     // Get
-
-    public InformationCard_UI GetNewInfoCard(int id)
-    {
-        return information_board.NewInformation().SetInfoID(id,info_dict[id]);
-    }
 
     public List<int> GetPlayerShipsID()
     {

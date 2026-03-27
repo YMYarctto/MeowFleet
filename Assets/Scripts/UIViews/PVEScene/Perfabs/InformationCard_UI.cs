@@ -21,10 +21,19 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
     Camera uiCamera;
     InformationWindow_UI bind_window;
 
+    public int InfoID {get;private set;}
+    int weight = 0;
+    bool newCard = true;
+
     TMP_Text title;
     TMP_Text content;
+    RectTransform rectTransform;
+    CanvasGroup content_img;
 
     EventTrigger eventTrigger;
+    Tween enterTween;
+    Sequence textSequence;
+    Vector2 targetAnchoredPos;
 
     public static void ResetID()
     {
@@ -40,10 +49,11 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
 
     public override void Init()
     {
+        rectTransform = GetComponent<RectTransform>();
         Transform inner = transform.Find("inner");
         title = inner.Find("title").GetComponent<TMP_Text>();
         content = inner.Find("content").GetComponent<TMP_Text>();
-        title.text = InformationBoard.GetUIView().GetTitle();
+        content_img = content.GetComponent<CanvasGroup>();
         var canvas = content.canvas;
         uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
             ? null
@@ -80,57 +90,96 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
 
     public override void Enable()
     {
-        transform.DOLocalMoveX(-295,0.3f).SetEase(Ease.OutQuad);
+        newCard = false;
+        enterTween?.Kill();
+        enterTween = rectTransform.DOAnchorPos(targetAnchoredPos,0.3f).SetEase(Ease.OutQuad);
     }
 
-    public InformationCard_UI Hit(string ship_str, string locate)
+    void PlayTextAnimation(string text)
     {
-        content.text = $"你命中了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
-        return this;
+        float localX = content.transform.localPosition.x;
+        textSequence?.Kill();
+        textSequence = DOTween.Sequence();
+        textSequence.Append(content.transform.DOLocalMoveX(localX+200f,0.2f).SetEase(Ease.OutQuad));
+        textSequence.Join(content_img.DOFade(0,0.2f).SetEase(Ease.OutQuad));
+        textSequence.AppendCallback(()=>content.text = text);
+        textSequence.Insert(0.3f,content_img.DOFade(1,0.2f).SetEase(Ease.InQuad));
+        textSequence.Insert(0.3f,content.transform.DOLocalMoveX(localX,0.2f).SetEase(Ease.InQuad));
     }
-    
-    public InformationCard_UI Destroy(string ship_str,string action)
+
+    bool Weight(int w)
     {
-        content.text = $"你{action}了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>";
+        if (w > weight)
+        {
+            weight = w;
+            return true;
+        }
+        return false;
+    }
+
+    public void Show(Status status)
+    {
+        switch(status)
+        {
+            case Status.Check:
+                if (Weight(1))
+                {
+                    PlayTextAnimation("被侦查");
+                }
+                break;
+            case Status.Hit_Body:
+                if (Weight(2))
+                {
+                    PlayTextAnimation("船体受损");
+                }
+                break;
+            case Status.Hit_Core:
+                if(Weight(3))
+                {
+                    PlayTextAnimation("核心受损");
+                }
+                break;
+            case Status.Capture:
+                if (Weight(4))
+                {
+                    PlayTextAnimation("已俘获");
+                }
+                break;
+            case Status.Destroy:
+                if(Weight(5))
+                {
+                    PlayTextAnimation("已击沉");
+                }
+                break;
+        }
+        if (!newCard)
+        {
+            return;
+        }
+        Enable();
+    }
+
+    public InformationCard_UI SetInfo(List<Vector3> hole_positions,string ship_name)
+    {
+        if (hole_v3==null)
+        {
+            hole_v3 = hole_positions;
+            title.text = $"<link={info_id}><color=#b51d04>【 {ship_name} 】</color></link>";
+            UIManager.instance.TryGetUIView(InfoID,out bind_window);
+        }
         return this;
     }
 
-    public InformationCard_UI Check(string ship_str, string locate)
-    {
-        content.text = $"你侦查到了<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>的{locate}";
-        return this;
-    }
-
-    public InformationCard_UI Interference()
-    {
-        content.text = $"你干扰到了敌方舰船";
-        return this;
-    }
-
-    public InformationCard_UI BeHit(string ship_str, string locate)
-    {
-        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>{locate}被命中了";
-        return this;
-    }
-
-    public InformationCard_UI BeAction(string ship_str, string action)
-    {
-        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>被{action}了";
-        return this;
-    }
-
-    public InformationCard_UI BeInterference(string ship_str, string locate)
-    {
-        content.text = $"你的<link={info_id}><color=#b51d04>【 {ship_str} 】</color></link>{locate}被干扰了";
-        return this;
-    }
-
-    public InformationCard_UI SetInfoID(int id,List<Vector3> hole_positions)
+    public void SetID(int id)
     {
         info_id = id.ToString();
-        hole_v3 = hole_positions;
-        UIManager.instance.TryGetUIView(id,out bind_window);
-        return this;
+        InfoID = id;
+    }
+
+    public void SetAnimationPosition(Vector2 targetPosition,float startYOffset)
+    {
+        targetAnchoredPos = targetPosition;
+        rectTransform.anchoredPosition = new Vector2(targetPosition.x, targetPosition.y + startYOffset);
     }
     
     public void OnBeginDrag(PointerEventData eventData)
@@ -167,11 +216,11 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
     void CheckHover(PointerEventData eventData)
     {        
         int linkIndex = TMP_TextUtilities.FindIntersectingLink(
-            content,
+            title,
             eventData.position,
             uiCamera
         );
-        // Debug.Log($"Hover linkIndex = {linkIndex}, last = {lastLinkIndex}");
+        Debug.Log($"Hover linkIndex = {linkIndex}, last = {lastLinkIndex}");
 
         if (linkIndex == lastLinkIndex)
         return;
@@ -189,7 +238,7 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
     void ApplyHoverColor(int linkIndex)
     {
         if (!PVEController.instance.PlayerAction)return;
-        TMP_LinkInfo linkInfo = content.textInfo.linkInfo[linkIndex];
+        TMP_LinkInfo linkInfo = title.textInfo.linkInfo[linkIndex];
         string id = linkInfo.GetLinkID();
         if (id != info_id && currentHoverId != info_id) return;
         HoleOverlay.GetUIView().ShowOverlay(hole_v3.ToArray());
@@ -198,20 +247,20 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
         for (int i = 0; i < linkInfo.linkTextLength; i++)
         {
             int charIndex = linkInfo.linkTextfirstCharacterIndex + i;
-            var charInfo = content.textInfo.characterInfo[charIndex];
+            var charInfo = title.textInfo.characterInfo[charIndex];
             if (!charInfo.isVisible) continue;
 
             int meshIndex = charInfo.materialReferenceIndex;
             int vertexIndex = charInfo.vertexIndex;
 
-            Color32[] colors = content.textInfo.meshInfo[meshIndex].colors32;
+            Color32[] colors = title.textInfo.meshInfo[meshIndex].colors32;
             colors[vertexIndex + 0] = PresetColor.Text_Hower;
             colors[vertexIndex + 1] = PresetColor.Text_Hower;
             colors[vertexIndex + 2] = PresetColor.Text_Hower;
             colors[vertexIndex + 3] = PresetColor.Text_Hower;
         }
 
-        content.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
+        title.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
         bind_window?.Enable(PVEController.instance.UICamera.WorldToScreenPoint(transform.position)+window_delta);
         if(bind_window!=null)
         {
@@ -231,8 +280,22 @@ public class InformationCard_UI : UIView<InformationCard_UI>,IPointerMoveHandler
         }
         if (lastLinkIndex == -1) return;
         HoleOverlay.GetUIView().ClearOverlay();
-        content.ForceMeshUpdate();
+        title.ForceMeshUpdate();
         lastLinkIndex = -1;
         bind_window?.Disable();
+    }
+
+    void OnDisable()
+    {
+        enterTween?.Kill();
+    }
+
+    public enum Status
+    {
+        Check,
+        Hit_Body,
+        Hit_Core,
+        Capture,
+        Destroy,
     }
 }
