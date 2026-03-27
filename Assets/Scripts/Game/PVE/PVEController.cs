@@ -140,8 +140,6 @@ public class PVEController : MonoBehaviour
             StartCoroutine(SetPosition_WaitForEndOfFrame(kv.Key, obj.GetComponent<Ship_PVE>()));
             StartCoroutine(SetInfo_WaitForEndOfFrame(ship.ShipId));
         }
-
-        InputController.InputAction.System.ESC.started += PVEMenu;
     }
 
     void OnEnable()
@@ -154,7 +152,6 @@ public class PVEController : MonoBehaviour
     {
         InputController.InputAction.PVEMap.Rotate.started -= Rotate;
         InputController.InputAction.PVEMap.NextState.started -= NextState;
-        InputController.InputAction.System.ESC.started -= PVEMenu;
     }
 
     IEnumerator SetPosition_WaitForEndOfFrame(Vector2Int coord, Ship_PVE ship)
@@ -672,12 +669,6 @@ public class PVEController : MonoBehaviour
     public void NextState(InputAction.CallbackContext ctx)
     {
         NextState();
-    }
-
-    public void PVEMenu(InputAction.CallbackContext ctx)
-    {
-        BGAnimator_GameSetting.GetUIView().SettingEnable();
-        InputController.instance.LoadBindings();
     }
 
     public enum PVEState
