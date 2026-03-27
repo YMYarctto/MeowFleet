@@ -12,6 +12,8 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     int _id = pendingID;
     public override int ID => _id;
 
+    static SkillCard_UI lastSelect = null;
+
     Skill skill;
     public List<Vector2Int> SkillRange => skill.SkillRange;
 
@@ -44,6 +46,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     public override void Init()
     {
+        lastSelect = null;
         canvasGroup = GetComponent<CanvasGroup>();
         card_trans = transform.Find("bg");
         inner_image = card_trans.Find("inner").GetComponent<CanvasGroup>();
@@ -173,8 +176,14 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     private void OnPointerEnter(PointerEventData eventData)
     {
+        if (lastSelect != null)
+        {
+            lastSelect.DoPointerExit();
+        }
+        lastSelect = this;
         if(is_select)
         {
+            need_exit = false;
             return;
         }
         pointerLock=true;
@@ -184,6 +193,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     private void OnPointerExit(PointerEventData eventData)
     {
+        lastSelect = null;
         if (is_select)
         {
             need_exit = true;
@@ -197,6 +207,13 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     {
         if(SkillArea.GetUIView().IsDragging)
         {
+            return;
+        }
+        if (is_select)
+        {
+            SkillArea.GetUIView().SelectSkillCard(null);
+            OnSelectEnd();
+            PVEController.instance.ClearSelectedSkill();
             return;
         }
         is_select = true;
@@ -213,6 +230,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     public void OnSelectEnd()
     {
         is_select = false;
+        pointerLock = true;
         if(need_exit)
         {
             DoPointerExit();
