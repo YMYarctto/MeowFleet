@@ -23,7 +23,7 @@ public class Ship
     public int ShipId => id;
     public int Direction => _direction;
     public string Name => $"{shipData.ship_name_string}{name_suffix}";
-    public Skill_Enum Skill => shipData.skill_name;
+    public Skill_Enum SkillString => shipData.skill_name;
     public List<Vector2Int> SkillRange => new(shipData.skill_coord);
     public BuffPool Buff => buff;
     public bool LossOfMobility => body_condition.All(v=>v==0);

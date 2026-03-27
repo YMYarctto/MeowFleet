@@ -57,7 +57,7 @@ public class PVEController : MonoBehaviour
     public bool OnAnim => onAnim;
 
     public int Round;
-    public int PlayerShootCount => player_layout_map.AttackCount;
+    public int PlayerShootCount => player_layout_map.GetAttackCount();
     int current_shoot_count;
 
     public Transform UI_Notice;
@@ -577,6 +577,7 @@ public class PVEController : MonoBehaviour
     {
         foreach(var ship in player_ships.Values)
         {
+            Debug.Log($"{ship.Name}:{ship.Buff}");
             ship.Buff.NextRound();
         }
     }

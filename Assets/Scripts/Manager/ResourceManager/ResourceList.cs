@@ -38,5 +38,6 @@ public static class ResourceList
         {"bomb_focus#2_AB0",new(0.5f,0.5f)},
         {"bomb_wide#2_B1",new(0.5f,0.5f)},
         {"torpedo#4_A0",new(0.75f,0.25f)},
+        {"interference#0_B1",new(0.5f,0.5f)},
     };
 }

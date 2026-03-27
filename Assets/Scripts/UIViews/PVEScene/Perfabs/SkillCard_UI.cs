@@ -26,6 +26,8 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     Transform card_trans;
     Transform shadow;
+    CanvasGroup canvasGroup;
+    CanvasGroup inner_image;
 
     Tween waveTween;
     Tween clickTween;
@@ -42,8 +44,10 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     public override void Init()
     {
+        canvasGroup = GetComponent<CanvasGroup>();
         card_trans = transform.Find("bg");
-        shadow = card_trans.Find("mask").Find("shadow_2");
+        inner_image = card_trans.Find("inner").GetComponent<CanvasGroup>();
+        shadow = inner_image.transform.Find("mask").Find("shadow_2");
         rect = GetComponent<RectTransform>();
 
         eventTrigger = gameObject.AddComponent<EventTrigger>();
@@ -85,7 +89,7 @@ public class SkillCard_UI : UIView<SkillCard_UI>
     {
         skill = Skill.Get(ship,this);
         Sprite sprite = ResourceManager.instance.GetSpriteByType(skill.GetType());
-        if(sprite!=null)card_trans.Find("image").GetComponent<Image>().sprite = sprite;
+        if(sprite!=null)inner_image.transform.Find("image").GetComponent<Image>().sprite = sprite;
         this_initPos = transform.localPosition;
 
         isInit =true;
@@ -111,14 +115,20 @@ public class SkillCard_UI : UIView<SkillCard_UI>
 
     public bool SetActive(float delay=0)
     {
-        SetActive(skill.CanSkill,delay);
-        return skill.CanSkill;
+        SetActive(!skill.CoreDamaged,delay);
+        return !skill.CoreDamaged;
     }
 
     public void SetActive(bool active,float delay=0)
     {
         moveTween?.Kill();
         moveTween = transform.DOLocalMoveX(active?-215:-915,0.3f).SetDelay(active?delay:0).SetEase(Ease.InOutQuad);
+        if (active == false)
+        {
+            return;
+        }
+        inner_image.alpha = skill.BeInterferenced?0.5f:1;
+        canvasGroup.interactable = canvasGroup.blocksRaycasts = skill.BeInterferenced?false:true;
     }
 
     private void Wave()

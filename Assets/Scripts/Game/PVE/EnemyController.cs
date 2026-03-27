@@ -33,7 +33,7 @@ public class EnemyController : MonoBehaviour
 
     EnemyBehavior AI;
 
-    public int EnemyShootCount => layout_map.AttackCount;
+    public int EnemyShootCount => layout_map.GetAttackCount();
 
     List<int> torpedo_hit;
 

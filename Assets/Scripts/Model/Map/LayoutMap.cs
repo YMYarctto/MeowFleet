@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class LayoutMap
@@ -10,8 +11,6 @@ public class LayoutMap
     Dictionary<Vector2Int, ShipStatus> _ship_map;// -> ship_id
     Dictionary<Vector2Int, int> _status_map;// -> count
     Dictionary<int, int> _data_id;// ship_id -> dataId
-
-    public int AttackCount => _absolute_layout_map.Count(kv => kv.Value.BodyList.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0));
 
     struct ShipStatus
     {
@@ -177,5 +176,23 @@ public class LayoutMap
             return null;
         }
         return _ship_map[coord].Ship;
+    }
+
+    public int GetAttackCount()
+    {
+        int count = 0;
+        foreach(var kv in _absolute_layout_map)
+        {
+            if(kv.Value.BodyList.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0))
+            {
+                Ship ship = GetShip(kv.Key);
+                if(ship.Buff.Interferenced_body || ship.Buff.Interferenced_core)
+                {
+                    continue;
+                }
+                count++;
+            }
+        }
+        return count;
     }
 }

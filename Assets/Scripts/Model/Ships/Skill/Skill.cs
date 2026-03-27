@@ -15,7 +15,9 @@ public abstract class Skill
     public PVEController.PVEMap TargetMap =>on_enemy_map?PVEController.PVEMap.Enemy:PVEController.PVEMap.Player;
     public Vector2Int Direction => _direction;
 
-    public bool CanSkill=>(ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage)&&!ship.Buff.Interferenced_core;
+    public bool CanSkill => !CoreDamaged&&!BeInterferenced;
+    public bool CoreDamaged => !(ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage);
+    public bool BeInterferenced => ship.Buff.Interferenced_core;
 
     abstract public int Order { get; }
 
@@ -46,11 +48,11 @@ public abstract class Skill
 
     public static Skill Get(Ship ship,SkillCard_UI ui)
     {
-        Skill_Enum skill = ship.Skill;
+        Skill_Enum skill = ship.SkillString;
         Skill _this = skill switch
         {
             Skill_Enum.radar => new radar(),
-            Skill_Enum.interference => null,
+            Skill_Enum.interference => new interference(),
             Skill_Enum.bomb_focus => new bomb_focus(),
             Skill_Enum.bomb_wide => new bomb_wide(),
             Skill_Enum.repair => null,

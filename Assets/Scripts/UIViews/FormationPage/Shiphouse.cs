@@ -64,6 +64,7 @@ public class Shiphouse : UIView<Shiphouse>
 
     void OnEnable()
     {
+        //Temp
         ShipManager.instance.New();
         foreach(var kv in ShipManager.instance.Shiphouse)
         {

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShipManager : MonoBehaviour
+public class ShipManager : Manager<ShipManager>
 {
     public List<int> DataID;
 
@@ -10,24 +10,6 @@ public class ShipManager : MonoBehaviour
     Dictionary<int, Ship> shipDict;
 
     public Dictionary<int,Ship> Shiphouse => new(shipDict);
-
-    private static ShipManager _instance;
-    public static ShipManager instance
-    {
-        get
-        {
-            if (!_instance)
-            {
-                _instance = FindObjectOfType(typeof(ShipManager)) as ShipManager;
-                if (!_instance)
-                {
-                    Debug.LogError("场景中未找到 ShipManager");
-                    return null;
-                }
-            }
-            return _instance;
-        }
-    }
 
     public void Init()
     {

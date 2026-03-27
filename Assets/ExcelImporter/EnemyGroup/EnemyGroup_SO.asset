@@ -17,17 +17,23 @@ MonoBehaviour:
     layer: 1
     size: 8
     enemy_list_string: '[14,14,14]'
-    weight: 2
+    weight: 1
     enemy_list: 
   - uid: A1
     layer: 1
     size: 10
     enemy_list_string: '[0,14,16,28]'
-    weight: 2
+    weight: 1
     enemy_list: 
   - uid: A2
     layer: 1
     size: 11
     enemy_list_string: '[0,16,28,28,28]'
+    weight: 1
+    enemy_list: 
+  - uid: A3
+    layer: 1
+    size: 11
+    enemy_list_string: '[0,2,14,16,28]'
     weight: 1
     enemy_list: 
