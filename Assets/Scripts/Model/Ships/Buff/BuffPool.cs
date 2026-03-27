@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BuffPool
@@ -28,18 +29,20 @@ public class BuffPool
 
     public void NextRound()
     {
-        List<EBuff> to_delete = new();
-        foreach (var kv in _dict)
+        List<EBuff> list = _dict.Keys.ToList();
+        foreach(var key in list)
         {
-            kv.Value.NextRound();
-            if(kv.Value.RoundEnd)
+            var buff = _dict[key];
+            buff.NextRound();
+            if(buff.RoundEnd)
             {
-                to_delete.Add(kv.Key);
+                _dict.Remove(key);
+                Debug.Log($"{key}效果已结束");
             }
-        }
-        foreach (var type in to_delete)
-        {
-            _dict.Remove(type);
+            else
+            {
+                _dict[key]=buff;
+            }
         }
     }
 
@@ -50,5 +53,16 @@ public class BuffPool
             return true;
         }
         return false;
+    }
+
+    public override string ToString()
+    {
+        string result = "{";
+        foreach(var kv in _dict)
+        {
+            result += $"{kv.Key}:{kv.Value},";
+        }
+        result+="}";
+        return result;
     }
 }

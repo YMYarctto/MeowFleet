@@ -29,4 +29,9 @@ public struct Buff
     {
         return this.type == type;
     }
+
+    public override string ToString()
+    {
+        return $"{{Value:{value},Round:{round}}}";
+    }
 }
