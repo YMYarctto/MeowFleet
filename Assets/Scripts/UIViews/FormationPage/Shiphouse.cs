@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class Shiphouse : UIView<Shiphouse>
 {
+    const float MIN_INERTIA_VELOCITY = 5f;
+
     List<ShipContainer> ship_list;
 
     RectTransform viewport;
@@ -14,6 +17,7 @@ public class Shiphouse : UIView<Shiphouse>
     float rubberPower = 0.2f;
     float inertia = 0.90f;
     float reboundDuration = 0.35f;
+    float scrollPower = 1f;
     Ease reboundEase = Ease.OutQuad;
 
     float seq_duration=0.3f;
@@ -25,10 +29,15 @@ public class Shiphouse : UIView<Shiphouse>
     Tweener reboundTween;
     Sequence decreaseSeq;
     EventTrigger eventTrigger;
+    Camera eventCamera;
+    bool scrollRegistered;
 
     Vector2 content_init = new(0,307);
     Vector3 ship_pos = new(50,0,0);
     const float CONTAINER_GAP = 50f;
+
+    float MaxScrollOffsetX => Mathf.Max(0f, content.rect.width - viewport.rect.width);
+    bool CanScroll => content.rect.width > viewport.rect.width;
 
     public override void Init()
     {
@@ -39,6 +48,7 @@ public class Shiphouse : UIView<Shiphouse>
         ship_list??=new();
         content = transform.Find("content").GetComponent<RectTransform>();
         viewport = GetComponent<RectTransform>();
+        eventCamera = GetEventCamera();
 
         content.sizeDelta = content_init;
 
@@ -70,19 +80,35 @@ public class Shiphouse : UIView<Shiphouse>
         {
             AddShipUI(kv.Key,kv.Value);
         }
+
+        RegisterScrollInput();
+    }
+
+    void OnDisable()
+    {
+        UnregisterScrollInput();
+        reboundTween?.Kill();
+        isDragging = false;
+        velocityX = 0f;
     }
 
     void Update()
     {
-        if (!isDragging)
+        if (isDragging || Mathf.Abs(velocityX) <= MIN_INERTIA_VELOCITY)
         {
-            // 惯性移动
-            if (Mathf.Abs(velocityX) > 5f)
+            if (!isDragging && velocityX != 0f)
             {
-                MoveContent(velocityX * Time.deltaTime);
-                velocityX *= inertia;
+                velocityX = 0f;
+                if (IsOutOfBounds())
+                {
+                    TryRebound();
+                }
             }
+            return;
         }
+
+        MoveContent(velocityX * Time.deltaTime);
+        velocityX *= IsOutOfBounds() ? inertia * rubberPower : inertia;
     }
 
     public void AddShipUI(int id,Ship ship)
@@ -145,12 +171,11 @@ public class Shiphouse : UIView<Shiphouse>
         float delta = eventData.position.x - lastMouseX;
         lastMouseX = eventData.position.x;
 
-        // 内容短时加入阻力
-        if (content.rect.width<viewport.rect.width || content.anchoredPosition.x <= viewport.anchoredPosition.x || content.anchoredPosition.x + content.rect.width >= viewport.anchoredPosition.x + viewport.rect.width)
+        if (ShouldApplyRubber())
             delta *= rubberPower;
 
         MoveContent(delta);
-        velocityX = delta / Time.deltaTime; // 记录速度
+        velocityX = Time.deltaTime > 0f ? delta / Time.deltaTime : 0f;
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -167,37 +192,102 @@ public class Shiphouse : UIView<Shiphouse>
         content.anchoredPosition = pos;
     }
 
+    bool ShouldApplyRubber()
+    {
+        return !CanScroll || IsOutOfBounds();
+    }
+
+    bool IsOutOfBounds()
+    {
+        float offsetX = content.anchoredPosition.x;
+        return offsetX > 0f || offsetX < -MaxScrollOffsetX;
+    }
+
     void TryRebound()
     {
-        float contentWidth = content.rect.width;
-        float viewWidth = viewport.rect.width;
-
-        // 内容比可视区域短 → 一定回弹到 x = 0
-        if (contentWidth <= viewWidth)
+        if (!CanScroll)
         {
-            PlayRebound(Vector2.zero);
+            PlayRebound(new Vector2(0f, content.anchoredPosition.y));
             return;
         }
 
-        if (content.anchoredPosition.x < 0)
+        if (content.anchoredPosition.x > 0f)
         {
-            PlayRebound(new Vector2(content.anchoredPosition.x, 0));
+            PlayRebound(new Vector2(0f, content.anchoredPosition.y));
             return;
         }
 
-        float max = viewWidth-contentWidth;
-        if (content.anchoredPosition.x > max)
+        float minX = -MaxScrollOffsetX;
+        if (content.anchoredPosition.x < minX)
         {
-            PlayRebound(new Vector2(content.anchoredPosition.x, max));
+            PlayRebound(new Vector2(minX, content.anchoredPosition.y));
             return;
         }
     }
 
-    // DOTween 回弹
     void PlayRebound(Vector2 target)
     {
         reboundTween?.Kill();
 
         reboundTween = content.DOAnchorPos(target, reboundDuration).SetEase(reboundEase);
+    }
+
+    void RegisterScrollInput()
+    {
+        if (scrollRegistered || InputController.InputAction == null)
+        {
+            return;
+        }
+
+        InputController.InputAction.System.Scroll.performed += OnScroll;
+        scrollRegistered = true;
+    }
+
+    void UnregisterScrollInput()
+    {
+        if (!scrollRegistered || InputController.InputAction == null)
+        {
+            return;
+        }
+
+        InputController.InputAction.System.Scroll.performed -= OnScroll;
+        scrollRegistered = false;
+    }
+
+    void OnScroll(InputAction.CallbackContext context)
+    {
+        if (isDragging || !IsPointerOverViewport())
+        {
+            return;
+        }
+
+        float scrollY = context.ReadValue<Vector2>().y;
+        if (Mathf.Abs(scrollY) <= Mathf.Epsilon)
+        {
+            return;
+        }
+
+        reboundTween?.Kill();
+        velocityX = 0f;
+        MoveContent(-scrollY * scrollPower);
+        TryRebound();
+    }
+
+    bool IsPointerOverViewport()
+    {
+        Vector2 pointerPosition = Mouse.current?.position.ReadValue()
+            ?? new Vector2(MouseListener.MousePosition.x, MouseListener.MousePosition.y);
+        return RectTransformUtility.RectangleContainsScreenPoint(viewport, pointerPosition, eventCamera);
+    }
+
+    Camera GetEventCamera()
+    {
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+        {
+            return null;
+        }
+
+        return canvas.worldCamera;
     }
 }
