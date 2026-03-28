@@ -183,13 +183,9 @@ public class LayoutMap
         int count = 0;
         foreach(var kv in _absolute_layout_map)
         {
-            if(kv.Value.BodyList.Any(pos => _status_map.TryGetValue(pos, out int hp) && hp > 0))
+            Ship ship = GetShip(kv.Key);
+            if(ship != null && ship.CanAttack)
             {
-                Ship ship = GetShip(kv.Key);
-                if(ship.Buff.Interferenced_body || ship.Buff.Interferenced_core)
-                {
-                    continue;
-                }
                 count++;
             }
         }

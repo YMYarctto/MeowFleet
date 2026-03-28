@@ -15,22 +15,33 @@ public abstract class Skill
     public PVEController.PVEMap TargetMap =>on_enemy_map?PVEController.PVEMap.Enemy:PVEController.PVEMap.Player;
     public Vector2Int Direction => _direction;
 
-    public bool CanSkill => !CoreDamaged&&!BeInterferenced;
-    public bool CoreDamaged => !(ship.ShipStatus==Ship.Status.Intact||ship.ShipStatus==Ship.Status.Damage);
-    public bool BeInterferenced => ship.Buff.Interferenced_core;
+    public bool CanSkill => ship != null && ship.CanUseSkill;
+    public bool CoreDamaged => ship != null && ship.CoreDamaged;
+    public bool BeInterferenced => ship != null && ship.CoreInterferenced;
 
     abstract public int Order { get; }
 
     public virtual void OnSelect()
     {
+        if (!CanSkill)
+        {
+            return;
+        }
+
         _direction = new(0, 1);
         PVEController.instance.SetSkill(this);
     }
 
     public void OnSkill(Vector2Int target)
     {
+        if (!CanSkill)
+        {
+            PVEController.instance.ClearSelectedSkill();
+            return;
+        }
+
         OnSkillInvoke(target);
-        ui.OnSkillEnd();
+        ui?.OnSkillEnd();
         PVEController.instance.ClearSelectedSkill();
     }
 

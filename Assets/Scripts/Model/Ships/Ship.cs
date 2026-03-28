@@ -27,6 +27,11 @@ public class Ship
     public List<Vector2Int> SkillRange => new(shipData.skill_coord);
     public BuffPool Buff => buff;
     public bool LossOfMobility => body_condition.All(v=>v==0);
+    public bool CoreDamaged => !(ShipStatus == Status.Intact || ShipStatus == Status.Damage);
+    public bool CoreInterferenced => buff.Interferenced_core;
+    public bool BodyInterferenced => buff.Interferenced_body;
+    public bool CanUseSkill => !CoreDamaged && !CoreInterferenced;
+    public bool CanAttack => !LossOfMobility && !CoreInterferenced && !BodyInterferenced;
     public Status ShipStatus
     {
         get
