@@ -89,7 +89,7 @@ public class EnemyController : MonoBehaviour
             return new KeyValuePair<int,Ship>(ShipID,ship);
         }).ToDictionary(kv=>kv.Key,kv=>kv.Value);
 
-        enemy_skill.OrderBy(v => v.Order);
+        enemy_skill = EnemyDecisionHelper.OrderSkills(enemy_skill);
 
         GameObject info_window_perfab = ResourceManager.instance.GetPerfabByType<InformationWindow_UI>();
         Transform info_window_parent = GameObject.Find("InformationWindowGroup").transform;
@@ -288,15 +288,13 @@ Bomb:
         messages = PVEController.instance.EnemyAttack(target_coord,skill_range);
         goto Update;
 Torpedo:
-        target_coord = new(AI.CalculatePossibleMapWithoutRow(torpedo_hit),0);
-        if (target_coord.x < 0)
-        {
-            target_coord = new(AI.CalculatePossibleMapWithoutRow(torpedo_hit,true),0);
-        }
+        int targetRow = GetTorpedoTargetRow();
+        target_coord = new(targetRow,0);
         if (target_coord.x < 0)
         {
             goto End;
         }
+        torpedo_hit.Add(target_coord.x);
         Vector2Int _direction = Vector2Int.up;
         Vector2Int size = PVEController.instance.size;
         Vector2Int coord = PVEController.instance.GetEdgeCoord(target_coord, _direction, size);
@@ -411,6 +409,17 @@ End:
             return coord;
         }
         return AI.CalculatePossibleMap(per);
+    }
+
+    int GetTorpedoTargetRow()
+    {
+        return EnemyDecisionHelper.SelectTorpedoRow(
+            target_list,
+            torpedo_hit,
+            coord => AI.CheckAvailable(coord) || AI.CheckAvailableInHuntMap(coord),
+            excludedRows => AI.CalculateCurrentMapWithoutRow(excludedRows),
+            excludedRows => AI.CalculateHuntMapWithoutRow(excludedRows)
+        );
     }
 
     public List<Vector3> CheckWholeShip(int ShipID)

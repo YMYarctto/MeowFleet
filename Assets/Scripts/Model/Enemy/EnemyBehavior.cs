@@ -71,9 +71,27 @@ public class EnemyBehavior
 
     public int CalculatePossibleMapWithoutRow(List<int> without_row,bool hunt_mode=false)
     {
-        // 选择概率密度图
-        ProbabilityMap map = hunt_mode?GetCurrentMap():hunt_map;
+        // Keep the legacy wrapper behavior for existing callers/tests:
+        // default -> hunt map fallback, true -> current target map.
+        return hunt_mode
+            ? CalculateCurrentMapWithoutRow(without_row)
+            : CalculateHuntMapWithoutRow(without_row);
+    }
+
+    public int CalculateCurrentMapWithoutRow(List<int> without_row)
+    {
+        ProbabilityMap map = GetCurrentMap();
         if (map != null && map.TryGetHighProbabilityRowWithout(without_row, out var row))
+        {
+            return row;
+        }
+
+        return -1;
+    }
+
+    public int CalculateHuntMapWithoutRow(List<int> without_row)
+    {
+        if (hunt_map != null && hunt_map.TryGetHighProbabilityRowWithout(without_row, out var row))
         {
             return row;
         }
@@ -208,6 +226,11 @@ public class EnemyBehavior
     public bool CheckAvailable(Vector2Int target)
     {
         return GetCurrentMap()?.CheckAvailable(target)??false;
+    }
+
+    public bool CheckAvailableInHuntMap(Vector2Int target)
+    {
+        return hunt_map?.CheckAvailable(target) ?? false;
     }
 
     ProbabilityMap GetCurrentMap()

@@ -106,6 +106,19 @@ public class EnemyBehaviorTests
     }
 
     [Test]
+    public void CalculateCurrentMapWithoutRow_ReturnsMinusOneWhenCurrentMapHasNoAvailableRows()
+    {
+        var behavior = CreateBehavior(new Vector2Int(4, 4));
+
+        SetPrivateField(behavior, "current_target_index", 100);
+        GetProbabilityMaps(behavior)[100] = new ProbabilityMap();
+
+        var row = behavior.CalculateCurrentMapWithoutRow(new List<int>());
+
+        Assert.That(row, Is.EqualTo(-1));
+    }
+
+    [Test]
     public void CalculatePossibleMap_FallsBackToRemainingHitMapWhenCurrentTargetMapIsNull()
     {
         var behavior = CreateBehavior(new Vector2Int(3, 3));
